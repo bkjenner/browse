@@ -1,0 +1,35 @@
+const applicationpafassessmentpracticalexperience = db.define(
+    "applicationpafassessmentpracticalexperience",
+    {
+        id: {
+            type: Sequelize.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
+        clientidpaf: { type: Sequelize.INTEGER },
+        practicalexperienceenddate: { type: Sequelize.DATE },
+        pafassessmentpracticalexperiencesummaryid: { type: Sequelize.INTEGER },
+        positiontitle: { type: Sequelize.STRING(500) },
+        reffulltimeorparttimeid: { type: Sequelize.INTEGER },
+        practicalexperiencestartdate: { type: Sequelize.DATE },
+        updatecount: { type: Sequelize.INTEGER },
+        jobtitleid: { type: Sequelize.INTEGER },
+        refsenioritylevelid: { type: Sequelize.INTEGER },
+        refemploymentkeyrolesid: { type: Sequelize.INTEGER },
+        refsectorid: { type: Sequelize.INTEGER },
+        refsubsectorid: { type: Sequelize.INTEGER },
+        percentageofservice: { type: Sequelize.INTEGER },
+        primaryoffice: { type: Sequelize.BOOLEAN },
+        fulladdress: { type: Sequelize.STRING(200) },
+        professionalaccountingfirm: { type: Sequelize.STRING(500) },
+        recordstatus: {
+            type: Sequelize.STRING,
+            defaultValue: "A",
+        },
+    },
+    {
+        timestamps: false,
+        freezeTableName: true,
+        hasTrigger: true,
+    },
+);

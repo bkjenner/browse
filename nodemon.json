@@ -1,0 +1,3 @@
+{
+    "watch": ["src/lib/rules/index.js", "service.js", "src/lib/framework/logger.js", "src/lib/framework/connectionstrings.js", "src/lib/data/models/index.js"]
+}

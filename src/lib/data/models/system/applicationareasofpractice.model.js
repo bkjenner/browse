@@ -1,0 +1,35 @@
+const applicationareasofpractice = db.define(
+    "applicationareasofpractice",
+    {
+        id: {
+            type: Sequelize.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
+        applicationid: { type: Sequelize.INTEGER },
+        hasaccountingservices: { type: Sequelize.BOOLEAN },
+        hasauditengagement: { type: Sequelize.BOOLEAN },
+        hasbusinessvaluation: { type: Sequelize.BOOLEAN },
+        hasforensicaccounting: { type: Sequelize.BOOLEAN },
+        hasinsolvency: { type: Sequelize.BOOLEAN },
+        hasotherservices: { type: Sequelize.BOOLEAN },
+        hasreviewengagement: { type: Sequelize.BOOLEAN },
+        hastaxservices: { type: Sequelize.BOOLEAN },
+        iseligible: { type: Sequelize.BOOLEAN },
+        otherservicedetail: { type: Sequelize.STRING(500) },
+        refareasofpracticeid: { type: Sequelize.INTEGER },
+        updatecount: { type: Sequelize.INTEGER },
+        hasspecifiedauditingprocedures: { type: Sequelize.BOOLEAN(1) },
+        hascompilationengagement: { type: Sequelize.BOOLEAN(1) },
+        hasdeclaredonmainoffice: { type: Sequelize.BOOLEAN },
+        recordstatus: {
+            type: Sequelize.STRING,
+            defaultValue: "A",
+        },
+    },
+    {
+        timestamps: false,
+        freezeTableName: true,
+        hasTrigger: true,
+    },
+);

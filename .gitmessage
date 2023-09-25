@@ -1,0 +1,27 @@
+# <type>: <description> (line 19)
+#
+# <type> should be one of the following in lower case:
+#  1.  fix       patches a bug in the codebase
+#  2.  feat      introduces a new feature to the codebase 
+#  3.  build     changes to the build process 
+#  4.  chore     e.g. upgrading a package to a new version
+#  5.  style     code formatting changes
+#  6.  refactor  a code change that neither fixes a bug nor adds a feature 
+#  7.  perf      performance improvements
+#  8.  test      adding tests or correcting existing ones
+#  9.  docs      updating the README, adding code documentation, etc.
+#  10. revert    reverts a previous commit
+#
+# <description> is a short description of the commit in all lowercase.
+#
+# Example: 
+#   refactor: extract [function] that was used in multiple rules to the utility library
+
+
+# optional: body
+# If a longer description of the commit is required, put it here in sentence case.
+# | ---------------------- Wrap at 72 characters --------------------- |
+
+
+# footer
+# If applicable, the DevOps number is required and will go here, along with any other optional references (links, related issues, revert hashes, etc.)

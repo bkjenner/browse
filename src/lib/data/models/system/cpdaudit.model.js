@@ -1,0 +1,35 @@
+const cpdaudit = db.define(
+    "cpdaudit",
+    {
+        id: {
+            type: Sequelize.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
+        auditdate: { type: Sequelize.DATE },
+        clientidauditor: { type: Sequelize.INTEGER },
+        clientidmember: { type: Sequelize.INTEGER },
+        cpdyear: { type: Sequelize.INTEGER },
+        duedate: { type: Sequelize.DATE },
+        notes: { type: Sequelize.STRING(4000) },
+        noticesentdate: { type: Sequelize.DATE },
+        refauditpriorityid: { type: Sequelize.INTEGER },
+        refauditresultid: { type: Sequelize.INTEGER },
+        refauditsourceid: { type: Sequelize.INTEGER },
+        refauditstatusid: { type: Sequelize.INTEGER },
+        refaudittypeid: { type: Sequelize.INTEGER },
+        reportingdate: { type: Sequelize.DATE },
+        selecteddate: { type: Sequelize.DATE },
+        updatecount: { type: Sequelize.INTEGER },
+        refprocessstateid: { type: Sequelize.INTEGER },
+        recordstatus: {
+            type: Sequelize.STRING,
+            defaultValue: "A",
+        },
+    },
+    {
+        timestamps: false,
+        freezeTableName: true,
+        hasTrigger: true,
+    },
+);

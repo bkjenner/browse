@@ -1,0 +1,36 @@
+const cashreceipt = db.define(
+    "cashreceipt",
+    {
+        id: {
+            type: Sequelize.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
+        accountactionid: { type: Sequelize.INTEGER(18) },
+        clientid: { type: Sequelize.INTEGER(18) },
+        createdate: { type: Sequelize.DATE },
+        depositid: { type: Sequelize.INTEGER(18) },
+        documentidreceipt: { type: Sequelize.INTEGER },
+        employeeid: { type: Sequelize.INTEGER(10) },
+        invoiceno: { type: Sequelize.INTEGER(10) },
+        name: { type: Sequelize.STRING(150) },
+        postingid: { type: Sequelize.INTEGER(18) },
+        recordstatus: { type: Sequelize.CHAR(1) },
+        referencenumber: { type: Sequelize.STRING(50) },
+        refpaymentmethodid: { type: Sequelize.INTEGER(10) },
+        transactionsid: { type: Sequelize.INTEGER(10) },
+        updatecount: { type: Sequelize.INTEGER },
+        address: { type: Sequelize.STRING(1000) },
+        authorizationno: { type: Sequelize.STRING(128) },
+        description: { type: Sequelize.STRING(1000) },
+        recordstatus: {
+            type: Sequelize.STRING,
+            defaultValue: "A",
+        },
+    },
+    {
+        timestamps: false,
+        freezeTableName: true,
+        hasTrigger: true,
+    },
+);

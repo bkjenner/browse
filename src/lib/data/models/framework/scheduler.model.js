@@ -1,0 +1,42 @@
+const scheduler = db.define(
+    "scheduler",
+    {
+        id: {
+            type: Sequelize.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
+        name: {
+            type: Sequelize.STRING,
+            allowNull: false,
+        },
+        schedulertypeid: { type: Sequelize.INTEGER, allowNull: false },
+        scheduledmonth: { type: Sequelize.INTEGER, allowNull: true },
+        scheduledday: { type: Sequelize.INTEGER, allowNull: true },
+        scheduledyear: { type: Sequelize.INTEGER, allowNull: true },
+        scheduledhour: { type: Sequelize.INTEGER, allowNull: true },
+        scheduledminute: { type: Sequelize.INTEGER, allowNull: true },
+        scheduledsecond: { type: Sequelize.INTEGER, allowNull: true },
+        daily: { type: Sequelize.BOOLEAN },
+        weekly: { type: Sequelize.BOOLEAN },
+        monthly: { type: Sequelize.BOOLEAN },
+        days: { type: Sequelize.STRING },
+        months: { type: Sequelize.STRING },
+        enabled: { type: Sequelize.BOOLEAN },
+        expirydate: { type: Sequelize.DATE },
+        action: { type: Sequelize.STRING },
+        content: { type: Sequelize.STRING },
+        cron: { type: Sequelize.BOOLEAN },
+        updatecount: { type: Sequelize.INTEGER },
+        updatedate: { type: Sequelize.DATE },
+        recordstatus: {
+            type: Sequelize.STRING(1),
+            defaultValue: "A",
+        },
+    },
+    {
+        timestamps: false,
+        freezeTableName: true,
+        hasTrigger: true,
+    },
+);
