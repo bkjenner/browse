@@ -30,8 +30,12 @@ const privateKey = fs.readFileSync("./sslcert/server.key", "utf8");
 const certificate = fs.readFileSync("./sslcert/server.cert", "utf8");
 const credentials = { key: privateKey, cert: certificate };
 const cors = require("cors");
-const typeDefs = require("./src/lib/data/graphql/schema.js");
-const resolvers = require("./src/lib/data/graphql/resolvers.js");
+const { loadFilesSync } = require("@graphql-tools/load-files");
+const { mergeResolvers } = require("@graphql-tools/merge");
+
+const typeDefs = loadFilesSync(path.join(__dirname, "/src/lib/data/graphql/**/*.graphql"));
+const resolverFiles = loadFilesSync(path.join(__dirname, "/src/lib/data/graphql/**/*.resolvers.*"));
+const resolvers = mergeResolvers(resolverFiles);
 
 function assignID(req, res, next) {
     req.id = nanoid(5);

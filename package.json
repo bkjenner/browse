@@ -4,7 +4,7 @@
     "description": "Data Browse",
     "main": "service.js",
     "scripts": {
-        "service": "concurrently --raw \"gulp --color\" \"npx nodemon -q --inspect --delay 500ms\"",
+        "service": "concurrently --raw \"gulp --color\" \"npx nodemon -q --inspect --delay 500ms -e js,jsx,graphql\"",
         "watch": "export NODE_OPTIONS=--openssl-legacy-provider && gulp watch",
         "dev": "export NODE_OPTIONS=--openssl-legacy-provider && gulp dev",
         "stagingdev": "gulp stagingdev",
@@ -15,6 +15,8 @@
         "@apollo/server": "^4.9.3",
         "@emotion/react": "^11.11.1",
         "@emotion/styled": "^11.11.0",
+        "@graphql-tools/load-files": "^7.0.0",
+        "@graphql-tools/merge": "^9.0.0",
         "@mui/icons-material": "^5.11.16",
         "@mui/material": "^5.13.6",
         "@mui/x-data-grid": "^6.10.0",

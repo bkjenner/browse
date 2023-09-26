@@ -1,0 +1,61 @@
+"Main data collection for system users"
+type Client {
+    id: Int,
+    addeddate: String
+    "Staff who last updated this client"
+    clientidupdatedby: Int,
+    clientname: String,
+    clientnumber: Int,
+    consentdate: String,
+    contactbirthdate: String,
+    createdonline: Boolean,
+    designation: String,
+    firstname: String,
+    historyofdiscipline: Boolean,
+    mailname: String,
+    middlename: String,
+    notes: String,
+    oldclientnumber: Int,
+    password: String,
+    pdnotes: String,
+    pdnotesupdated: String,
+    pdnotesupdatedbyemployeeid: Int,
+    quickcode: String,
+    refclienttypeid: Int,
+    refconsenttypeid: Int,
+    refgenderid: Int,
+    refownedbydepartmentid: Int,
+    refpreferredbillingaddresstypeid: Int,
+    refpreferredemailaddresstypeid: Int,
+    refpreferredmailingaddresstypeid: Int,
+    refpreferredphoneaddresstypeid: Int,
+    refpreferredshippingaddresstypeid: Int,
+    refstatusid: Int,
+    reftitleid: Int,
+    seeprofstandards: Boolean,
+    sortname: String,
+    statuseffectivedate: String,
+    surname: String,
+    underinvestigation: Boolean,
+    updatecount: Int,
+    url: String,
+    username: String,
+    activated: Boolean,
+    activationcode: String,
+    clientidparent: Int,
+    paidthroughdate: String,
+    providerid: Int,
+    publickey: String,
+    refethnicityid: Int,
+    recordstatus: String,
+
+
+    address: Address,
+    member: Member,
+    addresses: [Address]
+}
+
+type Query {
+    clients(clientname: String, activated: Boolean): [Client],
+    client(clientnumber: Int): Client,
+}

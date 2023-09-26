@@ -1,0 +1,10 @@
+    type Address {
+        id: ID!,
+        clientid: Int,
+        refaddresstypeid: ReferenceField,
+        address1: String,
+        address2: String,
+        refcityid: Int,
+        refprovinceid: Int,
+        refcountryid: Int
+    }

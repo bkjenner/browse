@@ -1,0 +1,15 @@
+type ReferenceField {
+    id: ID!,
+    type: String,
+    description: String,
+    sequence: Int,
+    recordstatus: String,
+    candelete: Boolean,
+    shortcode: String,
+    updatecount: Int,
+    keycode: Int
+}
+
+type Query {
+    referencefield(id: ID!): ReferenceField
+}
