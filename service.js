@@ -1,70 +1,100 @@
 global.baseDir = __dirname;
 
-var application_root = __dirname,
-    express = require("express"),
-    bodyParser = require("body-parser"),
-    cookieParser = require("cookie-parser"),
-    fs = require("fs"),
-    path = require("path"),
-    http = require("http"),
-    https = require("https"),
-    settings = require("./src/lib/framework/settings.js"),
-    loader = require("./src/lib/framework/loader.js"),
-    io = require("socket.io"),
-    morgan = require("morgan"),
-    security = require("./src/lib/framework/security.js"),
-    connections = require("./src/lib/framework/connections.js"),
-    csrf = require("csurf"),
-    Db = require("./src/lib/data/models"),
-    rulesEngine = require("./src/lib/framework/rulesengine.js"),
-    babel = require("@babel/core"),
-    compression = require("compression"),
-    expAutoSan = require("express-autosanitizer"),
-    { logger, morganLogger } = require("./src/lib/framework/logger.js"),
-    { nanoid } = require("nanoid");
-
-var csrfProtection = csrf({ cookie: true });
-var privateKey = fs.readFileSync("./sslcert/server.key", "utf8");
-var certificate = fs.readFileSync("./sslcert/server.cert", "utf8");
-var credentials = { key: privateKey, cert: certificate };
+const application_root = __dirname;
+const { ApolloServer } = require("@apollo/server");
+const { expressMiddleware } = require("@apollo/server/express4");
+const { ApolloServerPluginDrainHttpServer } = require("@apollo/server/plugin/drainHttpServer");
+const express = require("express");
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+const fs = require("fs");
+const path = require("path");
+const http = require("http");
+const https = require("https");
+const settings = require("./src/lib/framework/settings.js");
+const loader = require("./src/lib/framework/loader.js");
+const io = require("socket.io");
+const morgan = require("morgan");
+const security = require("./src/lib/framework/security.js");
+const connections = require("./src/lib/framework/connections.js");
+const csrf = require("csurf");
+const Db = require("./src/lib/data/models");
+const rulesEngine = require("./src/lib/framework/rulesengine.js");
+const babel = require("@babel/core");
+const compression = require("compression");
+const expAutoSan = require("express-autosanitizer");
+const { logger, morganLogger } = require("./src/lib/framework/logger.js");
+const { nanoid } = require("nanoid");
+const csrfProtection = csrf({ cookie: true });
+const privateKey = fs.readFileSync("./sslcert/server.key", "utf8");
+const certificate = fs.readFileSync("./sslcert/server.cert", "utf8");
+const credentials = { key: privateKey, cert: certificate };
+const cors = require("cors");
+const typeDefs = require("./src/lib/data/graphql/schema.js");
+const resolvers = require("./src/lib/data/graphql/resolvers.js");
 
 function assignID(req, res, next) {
     req.id = nanoid(5);
     next();
 }
 
-/* Create Server */
-var app = express();
-app.use(bodyParser.json({ limit: "50mb" }));
-app.use(bodyParser.text({ type: "text/*" }));
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser(settings.system().cookieKey));
-app.use(security.initAuthentication());
-app.use(compression());
-app.use(express.static(path.join(__dirname, "/app/assets/images"))); // Serve static resources from the images folder
-app.use(express.static(path.join(__dirname, "/src/assets")));
-app.use(expAutoSan.all);
-app.use(assignID);
-app.use(morganLogger());
+async function service() {
+    /* Create Server */
+    const app = express();
+    const server = https.createServer(credentials, app);
 
-loader.initialize(app);
+    const apollo = new ApolloServer({
+        typeDefs,
+        resolvers,
+        context: { Db },
+        // plugins: [ApolloServerPluginDrainHttpServer({ server })],
+    });
+    await apollo.start();
 
-app.use("/", csrfProtection, express.static(path.join(application_root, "/app")));
-app.all("/*", csrfProtection, function (req, res) {
-    res.cookie("csrfToken", req.csrfToken());
-    res.sendFile(path.join(application_root, "/app", "index.html"));
-});
+    app.use(
+        bodyParser.json({ limit: "50mb" }),
+        bodyParser.text({ type: "text/*" }),
+        bodyParser.urlencoded({ extended: true }),
+        cookieParser(settings.system().cookieKey),
+        security.initAuthentication(),
+        compression(),
+        express.static(path.join(__dirname, "/app/assets/images")), // Serve static resources from the images folder
+        express.static(path.join(__dirname, "/src/assets")),
+        expAutoSan.all,
+        assignID,
+        morganLogger(),
+    );
 
-var server = https.createServer(credentials, app).listen(settings.system().sslServicePort);
-connections.initialize(io(server));
-logger.log("system", "HTTPS service listening on port:" + settings.system().sslServicePort);
+    app.use(
+        "/graphql",
+        cors(),
+        expressMiddleware(apollo, {
+            context: async ({ req }) => ({ token: req.headers.token }),
+        }),
+    );
 
-var transpiledScript = babel.transform("var test='preload';", {
-    presets: ["@babel/preset-env", "@babel/preset-react"],
-    plugins: [
-        "@babel/plugin-proposal-class-properties",
-        "@babel/plugin-proposal-object-rest-spread",
-        "@babel/plugin-transform-spread",
-        "@babel/plugin-transform-shorthand-properties",
-    ],
-}).code;
+    loader.initialize(app);
+
+    app.use("/", csrfProtection, express.static(path.join(application_root, "/app")));
+    app.all("/*", csrfProtection, function (req, res) {
+        res.cookie("csrfToken", req.csrfToken());
+        res.sendFile(path.join(application_root, "/app", "index.html"));
+    });
+
+    connections.initialize(io(server));
+    logger.log("system", "HTTPS service listening on port:" + settings.system().sslServicePort);
+
+    var transpiledScript = babel.transform("var test='preload';", {
+        presets: ["@babel/preset-env", "@babel/preset-react"],
+        plugins: [
+            "@babel/plugin-proposal-class-properties",
+            "@babel/plugin-proposal-object-rest-spread",
+            "@babel/plugin-transform-spread",
+            "@babel/plugin-transform-shorthand-properties",
+        ],
+    }).code;
+
+    await new Promise((resolve) => server.listen({ port: settings.system().sslServicePort }, resolve));
+}
+
+service();
