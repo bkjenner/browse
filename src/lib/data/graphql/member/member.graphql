@@ -99,6 +99,6 @@ type Member {
 }
 
 type Query {
-    members(refclientstatusid: Int, limit: Int): [Member]
-    member(clientid: Int): Member
+    members(refclientstatusid: Int, refclientsubstatusid: Int, limit: Int): [Member]
+    member(clientid: Int, cicano: String): Member
 }

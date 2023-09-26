@@ -2,6 +2,7 @@
     "name": "browse",
     "version": "0.1.0",
     "description": "Data Browse",
+    "license": "ISC",
     "main": "service.js",
     "scripts": {
         "service": "concurrently --raw \"gulp --color\" \"npx nodemon -q --inspect --delay 500ms -e js,jsx,graphql\"",
@@ -12,6 +13,7 @@
         "prod": "gulp prod"
     },
     "dependencies": {
+        "@apollo/client": "^3.8.4",
         "@apollo/server": "^4.9.3",
         "@emotion/react": "^11.11.1",
         "@emotion/styled": "^11.11.0",
