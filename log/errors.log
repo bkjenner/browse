@@ -18,3 +18,5 @@
 [2023-09-25 15:19:39] [31merror[39m: Error writing request file for request JJxFa
 [2023-09-25 15:32:40] [31merror[39m: iW9Gf - POST [33m400[0m /graphql 3.527 ms
 [2023-09-25 15:32:40] [31merror[39m: Error writing request file for request iW9Gf
+[2023-09-27 12:01:37] [31merror[39m: qXz8U - POST [33m400[0m /graphql 12.563 ms
+[2023-09-27 12:01:37] [31merror[39m: Error writing request file for request qXz8U

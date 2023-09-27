@@ -1,21 +1,29 @@
 module.exports = {
     Query: {
         clients: (instance, args, context, info) => {
-            const { filter } = args;
             let query = {};
+            let includes = [];
 
-            if (filter?.clientname) {
+            if (args?.clientname) {
                 query["clientname"] = {
-                    [context.Op.like]: `%${filter.clientname}%`,
+                    [context.Op.like]: `%${args.clientname}%`,
                 };
+            }
+
+            if (args?.employed == true) {
+                includes.push({
+                    model: context.models.memberemployment,
+                    as: "clientmemberemployment",
+                    where: {
+                        iscurrent: true,
+                        recordstatus: "A",
+                    },
+                });
             }
 
             return context.models.client.findAll({
                 where: { ...query, recordstatus: "A" },
-                include: [
-                    { model: context.models.member, as: "member" },
-                    { model: context.models.clientaddress, as: "addresses" },
-                ],
+                include: includes,
                 limit: 10,
             });
         },

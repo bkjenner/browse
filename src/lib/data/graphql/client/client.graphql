@@ -1,61 +1,61 @@
-"Main data collection for system users"
+"Main data collection for system entities"
 type Client {
-    id: Int,
+    id: Int
+    "Activation status for this user"
+    activated: Boolean
+    activationcode: String
     addeddate: String
-    "Staff who last updated this client"
-    clientidupdatedby: Int,
-    clientname: String,
-    clientnumber: Int,
-    consentdate: String,
-    contactbirthdate: String,
-    createdonline: Boolean,
-    designation: String,
-    firstname: String,
-    historyofdiscipline: Boolean,
-    mailname: String,
-    middlename: String,
-    notes: String,
-    oldclientnumber: Int,
-    password: String,
-    pdnotes: String,
-    pdnotesupdated: String,
-    pdnotesupdatedbyemployeeid: Int,
-    quickcode: String,
-    refclienttypeid: Int,
-    refconsenttypeid: Int,
-    refgenderid: Int,
-    refownedbydepartmentid: Int,
-    refpreferredbillingaddresstypeid: Int,
-    refpreferredemailaddresstypeid: Int,
-    refpreferredmailingaddresstypeid: Int,
-    refpreferredphoneaddresstypeid: Int,
-    refpreferredshippingaddresstypeid: Int,
-    refstatusid: Int,
-    reftitleid: Int,
-    seeprofstandards: Boolean,
-    sortname: String,
-    statuseffectivedate: String,
-    surname: String,
-    underinvestigation: Boolean,
-    updatecount: Int,
-    url: String,
-    username: String,
-    activated: Boolean,
-    activationcode: String,
-    clientidparent: Int,
-    paidthroughdate: String,
-    providerid: Int,
-    publickey: String,
-    refethnicityid: Int,
-    recordstatus: String,
+    clientidparent: Int
+    clientidupdatedby: Int
+    clientname: String
+    clientnumber: Int
+    consentdate: String
+    contactbirthdate: String
+    createdonline: Boolean
+    designation: String
+    firstname: String
+    historyofdiscipline: Boolean
+    mailname: String
+    middlename: String
+    notes: String
+    oldclientnumber: Int
+    paidthroughdate: String
+    password: String
+    pdnotes: String
+    pdnotesupdated: String
+    pdnotesupdatedbyemployeeid: Int
+    providerid: Int
+    publickey: String
+    quickcode: String
+    recordstatus: String
+    refclienttypeid: ReferenceField
+    refconsenttypeid: ReferenceField
+    refethnicityid: ReferenceField
+    refgenderid: ReferenceField
+    refownedbydepartmentid: ReferenceField
+    refpreferredbillingaddresstypeid: ReferenceField
+    refpreferredemailaddresstypeid: ReferenceField
+    refpreferredmailingaddresstypeid: ReferenceField
+    refpreferredphoneaddresstypeid: ReferenceField
+    refpreferredshippingaddresstypeid: ReferenceField
+    refstatusid: ReferenceField
+    reftitleid: ReferenceField
+    seeprofstandards: Boolean
+    sortname: String
+    statuseffectivedate: String
+    surname: String
+    underinvestigation: Boolean
+    updatecount: Int
+    url: String
+    username: String
 
-
-    address: Address,
-    member: Member,
-    addresses: [Address]
+    address: ClientAddress
+    member: Member
+    addresses: [ClientAddress]
+    clientmemberemployment: [MemberEmployment]
 }
 
 type Query {
-    clients(clientname: String, activated: Boolean): [Client],
-    client(clientnumber: Int): Client,
+    clients(clientname: String, activated: Boolean, employed: Boolean): [Client]
+    client(clientnumber: Int): Client
 }

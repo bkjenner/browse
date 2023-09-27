@@ -116,8 +116,8 @@ const member = db.define(
 );
 
 member.associate = function (db) {
-    db.models.member.hasOne(db.models.client, {
-        foreignKey: "id",
+    db.models.member.belongsTo(db.models.client, {
+        foreignKey: "clientid",
         constraints: false,
         unique: false,
         as: "client",
@@ -130,9 +130,17 @@ member.associate = function (db) {
     });
     db.models.member.hasMany(db.models.clientaddress, {
         foreignKey: "clientid",
+        sourceKey: "clientid",
         constraints: false,
         unique: false,
         as: "memberclientaddress",
+    });
+    db.models.member.hasMany(db.models.memberemployment, {
+        foreignKey: "clientid",
+        sourceKey: "clientid",
+        constraints: false,
+        unique: false,
+        as: "memberemployment",
     });
     db.models.member.hasMany(db.models.membercondition, {
         foreignKey: "clientid",

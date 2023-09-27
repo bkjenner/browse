@@ -27,11 +27,15 @@ type Member {
     designation: String
     experiencetotalmonths: Int
     experienceverificationmonths: Int
+    finalexammarksyear: Int
     finalmarksdate: String
     firstmembcountrydate: String
     firstmembprovincedate: String
     gmatdate: String
     gmatscore: Int
+    hascfebreadthfinance: Boolean
+    hascfedepthauditassurance: Boolean
+    hascfedepthfinancialreporting: Boolean
     hascorefinancialreporting: Boolean
     hascoremanagementaccounting: Boolean
     hascorereportingandaccounting: Boolean
@@ -40,6 +44,7 @@ type Member {
     initialregdate: String
     iscpausbilling: Boolean
     isenablingcompetenciesmet: Boolean
+    ispprpmentor: Boolean
     isusedesignation: Boolean
     knownas: String
     mailname: String
@@ -49,20 +54,20 @@ type Member {
     previousname: String
     primeprovincechangedate: String
     recordstatus: String
-    refalbertamembmeansid: Int
-    refbillingprovinceid: Int
-    refcanadamembmeansid: Int
-    refclientstatusid: Int
-    refclientsubstatusid: Int
-    refcurrentregulationcode: Int
-    refemploymentexpid: Int
-    reffirstmembcountryid: Int
-    reffirstmembprovinceid: Int
-    refgenderid: Int
-    refgmatpurposecode: Int
-    refnodegreereasoncodeid: Int
-    refsubstatusreasonid: Int
-    reftitleid: Int
+    refalbertamembmeansid: ReferenceField
+    refbillingprovinceid: ReferenceField
+    refcanadamembmeansid: ReferenceField
+    refclientstatusid: ReferenceField
+    refclientsubstatusid: ReferenceField
+    refcurrentregulationcode: ReferenceField
+    refemploymentexpid: ReferenceField
+    reffirstmembcountryid: ReferenceField
+    reffirstmembprovinceid: ReferenceField
+    refgenderid: ReferenceField
+    refgmatpurposecode: ReferenceField
+    refnodegreereasoncodeid: ReferenceField
+    refsubstatusreasonid: ReferenceField
+    reftitleid: ReferenceField
     regdate: String
     registeredname: String
     reportedaudithours: Float
@@ -91,14 +96,35 @@ type Member {
     totalchargablehours: Float
     ufeeligible: Boolean
     updatecount: Int
-    ispprpmentor: Boolean
-    finalexammarksyear: Int
-    hascfebreadthfinance: Boolean
-    hascfedepthfinancialreporting: Boolean
-    hascfedepthauditassurance: Boolean
+
+    client: Client
+    memberclientaddress: [ClientAddress]
+    memberemployment: [MemberEmployment]
+}
+
+input MemberFilter {
+    cicano: String
+    registeredname: String
+}
+
+input ClientFilter {
+    surname: String
+    firstname: String
+    clientnumber: Int
+}
+
+input AddressFilter {
+    city: String
+    zone: Int
+    country: String
+    phone: String
+}
+
+input EmploymentFilter {
+    iscurrent: Boolean
 }
 
 type Query {
-    members(refclientstatusid: Int, refclientsubstatusid: Int, limit: Int): [Member]
+    members(member: MemberFilter, client: ClientFilter, address: AddressFilter, employer: EmploymentFilter, limit: Int): [Member]
     member(clientid: Int, cicano: String): Member
 }

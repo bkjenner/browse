@@ -19,6 +19,7 @@ const security = require("./src/lib/framework/security.js");
 const connections = require("./src/lib/framework/connections.js");
 const csrf = require("csurf");
 const Db = require("./src/lib/data/models");
+const _ = require("lodash");
 const { Op } = require("sequelize");
 const rulesEngine = require("./src/lib/framework/rulesengine.js");
 const babel = require("@babel/core");
@@ -73,7 +74,7 @@ async function service() {
         "/graphql",
         cors(),
         expressMiddleware(apollo, {
-            context: async ({ req, res }) => ({ token: req.headers.token, models: Db.models, Op }),
+            context: async ({ req, res }) => ({ token: req.headers.token, models: Db.models, Op, _ }),
         }),
     );
 

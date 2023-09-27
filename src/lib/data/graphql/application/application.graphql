@@ -1,0 +1,27 @@
+type Application {
+    id: ID!
+    applicationyear: Int
+    cashreceiptid: Int
+    characterrepnotes: String
+    chequenumber: String
+    clientidapplicant: Int
+    clientidentity: Int
+    createddate: Date
+    declarationdate: Date
+    declarationname: String
+    invoiceid: Int
+    paymentreceiveddate: Date
+    processid: Int
+    recordstatus: String
+    refapplicationstatusid: Int
+    refapplicationtypeid: Int
+    refcharacterrepstatusid: Int
+    refpaymentmethodid: Int
+    refsubstatusid: Int
+    statusupdateddate: Date
+    submitteddate: Date
+    updatecount: Int
+    updateddate: Date
+
+    process: Process
+}
