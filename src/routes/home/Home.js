@@ -31,8 +31,6 @@ export default function Home() {
     } else {
         return (
             <Box sx={{ display: "flex" }}>
-                <div>Hello world</div>
-                <br/>
                 <TabsContainerWrapper />
             </Box>
         );
