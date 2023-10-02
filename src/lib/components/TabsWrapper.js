@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import TabsContainer from "./TabsContainer";
+import DynamicTabs from "./DynamicTabs";
 
 const TabsWrapperContext = createContext();
 TabsWrapperContext.displayName = "tabContexts";
@@ -12,7 +13,7 @@ export const TabsContainerWrapper = ({ children }) => {
             formId: 0,
         },
         {
-            label: "RegistrationForm",
+            label: "Registration Form",
             content: "",
             componentType: "RegistrationForm",
             formId: 1,
@@ -58,15 +59,26 @@ export const TabsContainerWrapper = ({ children }) => {
 
     const handleTabClose = (event, tabId) => {
         // This function will handle removing of the tab and removing the tab data from the map
+        // Stop event from propagating to the target element's parent
+        event.stopPropagation();
+
+        // Remove the tab from tabs state
+        tabs.splice(tabId,1)
+
+        // Delete the stored data of the form
         delete tabDataMap[tabId];
         setTabDataMap(tabDataMap);
 
-        // Update the form with the previous id
+        // Update the form data 
         if (tabDataMap[tabId - 1]) {
             setTabData(tabDataMap[tabId - 1]);
+            setSelectedTabIndex(tabId - 1);
+        } else if (tabDataMap[tabId + 1]) {
+            setTabData(tabDataMap[tabId + 1]);
+            setSelectedTabIndex(tabId + 1);
         } else {
-            // Empty form
             setTabData({});
+            setSelectedTabIndex(0);
         }
     };
 
@@ -74,7 +86,11 @@ export const TabsContainerWrapper = ({ children }) => {
         <TabsWrapperContext.Provider
             value={{ tabs, tabDataMap, tabData, selectedTabIndex, addNewTab, handleTabChange, handleTabDataUpdate, handleTabClose }}
         >
-            <TabsContainer />
+            <DynamicTabs
+                tabs={tabs}
+                selectedTab={selectedTabIndex}
+                onChange={handleTabChange}
+            />
         </TabsWrapperContext.Provider>
     );
 };

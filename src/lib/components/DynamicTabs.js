@@ -3,6 +3,8 @@ import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Box from "@mui/material/Box";
 import DynamicComponentRenderer from "./DynamicComponentRenderer";
+import CloseIcon from '@mui/icons-material/Close';
+import { IconButton } from '@mui/material';
 
 import { useTabsWrapperContext } from "./TabsWrapper";
 
@@ -17,7 +19,7 @@ function TabPanel(props) {
 }
 
 function DynamicTabs({ tabs, selectedTab }) {
-    const { handleTabChange } = useTabsWrapperContext();
+    const { handleTabChange, handleTabClose } = useTabsWrapperContext();
 
     return (
         <div>
@@ -30,12 +32,33 @@ function DynamicTabs({ tabs, selectedTab }) {
                 centered
             >
                 {tabs.map((tab, index) => (
-                    <Tab label={tab.label} key={index} />
+                    <Tab 
+                        label={
+                            <span>
+                                {tab.label}
+                                <IconButton
+                                    component="div"
+                                    onClick={(event) => {handleTabClose(event, index)}}
+                                >
+                                    <CloseIcon />
+                                </IconButton>
+                            </span>
+                        }
+                        key={index}
+                    />
                 ))}
             </Tabs>
             {tabs.map((tab, index) => (
                 <TabPanel key={index} value={selectedTab} index={index}>
-                    {tab.componentType ? <DynamicComponentRenderer {...tab} tabKey={index} /> : tab.content}
+                    {tab.componentType ? 
+                        <DynamicComponentRenderer {...tab} tabKey={index} /> 
+                        :
+                        <>
+                            <p>
+                                tab.content
+                            </p>
+                        </>
+                    }
                 </TabPanel>
             ))}
         </div>
