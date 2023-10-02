@@ -8,11 +8,6 @@ TabsWrapperContext.displayName = "tabContexts";
 export const TabsContainerWrapper = ({ children }) => {
     const [tabs, setTabs] = useState([
         {
-            label: "Tab 1",
-            content: <div>Content for Tab 1</div>,
-            formId: 0,
-        },
-        {
             label: "Registration Form",
             content: "",
             componentType: "RegistrationForm",
@@ -21,7 +16,7 @@ export const TabsContainerWrapper = ({ children }) => {
     ]);
 
     const [selectedTabIndex, setSelectedTabIndex] = useState(0);
-    const [tabDataMap, setTabDataMap] = useState({});
+    const [tabDataMap, setTabDataMap] = useState([]);
     const [tabData, setTabData] = useState({});
 
     const addNewTab = (props) => {
@@ -33,12 +28,12 @@ export const TabsContainerWrapper = ({ children }) => {
         setSelectedTabIndex(newTabIndex);
 
         // Push the new data of the tab into the data map
-        setTabDataMap({
-            [newTabIndex]: { ...props.initalState },
+        setTabDataMap([
             ...tabDataMap,
-        });
+            {...props.initialState}
+        ]);
         // Update the initial state of the tab
-        setTabData(props.initalState);
+        setTabData(props.initialState);
     };
 
     const handleTabChange = (event, newValue) => {
@@ -53,12 +48,12 @@ export const TabsContainerWrapper = ({ children }) => {
     const handleTabDataUpdate = (formData) => {
         // This function handles the update of all the data inside the tab
         // and also updates the TabDataMap so we can access the data when switching between tabs
-        setTabDataMap(_.merge(tabDataMap, { [formData.tabId]: formData }));
+        tabDataMap[formData.tabId] = _.merge(tabDataMap[formData.tabId], { ...formData })
+        setTabDataMap(tabDataMap);
         setTabData(formData);
     };
 
     const handleTabClose = (event, tabId) => {
-        // This function will handle removing of the tab and removing the tab data from the map
         // Stop event from propagating to the target element's parent
         event.stopPropagation();
 
@@ -66,7 +61,8 @@ export const TabsContainerWrapper = ({ children }) => {
         tabs.splice(tabId,1)
 
         // Delete the stored data of the form
-        delete tabDataMap[tabId];
+        // delete tabDataMap[tabId];
+        tabDataMap.splice(tabId, 1);
         setTabDataMap(tabDataMap);
 
         // Update the form data 
