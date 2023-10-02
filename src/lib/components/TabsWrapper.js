@@ -58,12 +58,14 @@ export const TabsContainerWrapper = ({ children }) => {
         event.stopPropagation();
 
         // Remove the tab from tabs state
-        tabs.splice(tabId,1)
+        // Create shallow copy
+        tabs.splice(tabId,1);
+        setTabs([...tabs]);
 
         // Delete the stored data of the form
-        // delete tabDataMap[tabId];
+        // Create shallow copy
         tabDataMap.splice(tabId, 1);
-        setTabDataMap(tabDataMap);
+        setTabDataMap([...tabDataMap]);
 
         // Update the form data 
         if (tabDataMap[tabId - 1]) {
