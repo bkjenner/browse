@@ -1,8 +1,0 @@
-type ReferenceField {
-    id: ID!
-    description: String
-}
-
-type Query {
-    referencefield(id: ID!): ReferenceField
-}

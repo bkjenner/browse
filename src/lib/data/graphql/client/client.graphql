@@ -55,6 +55,14 @@ type Client {
     clientmemberemployment: [MemberEmployment]
 }
 
+input ClientFilter {
+    clientnumber: Int
+    firstname: String
+    refclienttypeid: Int
+    refgenderid: Int
+    surname: String
+}
+
 type Query {
     clients(clientname: String, activated: Boolean, employed: Boolean): [Client]
     client(clientnumber: Int): Client

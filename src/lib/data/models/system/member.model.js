@@ -126,14 +126,14 @@ member.associate = function (db) {
         foreignKey: "memberid",
         constraints: false,
         unique: false,
-        as: "duestatus",
+        as: "memberduestatushistory",
     });
     db.models.member.hasMany(db.models.clientaddress, {
         foreignKey: "clientid",
         sourceKey: "clientid",
         constraints: false,
         unique: false,
-        as: "memberclientaddress",
+        as: "clientaddress",
     });
     db.models.member.hasMany(db.models.memberemployment, {
         foreignKey: "clientid",
@@ -146,24 +146,6 @@ member.associate = function (db) {
         foreignKey: "clientid",
         constraints: false,
         unique: false,
-        as: "membermembercondition",
-    });
-    db.models.member.belongsTo(db.models.referencefields, {
-        foreignKey: "refclientsubstatusid",
-        constraints: false,
-        unique: false,
-        as: "membersubstatus",
-    });
-    db.models.member.belongsTo(db.models.referencefields, {
-        foreignKey: "refsubstatusreasonid",
-        constraints: false,
-        unique: false,
-        as: "membersubstatusreason",
-    });
-    db.models.member.belongsTo(db.models.referencefields, {
-        foreignKey: "refclientstatusid",
-        constraints: false,
-        unique: false,
-        as: "memberstatus",
+        as: "membercondition",
     });
 };

@@ -1,0 +1,41 @@
+type MemberDueStatusHistory {
+    id: ID!
+    billingreductioncodeid: Int
+    billingreductionreasonid: Int
+    billingreductionreasonother: String
+    billingyear: Int
+    comments: String
+    declarationaddress: String
+    declarationchangedate: Date
+    declarationdate: Date
+    effectivechangedate: Date
+    geolocationcountry: String
+    hasusdesignation: Boolean
+    ip: String
+    isonpaymentplan: Boolean
+    istaxexempt: Boolean
+    memberid: Int
+    numberofpc: Int
+    recordstatus: String
+    refcicabillingcodeid: ReferenceField
+    reficaabillingcodeid: ReferenceField
+    refmemberbillingtypeid: ReferenceField
+    refprovinceid: ReferenceField
+    taxexemptionstatusid: Int
+    updatecount: Int
+}
+
+input MemberDueStatusHistoryFilter {
+    billingreductioncodeid: Int
+    billingreductionreasonid: Int
+    billingyear: Int
+    isonpaymentplan: Boolean
+    memberid: Int
+    refcicabillingcodeid: Int
+    reficaabillingcodeid: Int
+    taxexemptionstatusid: Int
+}
+
+type Query {
+    memberduestatushistories(filter: MemberDueStatusHistoryFilter): [MemberDueStatusHistory]
+}

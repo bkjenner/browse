@@ -1,6 +1,6 @@
 type Member {
     id: ID!
-    albertamembmeansdate: String
+    albertamembmeansdate: Date
     assurancehours: Float
     birthdate: String
     breadthassurance: Boolean
@@ -15,9 +15,9 @@ type Member {
     compilationhours: Int
     cpdcourseprovider: Int
     cpdcoursetaken: Boolean
-    cpdcoursetakendate: String
+    cpdcoursetakendate: Date
     cpereportexcemption: Boolean
-    currentregdate: String
+    currentregdate: Date
     depthassurance: Boolean
     depthfinance: Boolean
     depthgovernance: Boolean
@@ -28,9 +28,9 @@ type Member {
     experiencetotalmonths: Int
     experienceverificationmonths: Int
     finalexammarksyear: Int
-    finalmarksdate: String
-    firstmembcountrydate: String
-    firstmembprovincedate: String
+    finalmarksdate: Date
+    firstmembcountrydate: Date
+    firstmembprovincedate: Date
     gmatdate: String
     gmatscore: Int
     hascfebreadthfinance: Boolean
@@ -40,8 +40,8 @@ type Member {
     hascoremanagementaccounting: Boolean
     hascorereportingandaccounting: Boolean
     iaeligible: Boolean
-    icaafcaapproveddate: String
-    initialregdate: String
+    icaafcaapproveddate: Date
+    initialregdate: Date
     iscpausbilling: Boolean
     isenablingcompetenciesmet: Boolean
     ispprpmentor: Boolean
@@ -52,7 +52,7 @@ type Member {
     otherhours: Int
     preapprovedprogrammonths: Int
     previousname: String
-    primeprovincechangedate: String
+    primeprovincechangedate: Date
     recordstatus: String
     refalbertamembmeansid: ReferenceField
     refbillingprovinceid: ReferenceField
@@ -73,58 +73,49 @@ type Member {
     reportedaudithours: Float
     reviewhours: Float
     spousesname: String
-    substatusreasoneffectivedate: String
+    substatusreasoneffectivedate: Date
     taxhours: Float
     tieredaccounting: Boolean
-    tieredaccountingdate: String
+    tieredaccountingdate: Date
     tieredaudit: Boolean
     tieredauditdate: String
     tieredbusiness: Boolean
-    tieredbusinessdate: String
+    tieredbusinessdate: Date
     tieredcompilation: Boolean
-    tieredcompilationdate: String
+    tieredcompilationdate: Date
     tieredforensic: Boolean
     tieredforensicdate: String
     tieredinsolvency: Boolean
-    tieredinsolvencydate: String
+    tieredinsolvencydate: Date
     tieredother: Boolean
-    tieredotherdate: String
+    tieredotherdate: Date
     tieredreview: Boolean
-    tieredreviewdate: String
+    tieredreviewdate: Date
     tieredtaxation: Boolean
-    tieredtaxationdate: String
+    tieredtaxationdate: Date
     totalchargablehours: Float
     ufeeligible: Boolean
     updatecount: Int
 
     client: Client
-    memberclientaddress: [ClientAddress]
+    clientaddress: [ClientAddress]
     memberemployment: [MemberEmployment]
+    memberduestatushistory: [MemberDueStatusHistory]
 }
 
 input MemberFilter {
     cicano: String
+    knownas: String
     registeredname: String
 }
 
-input ClientFilter {
-    surname: String
-    firstname: String
-    clientnumber: Int
-}
-
-input AddressFilter {
-    city: String
-    zone: Int
-    country: String
-    phone: String
-}
-
-input EmploymentFilter {
-    iscurrent: Boolean
-}
-
 type Query {
-    members(member: MemberFilter, client: ClientFilter, address: AddressFilter, employer: EmploymentFilter, limit: Int): [Member]
-    member(clientid: Int, cicano: String): Member
+    members(
+        filter: MemberFilter
+        client: ClientFilter
+        clientaddress: ClientAddressFilter
+        memberemployment: MemberEmploymentFilter
+        memberduestatushistory: MemberDueStatusHistoryFilter
+        limit: Int
+    ): [Member]
 }

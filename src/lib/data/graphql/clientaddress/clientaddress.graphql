@@ -37,3 +37,12 @@ type ClientAddress {
     website: String
     workposition: String
 }
+
+input ClientAddressFilter {
+    city: String
+    country: String
+    isvalidated: Boolean
+    phone: String
+    province: String
+    refzoneid: Int
+}
