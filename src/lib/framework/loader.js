@@ -13,6 +13,7 @@ var fs = require("fs-extra");
 var path = require("path");
 var Db = require("../data/models");
 var settings = require("./settings");
+var cache = require("./cache");
 var os = require("os");
 var _ = require("lodash");
 var rulesEngine = require("./rulesengine");
@@ -36,5 +37,23 @@ Loader.prototype.initialize = function (app) {
     } catch (e) {
         logger.system("Error associating data models", e);
     }
+    logger.system("Registering referencefields..");
+    Db.models.referencefields
+        .findAll({
+            raw: true,
+            attributes: ["id", "description"],
+            where: {
+                recordstatus: "A",
+            },
+        })
+        .then((refs) => {
+            if (refs) {
+                _.map(refs, (v) => {
+                    if (v.description) {
+                        cache.setHashValue("referencefields", v.id, v.description);
+                    }
+                });
+            }
+        });
     logger.system("Finished associating data models..");
 };
