@@ -74,7 +74,26 @@ async function service() {
         "/graphql",
         cors(),
         expressMiddleware(apollo, {
-            context: async ({ req, res }) => ({ token: req.headers.token, models: Db.models, Op, _ }),
+            context: async ({ req, res }) => ({
+                token: req.headers.token,
+                models: Db.models,
+                Op,
+                _,
+                constructQuery: (args) => {
+                    let query = { recordstatus: "A" };
+                    _.map(args, (v, k) => {
+                        if (typeof v === "string") {
+                            query[k] = {
+                                [Op.like]: `${v}%`,
+                            };
+                        } else {
+                            query[k] = v;
+                        }
+                    });
+
+                    return query;
+                },
+            }),
         }),
     );
 
