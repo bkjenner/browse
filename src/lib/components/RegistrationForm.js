@@ -47,13 +47,13 @@ function RegistrationForm({props}) {
                 </div>
             </form>
             <div>
-                <button type="button" onClick={() => {
+                <button onClick={() => {
                     addNewTab(
                         {
                             label: "RegistrationForm",
                             content: "",
                             componentType: "RegistrationForm",
-                            initalState: formData
+                            initialState: formData
                         }
                     )
                 }}>
