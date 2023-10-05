@@ -7,19 +7,24 @@ function TabsContainer() {
 
     // Local state for the container to keep track of by itself
     const [localTabs, setLocalTabs] = useState([]);
+    const [localSTI, setLocalSTI] = useState(0);
 
-    // Everytime we change Depth index we should check / update local tabs state with what is in map
+    // Everytime we change Tab/Depth index we should check / update local tabs state
     useEffect(() => {
         let tabs = firstNestedTabs[selectedTabIndex];
         if((!_.isEqual(localTabs, tabs))) {
             setLocalTabs([...tabs]);
+        }
+
+        if(localSTI != cdsti[currentTabDepth] && tabs.length >= cdsti[currentTabDepth]) {
+            setLocalSTI(cdsti[currentTabDepth]);
         }
     }, [selectedTabIndex, cdsti[currentTabDepth]])
 
     return (
         <DynamicTabs
             tabs={localTabs}
-            selectedTab={cdsti[currentTabDepth]}
+            selectedTab={localSTI}
             onChange={handleTabChange}
         />
     );

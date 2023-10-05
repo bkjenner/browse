@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import DynamicTabs from "./DynamicTabs";
-import _, { first } from "lodash";
+import _  from "lodash";
 
 const TabsWrapperContext = createContext();
 TabsWrapperContext.displayName = "tabContexts";
@@ -30,11 +30,17 @@ export const TabsContainerWrapper = ({ children }) => {
 
     // Parent Tab Index for showing
     const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+
+    // Current Depth Selected Tab Index
     const [cdsti, setCdsti] = useState([0])
+
+    // firstNestedSelectedTabIndex
+    //This variable will contain What tab index we want on the selectedTab
+    const [firstNestedSelectedTabIndex, setFirstNestSelectedTabIndex] = useState([0]); // Initially no nested tabs so always show 0 indexed tab
 
     // Data from the selected tab in view
     const [tabData, setTabData] = useState({});
-    const [firstNestedTabs, setFirstNestedTabs] = useState([[]]) // Initially we know we have no nested tabs
+    const [firstNestedTabs, setFirstNestedTabs] = useState([[]]) // Initially we have no nested tabs
     
     const addNewTab = (props) => {
         let newTabIndex;
@@ -48,35 +54,38 @@ export const TabsContainerWrapper = ({ children }) => {
         }
 
         if(ctd == 0 ) {
+            // Current Depths level is 0
             let tempData = [...parentDepthTabs, props]
             setParentDepthTabs(tempData);
             setCurrentDepthTabs(tempData);
-            
-            let tempTabMap = [...tabsDepthMap];
-            tempTabMap[0] = tempData;
-            
-            setTabsDepthMap(tempTabMap);
             // Update the Tab view Index
             newTabIndex = tempData.length -1;
             setSelectedTabIndex(newTabIndex);
-            setFirstNestedTabs([...firstNestedTabs, []]) // Empty array signify that there is nothing
+
+            setFirstNestedTabs([...firstNestedTabs, []]) // Added a new parent level tab so we have no nested tabs
+            let fnstiCopy = [...firstNestedSelectedTabIndex];
+            fnstiCopy.push(0);
+            setFirstNestSelectedTabIndex(fnstiCopy);
         } else {
+            newTabIndex = currentDepthTabs.length;
             // One level of Depth in
             // We'll need a copy first
             let cdTabs = [...currentDepthTabs, props];
             setCurrentDepthTabs(cdTabs);
-            newTabIndex = cdTabs.length - 1;
             // let tabsDepthMapCopy = [...tabsDepthMap];
             // Adding the component to the nested tabs storage
             // Need to know which tab we are on in the nested level of 1
             let nestedTabsCopy = [...firstNestedTabs];
             nestedTabsCopy[selectedTabIndex] = [...cdTabs]
             setFirstNestedTabs(nestedTabsCopy);
-            
-
             let tempCDSTI = [...cdsti];
             tempCDSTI[ctd] = newTabIndex;
             setCdsti(tempCDSTI);
+
+            let fnstiCopy = [...firstNestedSelectedTabIndex];
+            // Whatever parent we are on we know we need to change the selected view
+            fnstiCopy[selectedTabIndex] = newTabIndex;
+            setFirstNestSelectedTabIndex(fnstiCopy);
         }
 
         // Update the initial state of the tab
@@ -85,6 +94,7 @@ export const TabsContainerWrapper = ({ children }) => {
 
     const handleTabChange = (event, newTabId, cdTabs) => {
         let copyData;
+        
         // Only consider depth level of 0 and 1
         if(_.isEqual(cdTabs,parentDepthTabs)) {
             // At parent level so we know that newTabId is going to be the value we want
@@ -95,7 +105,13 @@ export const TabsContainerWrapper = ({ children }) => {
 
                 // Current Depth Tabs will also change
                 // We need to populate the tab with data coming from cdsti
-                setTabData(firstNestedTabs[newTabId][cdsti[1]].formData);
+                
+                // Update to the firstNestedSelectedTabIndex of the newTabId we want
+                let cdstiCopy = [...cdsti];
+                cdstiCopy[1] = firstNestedSelectedTabIndex[newTabId];
+                setCdsti(cdstiCopy);
+
+                setTabData(firstNestedTabs[newTabId][firstNestedSelectedTabIndex[newTabId]].formData);
                 setCurrentDepthTabs(firstNestedTabs[newTabId]);
                 setCurrentTabDepth(1)
             } else {
@@ -121,10 +137,14 @@ export const TabsContainerWrapper = ({ children }) => {
                 // Update cdsti
                 setCurrentTabDepth(2);
             } else {
+                // Any component one Depth level in
                 setCurrentTabDepth(1);
                 let cdstiCopy = [...cdsti];
                 cdstiCopy[1] = newTabId;
                 setCdsti(cdstiCopy);
+                let firstNestedSelectedTabIndexCopy = [...firstNestedSelectedTabIndex];
+                firstNestedSelectedTabIndexCopy[selectedTabIndex] = newTabId;
+                setFirstNestSelectedTabIndex(firstNestedSelectedTabIndexCopy);
                 setTabData(firstNestedTabs[selectedTabIndex][newTabId].formData);
             }
             let fntCopy = [...firstNestedTabs][selectedTabIndex];
@@ -235,6 +255,9 @@ export const TabsContainerWrapper = ({ children }) => {
             // We know that the new tab will contain the children
             fntCopy.push([props.child])
             setFirstNestedTabs(fntCopy);
+            let fnstiCopy = [...firstNestedSelectedTabIndex];
+            fnstiCopy.push(0)
+            setFirstNestSelectedTabIndex(fnstiCopy)
         } else {
             // 007 This needs to change to handle a new row depending on depth level
             tempMap = [
@@ -253,6 +276,7 @@ export const TabsContainerWrapper = ({ children }) => {
         setTabsDepthMap(tempMap);
         // Update the initial state of the Tab in view
         setTabData(props.initialState);
+
         // 007
         // Increment the current tab depth
         // setCurrentTabDepth(currentTabDepth + 1);
@@ -260,7 +284,7 @@ export const TabsContainerWrapper = ({ children }) => {
 
     return (
         <TabsWrapperContext.Provider
-            value={{ tabData, selectedTabIndex, currentTabDepth, tabsDepthMap, currentDepthTabs, cdsti, firstNestedTabs, addNewTab, handleTabChange, handleTabDataUpdate, handleTabClose, handleAddNewDepthTab }}
+            value={{ tabData, selectedTabIndex, currentTabDepth, tabsDepthMap, currentDepthTabs, cdsti, firstNestedTabs, firstNestedSelectedTabIndex, addNewTab, handleTabChange, handleTabDataUpdate, handleTabClose, handleAddNewDepthTab }}
         >
             <DynamicTabs
                 tabs={parentDepthTabs}
