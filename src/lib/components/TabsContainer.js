@@ -1,17 +1,27 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import DynamicTabs from "./DynamicTabs";
 import { useTabsWrapperContext } from "./TabsWrapper";
 
 function TabsContainer() {
-    const { tabs, selectedTabIndex, handleTabChange, addNewTab, addRegistrationTab } = useTabsWrapperContext();
+    const { cdsti, firstNestedTabs, handleTabChange, currentTabDepth, tabsDepthMap, selectedTabIndex } = useTabsWrapperContext();
+
+    // Local state for the container to keep track of by itself
+    const [localTabs, setLocalTabs] = useState([]);
+
+    // Everytime we change Depth index we should check / update local tabs state with what is in map
+    useEffect(() => {
+        let tabs = firstNestedTabs[selectedTabIndex];
+        if((!_.isEqual(localTabs, tabs))) {
+            setLocalTabs([...tabs]);
+        }
+    }, [selectedTabIndex, cdsti[currentTabDepth]])
+
     return (
-        <div>
-            <DynamicTabs
-                tabs={tabs}
-                selectedTab={selectedTabIndex}
-                onChange={handleTabChange}
-            />
-        </div>
+        <DynamicTabs
+            tabs={localTabs}
+            selectedTab={cdsti[currentTabDepth]}
+            onChange={handleTabChange}
+        />
     );
 }
 

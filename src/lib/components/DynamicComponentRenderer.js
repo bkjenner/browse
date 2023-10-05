@@ -4,17 +4,10 @@ import ComponentMap from "./ComponentMap"; // Import the object with component e
 const DynamicComponentRenderer = (props) => {
     // Check if the component exists in the ComponentMap
     if (props.componentType in ComponentMap) {
-        if(`${props.componentType}` in ComponentMap) {
-            return  React.createElement(
-                ComponentMap[`${props.componentType}`], 
-                {props},
-            );
-        }
-        else {
-            return React.createElement(ComponentMap[props.componentType],{},);
-        }
-        
-        
+        return  React.createElement(
+            ComponentMap[`${props.componentType}`], 
+            {props},
+        );        
     } else {
         return <div>Component not found</div>;
     }

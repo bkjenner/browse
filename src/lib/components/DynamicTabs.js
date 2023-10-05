@@ -5,7 +5,6 @@ import Box from "@mui/material/Box";
 import DynamicComponentRenderer from "./DynamicComponentRenderer";
 import CloseIcon from '@mui/icons-material/Close';
 import { IconButton } from '@mui/material';
-
 import { useTabsWrapperContext } from "./TabsWrapper";
 
 function TabPanel(props) {
@@ -13,7 +12,9 @@ function TabPanel(props) {
 
     return (
         <div role="tabpanel" hidden={value !== index} id={`tabpanel-${index}`} aria-labelledby={`tab-${index}`} {...other}>
-            {value === index && <Box p={3}>{children}</Box>}
+            {value === index && <Box 
+            p={0}
+            >{children}</Box>}
         </div>
     );
 }
@@ -29,7 +30,6 @@ function DynamicTabs({ tabs, selectedTab }) {
                     handleTabChange(event, value, tabs);
                 }}
                 aria-label="Dynamic Tabs"
-                centered
             >
                 {tabs.map((tab, index) => (
                     <Tab 
@@ -38,7 +38,7 @@ function DynamicTabs({ tabs, selectedTab }) {
                                 {tab.label}
                                 <IconButton
                                     component="div"
-                                    onClick={(event) => {handleTabClose(event, index)}}
+                                    onClick={ (event) => { handleTabClose(event, index, tabs) } }
                                 >
                                     <CloseIcon />
                                 </IconButton>
@@ -55,7 +55,7 @@ function DynamicTabs({ tabs, selectedTab }) {
                         :
                         <>
                             <p>
-                                tab.content
+                                {tab.content}
                             </p>
                         </>
                     }
