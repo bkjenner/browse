@@ -3,7 +3,7 @@ import DynamicTabs from "./DynamicTabs";
 import { useTabsWrapperContext } from "./TabsWrapper";
 
 function TabsContainer() {
-    const { cdsti, firstNestedTabs, handleTabChange, currentTabDepth, tabsDepthMap, selectedTabIndex } = useTabsWrapperContext();
+    const { cdsti, firstNestedTabs, handleTabChange, currentTabDepth, firstNestedSelectedTabIndex, tabsDepthMap, selectedTabIndex } = useTabsWrapperContext();
 
     // Local state for the container to keep track of by itself
     const [localTabs, setLocalTabs] = useState([]);
@@ -16,8 +16,8 @@ function TabsContainer() {
             setLocalTabs([...tabs]);
         }
 
-        if(localSTI != cdsti[currentTabDepth] && tabs.length >= cdsti[currentTabDepth]) {
-            setLocalSTI(cdsti[currentTabDepth]);
+        if(localSTI != firstNestedSelectedTabIndex[selectedTabIndex]) {
+            setLocalSTI(firstNestedSelectedTabIndex[selectedTabIndex])
         }
     }, [selectedTabIndex, cdsti[currentTabDepth]])
 

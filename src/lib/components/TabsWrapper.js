@@ -198,10 +198,11 @@ export const TabsContainerWrapper = ({ children }) => {
             // Find the tab we are updating
 
             let fntCopy = [...firstNestedTabs];
-            fntCopy[selectedTabIndex][cdsti[1]].formData = formData;
+            let nestedTabIndex = firstNestedSelectedTabIndex[selectedTabIndex];
+            fntCopy[selectedTabIndex][nestedTabIndex].formData = formData;
 
             setFirstNestedTabs(fntCopy);
-            setCurrentDepthTabs(fntCopy);
+            setCurrentDepthTabs(fntCopy[selectedTabIndex]);
             // setTabData(formData)
         }
     };
@@ -210,8 +211,7 @@ export const TabsContainerWrapper = ({ children }) => {
         // Stop event from propagating to the target element's parent
         event.stopPropagation();
 
-        // FIgure out what depth level we are on
-
+        // Figure out what depth level we are on
         if(_.isEqual(cdTabs, parentDepthTabs)) {
             // We are on the parent level
             let parentCopy = parentDepthTabs.toSpliced(tabId, 1);
@@ -220,23 +220,103 @@ export const TabsContainerWrapper = ({ children }) => {
             setCurrentDepthTabs(parentCopy);
             
             // Remove nested tab data
-            setFirstNestedTabs(firstNestedTabs.toSpliced(tabId, 1))
+            let fntCopy = firstNestedTabs.toSpliced(tabId, 1);
+            setFirstNestedTabs(fntCopy);
             
             // Remove the view tab index data
-            setFirstNestSelectedTabIndex(firstNestedSelectedTabIndex.toSpliced(tabId,1));
+            let fnstiCopy = firstNestedSelectedTabIndex.toSpliced(tabId,1);
+            setFirstNestSelectedTabIndex(fnstiCopy);
 
+            // Reset depth level back to top
+            setCurrentTabDepth(0);
+
+            // Load the data
             if(parentCopy[tabId]) {
-                setTabData(parentCopy[tabId].formData);
+                // Case we are deleting 0 index
                 setSelectedTabIndex(tabId)
-            } else if(parentCopy[tabId -1]) {
-                setTabData(parentCopy[tabId -1].formData);
-                setSelectedTabIndex(tabId-1)
+                if(parentCopy[tabId].componentType == 'TabsContainer') {
+                    setTabData(fntCopy[tabId][fnstiCopy[tabId]].formData);
+                    setCurrentTabDepth(1);
+                } else {
+                    setTabData(parentCopy[tabId].formData);
+                }
+            } else if(parentCopy[tabId - 1]) {
+                setSelectedTabIndex(tabId - 1)
+                if(parentCopy[tabId - 1].componentType == 'TabsContainer') {
+                    setTabData(fntCopy[selectedTabIndex - 1][fnstiCopy[selectedTabIndex - 1]].formData);
+                    let cdstiCopy = [...cdsti];
+                    cdstiCopy[1] = fnstiCopy[selectedTabIndex -1];
+                    setCdsti(cdstiCopy);
+                    setCurrentTabDepth(1);
+                } else {
+                    setTabData(parentCopy[tabId - 1].formData);
+                }
             } else if (parentCopy[tabId + 1]) {
-                setTabData(parentCopy[tabId+1].formData);
-                setSelectedTabIndex(tabId+1)
+                setSelectedTabIndex(tabId + 1)
+                if(parentCopy[tabId + 1].componentType == 'TabsContainer') {
+                    setCurrentTabDepth(1);
+                    setTabData(fntCopy[selectedTabIndex][fnstiCopy[selectedTabIndex - 1]].formData);
+                } else {
+                    setTabData(parentCopy[tabId + 1].formData);
+                }
             } else {
                 setTabData({});
                 setSelectedTabIndex(0);
+            }
+        } else {
+            // We are on depth level 1
+            let currentCopy = currentDepthTabs.toSpliced(tabId, 1);
+            setCurrentDepthTabs(currentCopy);
+
+            let nestCopy = firstNestedTabs;
+            nestCopy[selectedTabIndex].splice(tabId, 1);
+            setFirstNestedTabs(nestCopy);
+
+            let currentTab = firstNestedSelectedTabIndex[selectedTabIndex];
+            // If we have no more tabs in the current level then close out the parent
+            if(currentCopy.length == 0) {
+                setTabData({})
+                setCurrentDepthTabs([])
+            }
+
+            if(currentCopy[currentTab]) {
+                setTabData(currentCopy[currentTab].formData);
+                let cdstiCopy = [...cdsti];
+                cdstiCopy[1] = currentTab;
+                setCdsti(cdstiCopy)
+                let fnstiCopy = [...firstNestedSelectedTabIndex];
+                fnstiCopy[selectedTabIndex] = currentTab;
+                setFirstNestSelectedTabIndex(fnstiCopy)
+            } else if(currentCopy[currentTab - 1]) {
+                setTabData(currentCopy[currentTab - 1].formData);
+                let cdstiCopy = [...cdsti];
+                cdstiCopy[1] = currentTab - 1;
+                setCdsti(cdstiCopy)
+                
+
+                let fnstiCopy = [...firstNestedSelectedTabIndex];
+                fnstiCopy[selectedTabIndex] = currentTab - 1;
+                setFirstNestSelectedTabIndex(fnstiCopy)
+            } else if (currentCopy[currentTab + 1]) {
+                setTabData(currentCopy[currentTab + 1].formData);
+
+                let cdstiCopy = [...cdsti];
+                cdstiCopy[1] = currentTab + 1;
+                setCdsti(cdstiCopy)
+                let fnstiCopy = [...firstNestedSelectedTabIndex];
+                fnstiCopy[selectedTabIndex] = currentTab + 1;
+                setFirstNestSelectedTabIndex(fnstiCopy)
+            } else {
+                // TO DO
+                // Change behavior when no more tabs are in nest to prevent error in console from showing.
+                let parentCopy = parentDepthTabs.toSpliced(selectedTabIndex, 1);
+                setParentDepthTabs(parentCopy);
+                // Remove nested tab data
+                let fntCopy = firstNestedTabs.toSpliced(selectedTabIndex, 1);
+                setFirstNestedTabs(fntCopy);
+
+                // setCurrentDepthTabs(parentCopy);
+                setSelectedTabIndex(null);
             }
         }
     };

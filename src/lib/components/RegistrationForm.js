@@ -52,7 +52,7 @@ function RegistrationForm({props}) {
         if(tabData && tabData.name) {
             setFormData(tabData);
         }
-    }, [selectedTabIndex])
+    }, [selectedTabIndex, tabData])
     
     return (
         <div>
