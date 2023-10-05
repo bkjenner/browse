@@ -206,30 +206,38 @@ export const TabsContainerWrapper = ({ children }) => {
         }
     };
 
-    const handleTabClose = (event, tabId) => {
+    const handleTabClose = (event, tabId, cdTabs) => {
         // Stop event from propagating to the target element's parent
         event.stopPropagation();
 
-        // Remove the tab from tabs state
-        // Create shallow copy
-        tabs.splice(tabId,1);
-        setCurrentDepthTabs([...tabs]);
+        // FIgure out what depth level we are on
 
-        // Delete the stored data of the form
-        // Create shallow copy
-        tabDataMap.splice(tabId, 1);
-        setTabDataMap([...tabDataMap]);
+        if(_.isEqual(cdTabs, parentDepthTabs)) {
+            // We are on the parent level
+            let parentCopy = parentDepthTabs.toSpliced(tabId, 1);
+            setParentDepthTabs(parentCopy);
+            // Remove the tab from current
+            setCurrentDepthTabs(parentCopy);
+            
+            // Remove nested tab data
+            setFirstNestedTabs(firstNestedTabs.toSpliced(tabId, 1))
+            
+            // Remove the view tab index data
+            setFirstNestSelectedTabIndex(firstNestedSelectedTabIndex.toSpliced(tabId,1));
 
-        // Update the form data 
-        if (tabDataMap[tabId - 1]) {
-            setTabData(tabDataMap[tabId - 1]);
-            setSelectedTabIndex(tabId - 1);
-        } else if (tabDataMap[tabId + 1]) {
-            setTabData(tabDataMap[tabId + 1]);
-            setSelectedTabIndex(tabId + 1);
-        } else {
-            setTabData({});
-            setSelectedTabIndex(0);
+            if(parentCopy[tabId]) {
+                setTabData(parentCopy[tabId].formData);
+                setSelectedTabIndex(tabId)
+            } else if(parentCopy[tabId -1]) {
+                setTabData(parentCopy[tabId -1].formData);
+                setSelectedTabIndex(tabId-1)
+            } else if (parentCopy[tabId + 1]) {
+                setTabData(parentCopy[tabId+1].formData);
+                setSelectedTabIndex(tabId+1)
+            } else {
+                setTabData({});
+                setSelectedTabIndex(0);
+            }
         }
     };
 
