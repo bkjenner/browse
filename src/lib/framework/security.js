@@ -5,7 +5,6 @@ module.exports = new Security();
 var settings = require("./settings.js");
 var util = require("./utility.js");
 var Promise = require("bluebird");
-var Db = require("../data/models");
 var _ = require("lodash");
 var bcrypt = require("bcrypt");
 var jwt = require("jsonwebtoken");
