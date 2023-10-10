@@ -2,14 +2,12 @@ const Promise = require("bluebird");
 const fs = require("fs-extra");
 const path = require("path");
 const _ = require("lodash");
-const Db = require("../data/models");
 const settings = require("../framework/settings");
 const util = require("../framework/utility");
 const cache = require("../framework/cache");
-const Sequelize = require("sequelize");
-const Op = Sequelize.Op;
 const security = require("../framework/security");
 const moment = require("moment");
+const sql = require("../data/db.js");
 
 function Rules() {
     r = this;

@@ -184,8 +184,6 @@ function Settings() {
     };
 
     this.sysbuilder = function () {
-        this.modelPath = global.baseDir + "/src/lib/data/models/";
-        this.systemModelPath = global.baseDir + "/src/lib/data/models/";
         this.systemMigrationPath = global.baseDir + "/imports/";
         this.defaultRefTables = [
             "commandtype",

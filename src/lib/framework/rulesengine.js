@@ -9,7 +9,6 @@ const Sequelize = require("sequelize");
 const Op = Sequelize.Op;
 const os = require("os");
 const _ = require("lodash");
-const Db = require("../data/models");
 const settings = require("./settings");
 const rules = require("../rules");
 const util = require("./utility");

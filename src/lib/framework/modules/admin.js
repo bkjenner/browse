@@ -13,7 +13,6 @@ module.exports = new Admin();
 //----------Requires--------//
 
 var Promise = require("bluebird");
-var Db = require("../../data/models");
 var settings = require("../settings");
 var _ = require("lodash");
 var util = require("../utility");
