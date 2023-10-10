@@ -53,6 +53,8 @@ function RegistrationForm({props}) {
             setFormData(tabData);
         }
     }, [selectedTabIndex, tabData])
+
+    const cdl = currentTabDepth;
     
     return (
         <div>
@@ -103,6 +105,7 @@ function RegistrationForm({props}) {
                                 initialState: {}
                             },
                             parentTabId: props.tabKey,
+                            currentDepthLevel: cdl + 1,
                         }
                     )
                 }}>

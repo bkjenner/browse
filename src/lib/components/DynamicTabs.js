@@ -51,7 +51,10 @@ function DynamicTabs({ tabs, selectedTab }) {
             {tabs.map((tab, index) => (
                 <TabPanel key={index} value={selectedTab} index={index}>
                     {tab.componentType ? 
-                        <DynamicComponentRenderer {...tab} tabKey={index} /> 
+                        <DynamicComponentRenderer 
+                            {...tab}
+                            tabKey={index}
+                        /> 
                         :
                         <>
                             <p>
