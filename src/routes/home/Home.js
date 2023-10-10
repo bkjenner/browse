@@ -11,5 +11,5 @@ import { TabsContainerWrapper } from "../../lib/components/TabsWrapper";
 export default function Home() {
     const theme = useTheme();
 
-    return <h1>Hello world</h1>
+    return <TabsContainerWrapper/>
 }
