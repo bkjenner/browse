@@ -1,0 +1,371 @@
+import React, { useState, useEffect, useRef } from "react";
+
+import { SideNav } from "lib/components";
+import axios from "axios";
+
+import { useTheme } from "@mui/material/styles";
+import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
+
+
+import CssBaseline from "@mui/material/CssBaseline";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+
+import { Button } from "primereact/button";
+
+import { classNames } from "primereact/utils";
+import { FilterMatchMode, FilterOperator } from "primereact/api";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { ColumnGroup } from "primereact/columngroup";
+import { Row } from "primereact/row";
+import { InputText } from "primereact/inputtext";
+import { Dropdown } from "primereact/dropdown";
+import { MultiSelect } from "primereact/multiselect";
+import { Tag } from "primereact/tag";
+import { TriStateCheckbox } from "primereact/tristatecheckbox";
+
+import moment from "moment";
+
+export default function PrimeReactDynamic() {    
+
+    const dataTableRef = useRef(null);
+
+    const [rowData, setRowData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [columnFromRowData, setColumnData] = useState([]);
+    const [visibleColumns, setVisibleColumns] = useState([]);
+
+    const [exportColumns, setExportColumns] = useState([]); //data for export function
+
+    // const [layoutMeta, setLayoutMeta] = useState({}); // dataTableLoadState default layout when first loading, 
+    // //also get updated in every render by customSaveState
+    // switch to use a simple variable to hold the layout data instead,
+    let layoutMeta ={};
+
+
+    const [layoutMetaUpdate, setLayoutMetaUpdate] = useState({}); // tie to useEffect to trigger re-render table layout
+
+    useEffect(() => {
+        console.log("layoutMetaUpdate useEffect");
+        console.log(layoutMetaUpdate);
+        if (dataTableRef.current) {
+            dataTableRef.current.restoreState(); // the built-in restoreState() function would trigger re-render layout
+        }
+    }, [layoutMetaUpdate]);
+
+
+    useEffect(() => {
+        console.log("initial fetching");
+        fetchRowData();
+        // // Cleanup function
+        // return () => {
+        //     // Your componentWillUnmount logic here
+        //     console.log("Component will unmount");
+        // };
+    }, []);
+
+    const fetchRowData = () => {
+        axios.get("/action/testGetMemberForDynamicRendering").then((response) => {
+            // console.log(response.data);
+            setRowData(response.data);
+            setLoading(false);
+            let columnObjectArray = [];
+            if (typeof response.data === "object" && response.data != null) {
+                console.log("passed in nested json");
+                // console.log(data);
+                // if data passed in in in nested json:
+                columnObjectArray = getColumnsThroughLoopArrayJSON(response.data);
+                // console.log(columnNames);
+                setColumnData(columnObjectArray);
+                setVisibleColumns(columnObjectArray); // initially display all columns
+                // setExportColumns(columnObjectArray.map((col) => ({ title: col.header, dataKey: col.field })));
+            } else {
+                console.log("No Column rendered. \nNeed JSON or JSON Array to render columns");
+            }
+        });
+    };
+
+    const clearState = () => {
+        console.log("ClearStateClick");
+        setLayoutMetaUpdate({
+            first: 0,
+            rows: 10,
+            multiSortMeta: [],
+            columnOrder: [],
+        });
+        
+    };
+
+    const paginatorLeft = (
+        <Button
+            type="button"
+            icon="pi pi-refresh"
+            text
+            onClick={(e) => {
+                console.log("left button clicked");
+                fetchRowData();
+                clearState()
+            }}
+        />
+    );
+    const paginatorRight = <Button type="button" icon="pi pi-download" text onClick={(e) => console.log(rowData)} />;
+
+    const onColumnToggle = (event) => {
+        console.log(columnFromRowData);
+        let selectedColumns = event.value;
+        console.log(selectedColumns);
+        let orderedSelectedColumns = columnFromRowData.filter((col) => selectedColumns.some((sCol) => sCol.field === col.field));
+
+        setVisibleColumns(orderedSelectedColumns);
+    };
+
+    const header = (
+        <>
+            {/* <div className="flex align-items-center justify-content-start gap-2" >
+                <Button type="button" icon="pi pi-file" rounded onClick={() => exportCSV(false)} data-pr-tooltip="CSV" />
+                <Button type="button" icon="pi pi-file-excel" severity="success" rounded onClick={exportExcel} data-pr-tooltip="XLS" />
+                <Button type="button" label="Save" icon="pi pi-check" onClick={saveLayout} />
+                <br/>
+            </div> */}
+            <MultiSelect
+                value={visibleColumns}
+                options={columnFromRowData}
+                optionLabel="header"
+                onChange={onColumnToggle}
+                className="w-full sm:w-20rem"
+                display="chip"
+            />
+        </>
+    );
+
+
+
+    const [statuses] = useState(["Active", "Inactive"]);
+
+
+    // original data returned from sequelize could be an array(findAll) or one json(findOne)
+    // columnNames as a guide
+    // columnObjectArray: to extrat and save columns into [{ key: 'name', field: 'name', header: 'Name' } , ...] format
+    const getColumnsThroughLoopArrayJSON = (obj, columnNames = [], parentKey = null, columnObjectArray = []) => {
+        if (Array.isArray(obj)) {
+            // loop through array
+            for (let i = 0; i < obj.length; i++) {
+                getColumnsThroughLoopArrayJSON(obj[i], columnNames, parentKey, columnObjectArray); // when looping array, array element use entire array object's key as parent key
+            }
+        } else {
+            for (let key in obj) {
+                if (typeof obj[key] === "object") {
+                    if (Array.isArray(obj[key])) {
+                        // loop through array
+                        for (let i = 0; i < obj[key].length; i++) {
+                            getColumnsThroughLoopArrayJSON(obj[key], columnNames, parentKey, columnObjectArray); // when looping array, array element use entire array object's key as parent key
+                        }
+                    } else {
+                        if (parentKey != null && parentKey != "") {
+                            getColumnsThroughLoopArrayJSON(obj[key], columnNames, parentKey + "." + key, columnObjectArray);
+                        } else {
+                            getColumnsThroughLoopArrayJSON(obj[key], columnNames, key, columnObjectArray);
+                        }
+                    }
+                } else {
+                    // not displaying columns that are null in all rows
+                    if (obj[key] !== null) {
+                        // For id field, not showing any foreigh key id, only showing highest level's id (id without parent key)
+                        if (parentKey != null && parentKey != "" && key != "id") {
+                            if (!columnNames.includes(parentKey + "." + key)) {
+                                columnNames.push(parentKey + "." + key);
+                                columnObjectArray.push({
+                                    key: parentKey + "." + key,
+                                    field: parentKey + "." + key,
+                                    header: parentKey + "." + key,
+                                });
+                            }
+                        } else {
+                            if (!columnNames.includes(key)) {
+                                columnNames.push(key);
+                                columnObjectArray.push({
+                                    key: key,
+                                    field: key,
+                                    header: key,
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return columnObjectArray;
+    };
+
+    const columnBodyFormatter = (data, options) => {
+        let res = _.get(data, options.field); //_.get(object, 'a[0].b.c');
+        if (options.field.slice(-4) == "date" && moment.isMoment(moment(res))) {
+            return moment(res).format("YYYY-MM-DD");
+        }
+        // can add more case here here to handle different data
+        else {
+            return res;
+        }
+    };
+
+    const renderDynamicColumns = (columnOjectArrays) => {
+        // let columnNames = [];
+        // let columnObjectArray = [];
+        let columns = [];
+
+        columnOjectArrays.forEach((ele) => {
+            columns.push(
+                <Column
+                    key={ele.key}
+                    field={ele.field}
+                    header={ele.header}
+                    sortable
+                    body={columnBodyFormatter} // using default parameters: (data: any, options: ColumnBodyOptions)
+                ></Column>,
+            );
+        });
+
+        return columns;
+    };
+
+
+        // // passed in state would be in this format:
+        // let testLayout = {
+        //     first: 0,
+        //     rows: 5,
+        //     multiSortMeta: [{ field: "member.registeredname", order: 1 }],
+        //     columnOrder: [
+        //         "member.registeredname",
+        //         "id",
+        //         null,
+        //         "clientnumber",
+        //         "member.firstmembcountrydate",
+        //         "member.memberstatus.description",
+        //         "member.membersubstatus.description",
+        //     ],
+        // };
+    const dataTableSaveState = (state) => {
+
+        console.log("dataTableSaveState");
+        console.log(state);
+        // console.log(layoutMeta);
+        // if (!_.isEqual(state, layoutMeta)) {
+        //     // console.log(state);
+        //     setLayoutMeta(state);
+        //     console.log(layoutMeta);
+        //     console.log("updated layoutMeta");
+        // }
+
+        layoutMeta = state;
+    };
+
+    const dataTableLoadState = () => {
+        console.log("loading layout from layoutMetaUpdate");
+        console.log(layoutMetaUpdate);
+
+        return layoutMetaUpdate;
+    };
+    const loadLayout1 = () => {
+        console.log("loading saved layout 1");
+        // console.log(layoutMeta);
+
+        let layout = {
+            first: 0,
+            rows: 7,
+            multiSortMeta: [{ field: "member.registeredname", order: -1 }],
+            columnOrder: [
+                "member.registeredname",
+                "id",
+                "clientnumber",
+                "member.firstmembcountrydate",
+                "member.memberstatus.description",
+                "member.membersubstatus.description",
+                null,
+            ],
+        };
+
+        
+        // the useEffect would trigger layout re-load based on data in layoutMetaUpdate
+        setLayoutMetaUpdate(layout); 
+    };
+
+    return (
+        <Box component="main" sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}>
+            <Grid container spacing={2}>
+                <Grid item xs={12}>
+                    <h1>PrimeReact</h1>
+                </Grid>
+
+                <Grid item xs={12}>
+                    <Button type="button" label="Test Load Saved Layout1" icon="pi pi-check" onClick={loadLayout1} />
+                </Grid>
+                <Grid item xs={11}>
+                    <Grid item xs={12}>
+                        <div className="card">
+                            <DataTable
+                                ref={dataTableRef}
+                                value={rowData}
+                                showGridlines
+                                dataKey="id"
+                                scrollable
+                                reorderableColumns
+                                reorderableRows // need an extra column to be dragable
+                                onRowReorder={(e) => setRowData(e.value)} // re-order rows by saving RowData array in that order
+                                // scrollHeight="400px"
+                                tableStyle={{ minWidth: "50rem" }}
+                                header={header} // table's header, (above the row header)
+                                // headerColumnGroup={headerGroup}
+                                paginator
+                                rows={5}
+                                rowsPerPageOptions={[10, 25, 50, 100, 500]}
+                                paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+                                currentPageReportTemplate="{first} to {last} of {totalRecords}"
+                                paginatorLeft={paginatorLeft}
+                                paginatorRight={paginatorRight}
+                                removableSort
+                                sortMode="multiple" //requires metaKey (e.g. ⌘) to be pressed when clicking second column header.
+                                // sortField="member.registeredname" // initial sorting
+                                // sortOrder={-1}
+                                // filters={filters}
+                                // filterDisplay="row"
+                                loading={loading}
+                                // globalFilterFields={['member.registeredname', 'member.memberstatus.description', 'member.membersubstatus.description', 'member.firstmembcountrydate']}
+                                emptyMessage="No Member found."
+                                stateStorage="custom"
+                                customSaveState={dataTableSaveState} // run every render
+                                
+                                // wrapped in restoreState(), 
+                                // which run on initial Mount ( mapped inside a useEffect(...,[]) ) 
+                                // or directly call restoreState() to re-render layout
+                                customRestoreState={dataTableLoadState} 
+
+                                stateKey="dt-state-demo-local"
+                            >
+                                <Column rowReorder style={{ width: "1rem" }} frozen />
+                                {renderDynamicColumns(visibleColumns)}
+                            </DataTable>
+                        </div>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Button
+                            type="button"
+                            label="Save Current Layout"
+                            icon="pi  pi-download"
+                            onClick={(e) => {
+                                let key = moment().local().format("YYYYMMDDHHmmss");
+                                console.log("saving to cache " + key);
+                                console.log(layoutMeta);
+                                axios.post("/action/primeReactTableSaveLayout", {
+                                    key,
+                                    layoutMeta,
+                                });
+                            }}
+                        />
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Box>
+    );
+}

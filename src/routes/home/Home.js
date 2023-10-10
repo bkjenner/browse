@@ -1,6 +1,8 @@
 import * as React from "react";
 
-import DataGridSample1 from "./components/DataGridSample1.js";
+import ReactGridSample from "./components/ReactGridSample.js";
+import PrimeReactSample from "./components/PrimeReactSample.js";
+import PrimeReactDynamic from "./components/PrimeReactDynamic.js";
 // import CorporateRegistrations from "./components/CorporateRegistrations.js";
 // import Finance from "./components/Finance.js";
 import Overview from "./components/Overview.js";
@@ -16,7 +18,7 @@ import BusinessIcon from "@mui/icons-material/Business";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 
 export default function Home() {
-    const [compName, setCompName] = React.useState("Overview");
+    const [compName, setCompName] = React.useState("PrimeReactDynamic");
 
     const theme = useTheme();
 
@@ -27,15 +29,20 @@ export default function Home() {
             icon: <HomeIcon sx={{ color: `${theme.palette.primary.contrastText}` }} />,
         },
         {
-            key: "DataGridSample1",
-            title: "DataGridSample 1 Name Holder",
+            key: "ReactGridSample",
+            title: "ReactGrid",
             icon: <GroupsIcon sx={{ color: `${theme.palette.primary.contrastText}` }} />,
         },
-        // {
-        //     key: "CorporateRegistrations",
-        //     title: "Corporate Registrations",
-        //     icon: <BusinessIcon sx={{ color: `${theme.palette.primary.contrastText}` }} />,
-        // },
+        {
+            key: "PrimeReactSample",
+            title: "Prime React Sample",
+            icon: <BusinessIcon sx={{ color: `${theme.palette.primary.contrastText}` }} />,
+        },
+        {
+            key: "PrimeReactDynamic",
+            title: "Prime React Dynamic Columns",
+            icon: <BusinessIcon sx={{ color: `${theme.palette.primary.contrastText}` }} />,
+        },
         // {
         //     key: "Finance",
         //     title: "Finance",
@@ -49,10 +56,12 @@ export default function Home() {
             <SideNav items={itemsMap} onClick={setCompName} selectedRow={compName} />
             {compName == "Overview" ? (
                 <Overview />
-            ) : compName == "DataGridSample1" ? (
-                <DataGridSample1 />
-            // ) : compName == "CorporateRegistrations" ? (
-            //     <CorporateRegistrations />
+            ) : compName == "ReactGridSample" ? (
+                <ReactGridSample />
+            ) : compName == "PrimeReactSample" ? (
+                <PrimeReactSample />
+            ) : compName == "PrimeReactDynamic" ? (
+                <PrimeReactDynamic />
             // ) : compName == "Finance" ? (
             //     <Finance />
             ) : (
