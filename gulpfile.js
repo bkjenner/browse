@@ -69,18 +69,6 @@ function compileLogic() {
         .pipe(dest("./src/lib/logic/"));
 }
 
-function compileModels() {
-    return src([
-        "./src/lib/data/models/prototype.js",
-        "./src/lib/data/models/framework/*.js",
-        "./src/lib/data/models/system/*.js",
-        "!./src/lib/data/models/index.js",
-    ])
-        .pipe(concat("index.js"))
-        .pipe(strip())
-        .pipe(dest("./src/lib/data/models/"));
-}
-
 function stripFile() {
     return src("models.js").pipe(strip()).pipe(dest("stripped-models.js"));
 }
@@ -203,17 +191,8 @@ function watchLogicAndReducers() {
     watch(["./src/lib/reducers/*.js", "!./src/lib/reducers/index.js"], compileReducers);
 }
 
-function watchModelsAndRules() {
+function watchRules() {
     watch(["./src/lib/rules/*.js", "!./src/lib/rules/index.js"], compileRules);
-    watch(
-        [
-            "./src/lib/data/models/prototype.js",
-            "./src/lib/data/models/system/*.js",
-            "./src/lib/data/models/framework/*.js",
-            "!./src/lib/data/models/index.js",
-        ],
-        compileModels,
-    );
 }
 
 function replaceFiles(cb) {
@@ -442,13 +421,11 @@ function commit() {
     });
 }
 
-exports.compileModels = compileModels;
 exports.compileRules = compileRules;
 exports.watch = series(compileReducers, compileLogic, webpackWatch, watchLogicAndReducers);
 exports.dev = series(compileReducers, compileLogic, webpackDev);
 exports.buildTest = series(
     checkForMode,
-    compileModels,
     compileRules,
     compileReducers,
     compileLogic,
@@ -460,7 +437,6 @@ exports.buildTest = series(
     commit,
 );
 exports.buildInternal = series(
-    compileModels,
     compileRules,
     compileReducers,
     compileLogic,
@@ -471,21 +447,10 @@ exports.buildInternal = series(
     replaceConnectionAndCookieDomain,
     commit,
 );
-exports.buildStagingDev = series(
-    compileModels,
-    compileRules,
-    compileReducers,
-    compileLogic,
-    replaceFiles,
-    webpackUAT,
-    checkoutStagingDev,
-    transferAssets,
-    commit,
-);
-exports.buildUAT = series(compileModels, compileRules, compileReducers, compileLogic, replaceFiles, webpackUAT, checkoutUAT, transferAssets, commit);
+exports.buildStagingDev = series(compileRules, compileReducers, compileLogic, replaceFiles, webpackUAT, checkoutStagingDev, transferAssets, commit);
+exports.buildUAT = series(compileRules, compileReducers, compileLogic, replaceFiles, webpackUAT, checkoutUAT, transferAssets, commit);
 exports.buildProd = series(
     checkForMode,
-    compileModels,
     compileRules,
     compileReducers,
     compileLogic,
@@ -496,4 +461,4 @@ exports.buildProd = series(
     commit,
 );
 
-exports.default = series(compileModels, compileRules, watchModelsAndRules);
+exports.default = series(compileRules, watchRules);

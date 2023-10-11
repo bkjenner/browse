@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { ApolloClient, InMemoryCache, ApolloProvider, gql } from "@apollo/client";
 import { createBrowserHistory } from "history";
 import axios from "axios";
 import Cookies from "universal-cookie";
@@ -32,6 +33,11 @@ axios.interceptors.response.use(
     },
 );
 
+const client = new ApolloClient({
+    uri: "/graphql",
+    cache: new InMemoryCache(),
+});
+
 let history = createBrowserHistory();
 let deps = { axios, history, cookies, moment };
 
@@ -50,6 +56,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
-        <RouterProvider router={router} />
+        <ApolloProvider client={client}>
+            <RouterProvider router={router} />
+        </ApolloProvider>
     </React.StrictMode>,
 );

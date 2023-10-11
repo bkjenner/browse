@@ -1,9 +1,6 @@
 global.baseDir = __dirname;
 
 const application_root = __dirname;
-const { ApolloServer } = require("@apollo/server");
-const { expressMiddleware } = require("@apollo/server/express4");
-const { ApolloServerPluginDrainHttpServer } = require("@apollo/server/plugin/drainHttpServer");
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
@@ -18,7 +15,8 @@ const morgan = require("morgan");
 const security = require("./src/lib/framework/security.js");
 const connections = require("./src/lib/framework/connections.js");
 const csrf = require("csurf");
-const Db = require("./src/lib/data/models");
+const db = require("./src/lib/data/db.js");
+const _ = require("lodash");
 const rulesEngine = require("./src/lib/framework/rulesengine.js");
 const babel = require("@babel/core");
 const compression = require("compression");
@@ -30,8 +28,6 @@ const privateKey = fs.readFileSync("./sslcert/server.key", "utf8");
 const certificate = fs.readFileSync("./sslcert/server.cert", "utf8");
 const credentials = { key: privateKey, cert: certificate };
 const cors = require("cors");
-const typeDefs = require("./src/lib/data/graphql/schema.js");
-const resolvers = require("./src/lib/data/graphql/resolvers.js");
 
 function assignID(req, res, next) {
     req.id = nanoid(5);
@@ -42,14 +38,6 @@ async function service() {
     /* Create Server */
     const app = express();
     const server = https.createServer(credentials, app);
-
-    const apollo = new ApolloServer({
-        typeDefs,
-        resolvers,
-        context: { Db },
-        // plugins: [ApolloServerPluginDrainHttpServer({ server })],
-    });
-    await apollo.start();
 
     app.use(
         bodyParser.json({ limit: "50mb" }),
@@ -63,14 +51,6 @@ async function service() {
         expAutoSan.all,
         assignID,
         morganLogger(),
-    );
-
-    app.use(
-        "/graphql",
-        cors(),
-        expressMiddleware(apollo, {
-            context: async ({ req }) => ({ token: req.headers.token }),
-        }),
     );
 
     loader.initialize(app);

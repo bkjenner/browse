@@ -1,7 +1,7 @@
 module.exports = {
     servicePort: 1338,
     sslServicePort: 443,
-    sqlConnection: "mssql://dev:devuser!2018@mssql1.method1software.com/CAMMS1_2_4",
+    sqlConnection: "postgres://bmsdev.cbb4tdiqsigu.us-east-1.rds.amazonaws.com:5432/sn000001",
     redisConnection: "localhost",
     redisPort: 6379,
     redisPassword: null,

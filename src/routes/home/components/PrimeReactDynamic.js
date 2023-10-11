@@ -67,16 +67,17 @@ export default function PrimeReactDynamic() {
     }, []);
 
     const fetchRowData = () => {
-        axios.get("/action/testGetMemberForDynamicRendering").then((response) => {
+        axios.get("/action/activityBrowse?p_metadata=true").then((response) => {
             // console.log(response.data);
-            setRowData(response.data);
+            let res = response.data && response.data.activities ? response.data.activities : response.data;
+            setRowData(res);
             setLoading(false);
             let columnObjectArray = [];
-            if (typeof response.data === "object" && response.data != null) {
+            if (typeof res === "object" && res != null) {
                 console.log("passed in nested json");
                 // console.log(data);
                 // if data passed in in in nested json:
-                columnObjectArray = getColumnsThroughLoopArrayJSON(response.data);
+                columnObjectArray = getColumnsThroughLoopArrayJSON(res);
                 // console.log(columnNames);
                 setColumnData(columnObjectArray);
                 setVisibleColumns(columnObjectArray); // initially display all columns
@@ -274,16 +275,8 @@ export default function PrimeReactDynamic() {
         let layout = {
             first: 0,
             rows: 7,
-            multiSortMeta: [{ field: "member.registeredname", order: -1 }],
-            columnOrder: [
-                "member.registeredname",
-                "id",
-                "clientnumber",
-                "member.firstmembcountrydate",
-                "member.memberstatus.description",
-                "member.membersubstatus.description",
-                null,
-            ],
+            multiSortMeta: [],
+            columnOrder: [],
         };
 
         

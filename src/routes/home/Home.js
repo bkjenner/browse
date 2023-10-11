@@ -35,11 +35,11 @@ export default function Home() {
             title: "ReactGrid",
             icon: <GroupsIcon sx={{ color: `${theme.palette.primary.contrastText}` }} />,
         },
-        {
-            key: "PrimeReactSample",
-            title: "Prime React Sample",
-            icon: <BusinessIcon sx={{ color: `${theme.palette.primary.contrastText}` }} />,
-        },
+        // {
+        //     key: "PrimeReactSample",
+        //     title: "Prime React Sample",
+        //     icon: <BusinessIcon sx={{ color: `${theme.palette.primary.contrastText}` }} />,
+        // },
         {
             key: "PrimeReactDynamic",
             title: "Prime React Dynamic Columns",
@@ -60,8 +60,8 @@ export default function Home() {
                 <Overview />
             ) : compName == "ReactGridSample" ? (
                 <ReactGridSample />
-            ) : compName == "PrimeReactSample" ? (
-                <PrimeReactSample />
+            // ) : compName == "PrimeReactSample" ? (
+            //     <PrimeReactSample />
             ) : compName == "PrimeReactDynamic" ? (
                 <PrimeReactDynamic />
             ) : compName == "Tab" ? (

@@ -16,7 +16,6 @@ var Promise = require("bluebird");
 var fs = require("fs-extra");
 var path = require("path");
 var _ = require("lodash");
-var Db = require("../data/models");
 var settings = require("../framework/settings");
 var util = require("../framework/utility");
 var redis = require("redis");
