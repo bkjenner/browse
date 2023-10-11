@@ -136,9 +136,8 @@ export const TabsContainerWrapper = () => {
         let newTabData = {};
         let masterCopy = {...masterTabData};
         let currentDepth = findDepthLevel( cdTabs );
-        const currentTabIndex = masterCopy[currentDepth].selectedTabIndex;
-
         masterCopy[currentDepth].selectedTabIndex = newTabId;
+        const currentTabIndex = masterCopy[currentDepth].selectedTabIndex;
         
         if(currentDepth == 0) {
             setSelectedTabIndex(newTabId);
@@ -198,7 +197,7 @@ export const TabsContainerWrapper = () => {
             setCurrentDepthTabs(masterCopy[0].tabs);
         } else {
             const parentTabIndex = masterCopy[currentDepth - 1].selectedTabIndex;
-            const currentTabIndex = masterCopy[currentDept].selectedTabIndex;
+            const currentTabIndex = masterCopy[currentDepth].selectedTabIndex;
 
             masterCopy[currentDepth].tabs[parentTabIndex][currentTabIndex].formData = formData;
             setCurrentDepthTabs(masterCopy[currentDepth].tabs[parentTabIndex]);
@@ -404,7 +403,7 @@ export const TabsContainerWrapper = () => {
 
         // Set up the new nest row we pass to the tab container for rendering
         setCurrentDepthTabs([props.child]);
-        
+
         // Update the initial state of the Tab in view
         setTabData(props.initialState);
     }
