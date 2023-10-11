@@ -6,9 +6,6 @@ const TabsWrapperContext = createContext();
 TabsWrapperContext.displayName = "tabContexts";
 
 export const TabsContainerWrapper = ({ children }) => {
-    // Object containing all the tabs + data for persisting data
-    const [tabsDepthMap, setTabsDepthMap] = useState([[]]);
-
     // First Tab on parent level and a child showing that it has no tabs inside
     const [masterTabData, setMasterTabData] = useState({
         0: { tabs: [ 
@@ -26,6 +23,8 @@ export const TabsContainerWrapper = ({ children }) => {
             tabLevelIndexMemo: [],
         }
     })
+
+    // Local depth level counter
     const [currentTabDepth, setCurrentTabDepth] = useState(0);
 
     // Local state to track parent tabs
@@ -249,13 +248,16 @@ export const TabsContainerWrapper = ({ children }) => {
             // Reset depth level back to top
             setCurrentTabDepth(0);
 
+            // Need to splice out the tab level memo
+            masterCopy[0].tabLevelIndexMemo.splice(tabId, 1);
+
             // Load the data
             if(parentCopy[tabId]) {
                 // Case we are deleting 0 index
                 setSelectedTabIndex(tabId)
                 if(parentCopy[tabId].componentType == 'TabsContainer') {
                     masterCopy[0].selectedTabIndex = tabId;
-                    setTabData(masterCopy[1].tabs[tabId][tabId].formData);
+                    setTabData(masterCopy[1].tabs[tabId][masterCopy[0].tabLevelIndexMemo[ tabId ] ].formData);
                     setCurrentTabDepth(1);
                 } else {
                     setTabData(parentCopy[tabId].formData);
@@ -264,7 +266,8 @@ export const TabsContainerWrapper = ({ children }) => {
                 masterCopy[0].selectedTabIndex = tabId - 1;
                 setSelectedTabIndex(tabId - 1)
                 if(parentCopy[tabId - 1].componentType == 'TabsContainer') {
-                    setTabData(masterCopy[1].tabs[tabId - 1][tabId - 1].formData);
+
+                    setTabData(masterCopy[1].tabs[tabId - 1][masterCopy[0].tabLevelIndexMemo[ tabId - 1 ] ].formData);
                     setCurrentTabDepth(1);
                 } else {
                     setTabData(parentCopy[tabId - 1].formData);
@@ -274,7 +277,7 @@ export const TabsContainerWrapper = ({ children }) => {
                 setSelectedTabIndex(tabId + 1)
                 if(parentCopy[tabId + 1].componentType == 'TabsContainer') {
                     setCurrentTabDepth(1);
-                    setTabData(masterCopy[1].tabs[tabId - 1][tabId - 1 ].formData);
+                    setTabData(masterCopy[1].tabs[tabId + 1 ][masterCopy[0].tabLevelIndexMemo[ tabId + 1 ] ].formData);
                 } else {
                     setTabData(parentCopy[tabId + 1].formData);
                 }
