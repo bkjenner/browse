@@ -318,8 +318,7 @@ export const TabsContainerWrapper = () => {
     /**
      * This function will handle adding a new Tab that will support sub tabs inside.
      * This function will require you to pass in the an Object with the prop: 'componentType' = 'TabsContainer'
-     * You may also pass in the prop: 'child' = {Object} that will control what is rendered inside the new tab that appears initially
-     * @param {Object} props 
+     * @param {Object} props The object containing the tab data. ComponentType key must be 'TabsContainer' and can contain child key to choose what to render inside the initial tab
      */
     const handleAddNewDepthTab = (props) => {
         let masterCopy = { ...masterTabData };
