@@ -1,21 +1,25 @@
 import React, { createContext, useContext, useState } from "react";
 import DynamicTabs from "./DynamicTabs";
-import _  from "lodash";
+import _, { find }  from "lodash";
 
 const TabsWrapperContext = createContext();
 TabsWrapperContext.displayName = "tabContexts";
 
-export const TabsContainerWrapper = ({ children }) => {
+/**
+ * This is a wrapper component that is called to initialize a tabs component utilizing Material UI.
+ * The component utilizes React Context to store the data between tabs
+ * @return {JSX.Element} A React component rendering the tabs
+ */
+export const TabsContainerWrapper = () => {
+    const initialComponentInfo = {
+        label: "Registration Form",
+        content: "",
+        componentType: "RegistrationForm",
+        formId: 1,
+    };
     // First Tab on parent level and a child showing that it has no tabs inside
     const [masterTabData, setMasterTabData] = useState({
-        0: { tabs: [ 
-            {
-                label: "Registration Form",
-                content: "",
-                componentType: "RegistrationForm",
-                formId: 1,
-            }
-        ],
+        0: { tabs: [initialComponentInfo],
             selectedTabIndex: 0,
             tabLevelIndexMemo: [0],
         },
@@ -23,67 +27,72 @@ export const TabsContainerWrapper = ({ children }) => {
             tabLevelIndexMemo: [],
         }
     })
+    // Local state to track the tabs to render at the top / parent level
+    const [parentDepthTabs, setParentDepthTabs] = useState([initialComponentInfo]);
 
-    // Local depth level counter
+    // Local Current Tabs in the current depth for rendering
+    const [currentDepthTabs, setCurrentDepthTabs] = useState([initialComponentInfo]);
+
+    // Local Depth level counter
     const [currentTabDepth, setCurrentTabDepth] = useState(0);
-
-    // Local state to track parent tabs
-    const [parentDepthTabs, setParentDepthTabs] = useState([{
-        label: "Registration Form",
-        content: "",
-        componentType: "RegistrationForm",
-        formId: 1,
-    },])
-
-    // Current Tabs in the current depth for rendering
-    const [currentDepthTabs, setCurrentDepthTabs] = useState([
-        {
-            label: "Registration Form",
-            content: "",
-            componentType: "RegistrationForm",
-            formId: 1,
-        },
-    ]);
-
-    // Parent Tab Index for showing
+    
+    // Local Parent Tab Index for showing
     const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
-    // Data from the selected tab in view
+    // Local Data that populates on the tab in view
     const [tabData, setTabData] = useState({});
+
+    
+    const findDepthLevel = (currentLevelTabs) => {
+        let depthLevel = 0;
+        if(currentLevelTabs) {
+            _.map(masterTabData, (data, key) => {
+                if(parseInt(key) == 0) {
+                    if(_.isEqual(data.tabs, currentLevelTabs)) {
+                        depthLevel = parseInt(key);
+                        setCurrentTabDepth(parseInt(key));
+                    }
+                } else {
+                    if(_.isEqual(data.tabs[masterTabData[parseInt(key) - 1].selectedTabIndex], currentLevelTabs)) {
+                        depthLevel = parseInt(key);
+                        setCurrentTabDepth(parseInt(key));
+                    }
+                }
+            })
+        } else {
+            _.map(masterTabData, (data, key) => {
+                if(parseInt(key) == 0) {
+                    if(_.isEqual(data.tabs, currentDepthTabs)) {
+                        depthLevel = parseInt(key);
+                        setCurrentTabDepth(parseInt(key));
+                    }
+                } else {
+                    if(_.isEqual(data.tabs[masterTabData[parseInt(key) - 1].selectedTabIndex], currentDepthTabs)) {
+                        depthLevel = parseInt(key);
+                        setCurrentTabDepth(parseInt(key));
+                    }
+                }
+            })
+        }
+        return depthLevel;
+    }
     
     const addNewTab = (props) => {
-        let newTabIndex;
-        let ctd = 0;
-        _.map(masterTabData, (data, key) => {
-            if(parseInt(key) == 0) {
-                if(_.isEqual(data.tabs, currentDepthTabs)) {
-                    ctd = parseInt(key);
-                    setCurrentTabDepth(parseInt(key));
-                }
-            } else {
-                if(_.isEqual(data.tabs[masterTabData[parseInt(key) - 1].selectedTabIndex], currentDepthTabs)) {
-                    ctd = parseInt(key);
-                    setCurrentTabDepth(parseInt(key));
-                }
-            }
-        })
-
         let masterCopy = {...masterTabData};
-        if(ctd == 0 ) {
-            // Current tab Depth level is 0
-            let tempData = [...currentDepthTabs, props]
-            masterCopy[ctd].tabs = tempData;
-            masterCopy[ctd].tabLevelIndexMemo.push(0);
-            
-            // Update currentDepthTabs for render + tracking
-            setParentDepthTabs(tempData);
-            setCurrentDepthTabs(tempData);
-            // Update the Tab view Index
-            newTabIndex = tempData.length - 1;
-            masterCopy[ctd].selectedTabIndex = newTabIndex;
-            setSelectedTabIndex(newTabIndex);
+        let newTabIndex;
+        const currentDepth = findDepthLevel();
 
-            // We need to add empty tabs to the tabs key one nest in
+        if(currentDepth == 0 ) {
+            let newTabData = [...currentDepthTabs, props]
+            masterCopy[currentDepth].tabs = newTabData;
+            // Update the memo to keep track of what child / tab is in view
+            masterCopy[currentDepth].tabLevelIndexMemo.push(0);
+            
+            // Update the Tab view Index
+            newTabIndex = newTabData.length - 1;
+            masterCopy[currentDepth].selectedTabIndex = newTabIndex;
+            
+            // Add empty array in tabs one nest level in to denote that there is no child tab information under this tab
             if(masterCopy[1]) {
                 masterCopy[1].tabs.push([]);
             } else {
@@ -92,155 +101,126 @@ export const TabsContainerWrapper = ({ children }) => {
                     tabLevelIndexMemo: []
                 }
             }
+
+            // Update ParentTabs / currentTabs for render + tracking
+            setParentDepthTabs(newTabData);
+            setCurrentDepthTabs(newTabData);
+            setSelectedTabIndex(newTabIndex);
+
+            // Update the master tab data store
             setMasterTabData(masterCopy);
         } else {
             // n level depth in
             newTabIndex = currentDepthTabs.length;
-            let cdTabs = [...currentDepthTabs, props];
-            masterCopy[ctd].tabs[masterCopy[ctd -1].selectedTabIndex] = [...cdTabs];
-            masterCopy[ctd].selectedTabIndex = newTabIndex; 
-            masterCopy[ctd].tabLevelIndexMemo.push(0);
-            masterCopy[ctd - 1].tabLevelIndexMemo[masterCopy[ctd -1].selectedTabIndex] = newTabIndex;
+            // Update the tab row
+            let newTabData = [...currentDepthTabs, props];
+            masterCopy[currentDepth].tabs[masterCopy[currentDepth - 1 ].selectedTabIndex] = [...newTabData];
+            masterCopy[currentDepth].selectedTabIndex = newTabIndex;
 
+            // Update the memo to track what child / tab to view for the new tab
+            masterCopy[currentDepth].tabLevelIndexMemo.push(0);
+            
+            // Update the memo so we know what child tab is in view for the parent tab 
+            masterCopy[currentDepth - 1].tabLevelIndexMemo[masterCopy[currentDepth - 1].selectedTabIndex] = newTabIndex;
+
+            // Update the master tab data store
+            setCurrentDepthTabs(newTabData);
             setMasterTabData(masterCopy);
-            setCurrentDepthTabs(cdTabs);
         }
 
-        // Update the initial state of the tab
+        // Update the tabs data to be the initial state of whatever you pass in
         setTabData(props.initialState);
     };
 
     const handleTabChange = (event, newTabId, cdTabs) => {
-        let ctd = 0;
-        _.map(masterTabData, (data, key) => {
-            if(parseInt(key) == 0) {
-                if(_.isEqual(data.tabs, cdTabs)) {
-                    ctd = parseInt(key);
-                    setCurrentTabDepth(parseInt(key));
-                }
-            } else {
-                if(_.isEqual(data.tabs[masterTabData[parseInt(key) - 1].selectedTabIndex], cdTabs)) {
-                    ctd = parseInt(key);
-                    setCurrentTabDepth(parseInt(key));
-                }
-            }
-        })
-
+        let newTabData = {};
         let masterCopy = {...masterTabData};
-        masterCopy[ctd].selectedTabIndex = newTabId;
+        let currentDepth = findDepthLevel( cdTabs );
+        const currentTabIndex = masterCopy[currentDepth].selectedTabIndex;
+
+        masterCopy[currentDepth].selectedTabIndex = newTabId;
         
-        if(ctd == 0) {
+        if(currentDepth == 0) {
             setSelectedTabIndex(newTabId);
-            // We need to check if the component is a Tab Container
-            if(masterCopy[ctd].tabs[masterCopy[ctd].selectedTabIndex].componentType == 'TabsContainer') {
+            // If the Tab contains sub tabs then we need to fetch the data on the sub tab
+            if(masterCopy[currentDepth].tabs[currentTabIndex].componentType == 'TabsContainer') {
                 let tabMemoIndex = masterCopy[0].tabLevelIndexMemo[newTabId];
-                setTabData(masterCopy[1].tabs[newTabId][tabMemoIndex].formData);
-                
-                masterCopy[1].selectedTabIndex = tabMemoIndex;
+                masterCopy[1].selectedTabIndex = tabMemoIndex;                
+                newTabData = masterCopy[1].tabs[newTabId][tabMemoIndex].formData                
+
+                // We are switching to a tabs container so we need to render tabs one depth level in
+                setCurrentDepthTabs(masterCopy[1].tabs[currentTabIndex]);
             } else {
-                setTabData(masterCopy[ctd].tabs[masterCopy[ctd].selectedTabIndex].formData);
+                newTabData = masterCopy[currentDepth].tabs[currentTabIndex].formData;
+                setCurrentDepthTabs(masterCopy[currentDepth].tabs);
             }
+
+            // Update the current tab in view with the data from the Context
+            setTabData(newTabData);
         } else {
-            setTabData(masterCopy[ctd].tabs[masterCopy[ctd - 1].selectedTabIndex][masterCopy[ctd].selectedTabIndex].formData);
-            // We should be setting the nested tab view index here
-        }
+            const parentTabIndex = masterCopy[currentDepth - 1].selectedTabIndex;
 
-        if(ctd == 0) {
-            if(masterCopy[ctd].tabs[masterCopy[ctd].selectedTabIndex].componentType == 'TabsContainer') {
-                // We are switching to a tabs container so we need to go one depth level in
-                setCurrentDepthTabs(masterCopy[1].tabs[masterCopy[ctd].selectedTabIndex]);
+            // Update the tab memo to keep track of which tab inside a tab container is looking at
+            masterCopy[currentDepth - 1].tabLevelIndexMemo[parentTabIndex] = newTabId;
 
-                // Update the tabs selectedTabIndex
-                masterCopy[1].selectedTabIndex = masterCopy[0].tabLevelIndexMemo[masterCopy[0].selectedTabIndex];
-            } else {
-                setCurrentDepthTabs(masterCopy[ctd].tabs);
-            }
-        } else {
-
-            // If we are not at the parent depth then we need to update the tab memo to keep track of what tab is where
-            masterCopy[ctd - 1].tabLevelIndexMemo[masterCopy[ctd -1].selectedTabIndex] = newTabId;
-
-            if(masterCopy[ctd].tabs[masterCopy[ctd - 1].selectedTabIndex][masterCopy[ctd].selectedTabIndex].componentType == 'TabsContainer') {
-                // We are switching to a tabs container so we need to go one depth level in
-                setCurrentDepthTabs(masterCopy[ctd + 1].tabs[masterCopy[ctd].selectedTabIndex]);
-
-
-                // Update the selectedTabIndex for current depth level
-                masterCopy[ctd].selectedTabIndex = newTabId;
-
-                // Update the selectedTabIndex for the+ 1 depth level we are showing
-                masterCopy[ctd + 1].selectedTabIndex = masterCopy[ctd].tabLevelIndexMemo[masterCopy[ctd].selectedTabIndex];
+            if(masterCopy[currentDepth].tabs[parentTabIndex][currentTabIndex].componentType == 'TabsContainer') {                
+                masterCopy[currentDepth].selectedTabIndex = newTabId;
                 
-            
+                // Update the selectedTabIndex for 1 depth level in we are showing by using the memo
+                masterCopy[currentDepth + 1].selectedTabIndex = masterCopy[currentDepth].tabLevelIndexMemo[currentTabIndex];            
+                
+                // Update the tabs
+                setCurrentDepthTabs(masterCopy[currentDepth + 1].tabs[currentTabIndex]);
             } else {
-                // Set the current tabs container to contain the tabs found under the tab we have selected
-                setCurrentDepthTabs(masterCopy[ctd].tabs[masterCopy[ctd - 1].selectedTabIndex]);
+                // Update the tabs
+                setCurrentDepthTabs(masterCopy[currentDepth].tabs[parentTabIndex]);
             }
+
+            // Update the tab in view with data from the Context
+            setTabData(masterCopy[currentDepth].tabs[parentTabIndex][currentTabIndex].formData);
         }
 
         setMasterTabData(masterCopy);
     };
 
+    /**
+     * This function will handle updating the Context with any data changes from the tab.
+     * @param {Object} formData Contains all the fields on the tab that are being updated to the Context  
+     */
     const handleTabDataUpdate = (formData) => {
-        let ctd = 0;
-        _.map(masterTabData, (data, key) => {
-            if(parseInt(key) == 0) {
-                if(_.isEqual(data.tabs, currentDepthTabs)) {
-                    ctd = parseInt(key);
-                    setCurrentTabDepth(parseInt(key));
-                }
-            } else {
-                if(_.isEqual(data.tabs[masterTabData[parseInt(key) - 1].selectedTabIndex], currentDepthTabs)) {
-                    ctd = parseInt(key);
-                    setCurrentTabDepth(parseInt(key));
-                }
-            }
-        })
-
         let masterCopy = {...masterTabData };
-
-        if(ctd == 0) {
-            // Parent depth level
+        const currentDepth = findDepthLevel();
+        
+        if(currentDepth == 0) {
             masterCopy[0].tabs[masterCopy[0].selectedTabIndex].formData = formData;
+            
             setParentDepthTabs(masterCopy[0].tabs);
             setCurrentDepthTabs(masterCopy[0].tabs);
         } else {
-            // Else find the tab we are on based on the selected tab index
-            masterCopy[ctd].tabs[masterCopy[ctd - 1].selectedTabIndex][masterCopy[ctd].selectedTabIndex].formData = formData;
-            setCurrentDepthTabs(masterCopy[ctd].tabs[masterCopy[ctd - 1].selectedTabIndex]);
-        }
+            const parentTabIndex = masterCopy[currentDepth - 1].selectedTabIndex;
+            const currentTabIndex = masterCopy[currentDept].selectedTabIndex;
 
+            masterCopy[currentDepth].tabs[parentTabIndex][currentTabIndex].formData = formData;
+            setCurrentDepthTabs(masterCopy[currentDepth].tabs[parentTabIndex]);
+        }
+        
+        // Update the context with the new data
         setMasterTabData(masterCopy);
     };
 
     const handleTabClose = (event, tabId, cdTabs) => {
         // Stop event from propagating to the target element's parent
         event.stopPropagation()
-        let ctd = 0;
+        let currentDepth = findDepthLevel( cdTabs );
         let masterCopy = {...masterTabData };
-        _.map(masterTabData, (data, key) => {
-            if(parseInt(key) == 0) {
-                if(_.isEqual(data.tabs, currentDepthTabs)) {
-                    ctd = parseInt(key);
-                    setCurrentTabDepth(parseInt(key));
-                }
-            } else {
-                if(_.isEqual(data.tabs[masterTabData[parseInt(key) - 1].selectedTabIndex], currentDepthTabs)) {
-                    ctd = parseInt(key);
-                    setCurrentTabDepth(parseInt(key));
-                }
-            }
-        })
 
-        // Figure out what depth level we are on
-        if(_.isEqual(cdTabs, parentDepthTabs)) {
-            // We are on the parent level
+        if(currentDepth == 0) {
+            // Update the tabs
             let parentCopy = parentDepthTabs.toSpliced(tabId, 1);
             setParentDepthTabs(parentCopy);
-            // Remove the tab from current
             setCurrentDepthTabs(parentCopy);
 
-            // Remove any children from the parent being deleted
+            // Remove any children inside the parent being deleted
             let newDepthCopy = masterCopy[1].tabs.toSpliced(tabId,1);
             masterCopy[1].tabs = newDepthCopy;
             masterCopy[0].tabs = parentCopy;
@@ -248,36 +228,40 @@ export const TabsContainerWrapper = ({ children }) => {
             // Reset depth level back to top
             setCurrentTabDepth(0);
 
-            // Need to splice out the tab level memo
+            // Remove index from tab level memo
             masterCopy[0].tabLevelIndexMemo.splice(tabId, 1);
 
-            // Load the data
+            // Fetch data of tab in view
             if(parentCopy[tabId]) {
-                // Case we are deleting 0 index
                 setSelectedTabIndex(tabId)
+                masterCopy[0].selectedTabIndex = tabId;
                 if(parentCopy[tabId].componentType == 'TabsContainer') {
-                    masterCopy[0].selectedTabIndex = tabId;
                     setTabData(masterCopy[1].tabs[tabId][masterCopy[0].tabLevelIndexMemo[ tabId ] ].formData);
+                    
+                    // Since the tab contains subtabs then we are at the next depth level
                     setCurrentTabDepth(1);
                 } else {
                     setTabData(parentCopy[tabId].formData);
                 }
             } else if(parentCopy[tabId - 1]) {
-                masterCopy[0].selectedTabIndex = tabId - 1;
                 setSelectedTabIndex(tabId - 1)
+                masterCopy[0].selectedTabIndex = tabId - 1;
                 if(parentCopy[tabId - 1].componentType == 'TabsContainer') {
-
                     setTabData(masterCopy[1].tabs[tabId - 1][masterCopy[0].tabLevelIndexMemo[ tabId - 1 ] ].formData);
+                    
+                    // Since the tab contains subtabs then we are at the next depth level
                     setCurrentTabDepth(1);
                 } else {
                     setTabData(parentCopy[tabId - 1].formData);
                 }
             } else if (parentCopy[tabId + 1]) {
-                masterCopy[0].selectedTabIndex = tabId + 1;
                 setSelectedTabIndex(tabId + 1)
+                masterCopy[0].selectedTabIndex = tabId + 1;
                 if(parentCopy[tabId + 1].componentType == 'TabsContainer') {
-                    setCurrentTabDepth(1);
                     setTabData(masterCopy[1].tabs[tabId + 1 ][masterCopy[0].tabLevelIndexMemo[ tabId + 1 ] ].formData);
+                    
+                    // Since the tab contains subtabs then we are at the next depth level
+                    setCurrentTabDepth(1);
                 } else {
                     setTabData(parentCopy[tabId + 1].formData);
                 }
@@ -286,154 +270,141 @@ export const TabsContainerWrapper = ({ children }) => {
                 setTabData({});
                 setSelectedTabIndex(0);
             }
-            setMasterTabData(masterCopy);
         } else {
-            // We are on depth level 1
-            let currentCopy = currentDepthTabs.toSpliced(tabId, 1);
-            setCurrentDepthTabs(currentCopy);
-            let currentTab = masterCopy[ctd].selectedTabIndex;
+            // Only consider 1 depth level
+            // Update the tabs on the current depth
+            let currentTabsCopy = currentDepthTabs.toSpliced(tabId, 1);
+            let currentTabIndex = masterCopy[currentDepth].selectedTabIndex;
+            let parentTabIndex = masterCopy[currentDepth - 1].selectedTabIndex;
+            setCurrentDepthTabs(currentTabsCopy);
             
-            // If we have no more tabs in the current level then close out the parent
-            if(currentCopy.length == 0) {
-                // case at depth level 1
-                let parentCopy = parentDepthTabs.toSpliced(masterCopy[0].selectedTabIndex, 1);
-                masterCopy[0].tabs = parentCopy;
-                masterCopy[ctd].tabs.splice(masterCopy[ctd - 1].selectedTabIndex , 1 );
-
-                // 007
-                // need other cases to capture further depth
-                setTabData({})
-                setCurrentDepthTabs([])
+            // If we have no more tabs in the current level then remove the parent
+            if(currentTabsCopy.length == 0) {
+                if(currentDepth == 0) {
+                    // Case at depth level 1
+                    let parentCopy = parentDepthTabs.toSpliced(masterCopy[0].selectedTabIndex, 1);
+                    masterCopy[0].tabs = parentCopy;
+                    masterCopy[currentDepth].tabs.splice(parentTabIndex, 1 );
+                } else {
+                    // 007
+                    // Further work needs to be implemented to capture nesting levels > 2
+                    setTabData({})
+                    setCurrentDepthTabs([])
+                }
             } else {
-                masterCopy[ctd].tabs[ masterCopy[ctd - 1].selectedTabIndex ] = currentCopy;
+                masterCopy[currentDepth].tabs[parentTabIndex] = currentTabsCopy;
             }
 
-            if(currentCopy[currentTab]) {
-                setTabData(currentCopy[currentTab].formData);
-                masterCopy[ctd].selectedTabIndex = currentTab;
-            } else if(currentCopy[currentTab - 1]) {
-                setTabData(currentCopy[currentTab - 1].formData);
-                masterCopy[ctd].selectedTabIndex = currentTab - 1;            
-            } else if (currentCopy[currentTab + 1]) {
-                setTabData(currentCopy[currentTab + 1].formData);
-                masterCopy[ctd].selectedTabIndex = currentTab + 1;
+            // 007
+            // Further work needs to be implemented to capture nesting levels > 2 (Case where we are rendering a tab container)
+            // Load the data from the Context
+            if(currentTabsCopy[currentTabIndex]) {
+                setTabData(currentTabsCopy[currentTabIndex].formData);
+                masterCopy[currentDepth].selectedTabIndex = currentTabIndex;
+            } else if(currentTabsCopy[currentTabIndex - 1]) {
+                setTabData(currentTabsCopy[currentTabIndex - 1].formData);
+                masterCopy[currentDepth].selectedTabIndex = currentTabIndex - 1;            
+            } else if (currentTabsCopy[currentTabIndex + 1]) {
+                setTabData(currentTabsCopy[currentTabIndex + 1].formData);
+                masterCopy[currentDepth].selectedTabIndex = currentTabIndex + 1;
             } else {
-                // 007
-                // TO DO
-                let parentCopy = parentDepthTabs.toSpliced(selectedTabIndex, 1);
-                setParentDepthTabs(parentCopy);
-
-                // setCurrentDepthTabs(parentCopy);
+                setTabData({});
                 setSelectedTabIndex(null);
             }
         }
-
+        // Update the Context with the new data
         setMasterTabData(masterCopy);
     };
 
+    /**
+     * This function will handle adding a new Tab that will support sub tabs inside.
+     * This function will require you to pass in the an Object with the prop: 'componentType' = 'TabsContainer'
+     * You may also pass in the prop: 'child' = {Object} that will control what is rendered inside the new tab that appears initially
+     * @param {Object} props 
+     */
     const handleAddNewDepthTab = (props) => {
-        // This function will be called when we are creating a new tab with a higher depth level
-        let ctd = 0;
-        _.map(masterTabData, (data, key) => {
-            if(parseInt(key) == 0) {
-                if(_.isEqual(data.tabs, currentDepthTabs)) {
-                    ctd = parseInt(key);
-                    setCurrentTabDepth(parseInt(key));
-                }
-            } else {
-                if(_.isEqual(data.tabs[masterTabData[parseInt(key) - 1].selectedTabIndex], currentDepthTabs)) {
-                    ctd = parseInt(key);
-                    setCurrentTabDepth(parseInt(key));
-                }
-            }
-        })
+        let masterCopy = { ...masterTabData };
+        let currentDepth = findDepthLevel();
 
+        // Control to use if you only want to create tabs with a nesting level of 1
         if(props.parentOnly) {
-            ctd = 0;
+            currentDepth = 0;
         }
 
-        let masterCopy = { ...masterTabData };
-        if(ctd == 0) {
+        if(currentDepth == 0) {
             let newParentTabIndex = parentDepthTabs.length;
-            // Add the new Tab to the current row
-            setParentDepthTabs([...parentDepthTabs, {...props}]);
-            masterCopy[ctd].tabs = [...parentDepthTabs, {...props}];
-            // Select the new parent tab to be in view
+            masterCopy[currentDepth].tabs = [...parentDepthTabs, {...props}];
+            masterCopy[currentDepth].selectedTabIndex = newParentTabIndex;
+            // Add to memo so we can keep track of what child the tab is looking at
+            masterCopy[currentDepth].tabLevelIndexMemo.push(0);
+
             setSelectedTabIndex(newParentTabIndex);
-            masterCopy[ctd].selectedTabIndex = newParentTabIndex;
-
-            // Keep track of what child the page is supposed to be looking at
-            masterCopy[ctd].tabLevelIndexMemo.push(0);
-
-            // If there already exists a key then
-            if(masterCopy[ctd + 1]) {
-                masterCopy[ctd + 1].tabs = [ ...masterCopy[ctd + 1].tabs, [props.child] ];
-                masterCopy[ctd + 1].tabLevelIndexMemo = [...masterCopy[ctd + 1].tabLevelIndexMemo, 0]; // 0 because the new tab we are creating is looking at the 0 index under it
-                masterCopy[ctd + 1].selectedTabIndex = 0;
+            setParentDepthTabs([...parentDepthTabs, {...props}]);
+            
+            if(masterCopy[currentDepth + 1]) {
+                // If we already have data at nesting level of 1 then add to it
+                masterCopy[currentDepth + 1].selectedTabIndex = 0;
+                
+                masterCopy[currentDepth + 1].tabs = [ ...masterCopy[currentDepth + 1].tabs, [props.child] ];
+                
+                // Since we are adding a new tab (the child) we need to update the memo as well
+                masterCopy[currentDepth + 1].tabLevelIndexMemo = [...masterCopy[currentDepth + 1].tabLevelIndexMemo, 0];
             } else {
-                // If there is no depth yet
-                masterCopy[ctd + 1] = {
-                    tabs: [[],[props.child]],
+                masterCopy[currentDepth + 1] = {
+                    tabs: [[],[props.child]],   // [[], [props.child]] Assumes we started on a page without any child tabs -> we need an empty array to show it holds no child tabs
                     tabLevelIndexMemo: [0],
                     selectedTabIndex: 0,
                 };
             }
+            // Update the tab depth
+            setCurrentTabDepth(1);
 
             // Show the new child component
             setCurrentDepthTabs([props.child])
-
-            setCurrentTabDepth(1);
+            setTabData(props.child.initialState);
         } else {
-            // Handling of adding a new depth level not on parent row
-            // We need to add a tabsContainer to the current tabs row
-            masterCopy[ctd].selectedTabIndex = masterCopy[ctd].tabs[masterCopy[ctd - 1].selectedTabIndex].length;
-            masterCopy[ctd].tabs[masterCopy[ctd - 1].selectedTabIndex].push(props);
-            // If there already exists a key then
-            if(masterCopy[ctd + 1]) {
-                masterCopy[ctd + 1].tabs = [ ...masterCopy[ctd + 1].tabs, [props.child] ];
-                masterCopy[ctd + 1].tabLevelIndexMemo = [...masterCopy[ctd + 1].tabLevelIndexMemo, 0];
-                masterCopy[ctd + 1].selectedTabIndex = 0;
+            // Adding new n level Depth
+            let parentTabIndex = masterCopy[currentDepth - 1].selectedTabIndex;
+            masterCopy[currentDepth].selectedTabIndex = masterCopy[currentDepth].tabs[parentTabIndex].length;
+            masterCopy[currentDepth].tabs[parentTabIndex].push(props);
+            
+            
+            if(masterCopy[currentDepth + 1]) {
+                // If we already have data at nesting level of 1 then add to it
+                masterCopy[currentDepth + 1].tabs = [ ...masterCopy[currentDepth + 1].tabs, [props.child] ];
+                masterCopy[currentDepth + 1].tabLevelIndexMemo = [...masterCopy[currentDepth + 1].tabLevelIndexMemo, 0];
+                masterCopy[currentDepth + 1].selectedTabIndex = 0;
             } else {
-                // If there is no depth yet
-                // We'll need to somehow check for the very base level of depth and then propagate down further
-
-                // We need to do this while somehow preserving the data that may already be there
-
-                // look for the number of tabs in the current level and push that many empty
-                // Then push the prop child we want
-
-                // 008 uncomment this to work
-                // masterCopy[ctd + 1] = {
-                //     tabs: [[],[props.child]],
-                //     tabLevelIndexMemo: [0], //This needs work
-                //     selectedTabIndex: 0,
-                // };
-
-                // Skeleton
-                
-                masterCopy[ctd + 1] = {
+                // 007
+                // Further work needs to be done to implement nesting levels > 2
+                // Memo may need rework at n > 0
+                masterCopy[currentDepth + 1] = {
                     tabs: [ ],
                     tabLevelIndexMemo: [0],
                     selectedTabIndex: 0,
                 };
 
-                let nestedTabIndex = masterCopy[ctd - 1].selectedTabIndex;
-                let cdTabs = masterCopy[ctd].tabs[nestedTabIndex];
+                let currentTabs = masterCopy[currentDepth].tabs[parentTabIndex];
 
-                // This needs to be at our nested Tab Index
-                for(let i = 0; i < cdTabs.length - 1; i++) {
-                    masterCopy[ctd + 1].tabs.push([]);
+                // This only accounts for depth n = 1
+                // At depth n = 2 then tabs will need another nesting array to hold each element
+
+                // Since we do not have a nested level of n then we know we need empty arrays for as many tabs as we have in the current level
+                for(let i = 0; i < currentTabs.length - 1; i++) {
+                    masterCopy[currentDepth + 1].tabs.push([]);
                 }
 
-                masterCopy[ctd + 1].tabs.push([props.child]);
+                masterCopy[currentDepth + 1].tabs.push([props.child]);
             }
-            setCurrentTabDepth(ctd + 1);
+            setCurrentTabDepth(currentDepth + 1);
         }
         
         // Update the store data
         setMasterTabData(masterCopy);
+
         // Set up the new nest row we pass to the tab container for rendering
         setCurrentDepthTabs([props.child]);
+        
         // Update the initial state of the Tab in view
         setTabData(props.initialState);
     }
