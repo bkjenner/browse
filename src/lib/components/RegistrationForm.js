@@ -76,7 +76,7 @@ function RegistrationForm({props}) {
                 </div>
             </form>
             <div>
-                <button onClick={() => {
+                {/* <button onClick={() => {
                     addNewTab(
                         {
                             label: "RegistrationForm",
@@ -110,7 +110,7 @@ function RegistrationForm({props}) {
                     )
                 }}>
                     Open New Tab with Nested Depth
-                </button>
+                </button> */}
             </div>
         </div>
     );

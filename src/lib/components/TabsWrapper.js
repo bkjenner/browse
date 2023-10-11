@@ -345,6 +345,10 @@ export const TabsContainerWrapper = ({ children }) => {
             }
         })
 
+        if(props.parentOnly) {
+            ctd = 0;
+        }
+
         let masterCopy = { ...masterTabData };
         if(ctd == 0) {
             let newParentTabIndex = parentDepthTabs.length;
@@ -440,7 +444,7 @@ export const TabsContainerWrapper = ({ children }) => {
                 selectedTab={selectedTabIndex}
                 onChange={handleTabChange}
             />
-            {/* <button onClick={() => {
+            <button onClick={() => {
                 addNewTab(
                     {
                         label: "RegistrationForm",
@@ -472,13 +476,13 @@ export const TabsContainerWrapper = ({ children }) => {
                                 componentType: "",
                                 initialState: {}
                             },
-                            // parentTabId: props.tabKey,
                             currentDepthLevel: 0,
+                            parentOnly: true,
                         }
                     )
                 }}>
                     Open New Tab with Nested Depth
-                </button> */}
+                </button>
         </TabsWrapperContext.Provider>
     );
 };
