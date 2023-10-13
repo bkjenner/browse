@@ -12,22 +12,27 @@ import { useTabsWrapperContext } from "./TabsWrapper";
  * @param {Object} masterTabData    Contains all the data on Tabs
  * @returns {JSX.Element}           Returns the JSX for the Tabs to be rendered 
  */
-function LocalTabs({ currentDepthLevel, masterTabData, localSTI }) {
+function LocalTabs({ currentDepthLevel, masterTabData, localSTI, tabContainerId }) {
     const [localTabs, setLocalTabs] = useState([]);
-    const { handleTabChange } = useTabsWrapperContext();
+    const { handleTabChange, mTabData } = useTabsWrapperContext();
   
     useEffect(() => {
       let tabs;
-      if (currentDepthLevel === 0) {
-        tabs = masterTabData[1].tabs[masterTabData[0].selectedTabIndex];
-      } else {
-        tabs = masterTabData[currentDepthLevel].tabs[masterTabData[currentDepthLevel - 1].selectedTabIndex];
-      }
+      // if (currentDepthLevel === 0) {
+      //   tabs = masterTabData[1].tabs[masterTabData[0].selectedTabIndex];
+      // } else {
+      //   tabs = masterTabData[currentDepthLevel].tabs[masterTabData[currentDepthLevel - 1].selectedTabIndex];
+      // }
   
+      if (currentDepthLevel === 0) {
+        tabs = mTabData.tabsIndex.parent.tabs;
+      } else {
+        tabs = mTabData.tabsIndex[tabContainerId].tabs;
+      }
       if (!_.isEqual(localTabs, tabs)) {
         setLocalTabs([...tabs]);
       }
-    }, [masterTabData, localTabs]);
+    }, [masterTabData, localTabs, mTabData]);
   
     return (
       <DynamicTabs
@@ -47,31 +52,37 @@ function LocalTabs({ currentDepthLevel, masterTabData, localSTI }) {
 function TabsContainer({props}) {
     // Local state for the container to keep track of by itself
     const [localSTI, setLocalSTI] = useState(0);
-    const depthLevel = props.currentDepthLevel;
+    const depthLevel = props.currentDepthLevel + 1;
     
-    const { currentTabDepth, masterTabData } = useTabsWrapperContext();
+    const { currentTabDepth, masterTabData, mTabData } = useTabsWrapperContext();
     
     useEffect(() => {
         if(depthLevel == 0) {
-            if(masterTabData && masterTabData[depthLevel + 1] ) {
-                if(localSTI != masterTabData[depthLevel + 1].selectedTabIndex) {
-                    setLocalSTI(masterTabData[depthLevel + 1].selectedTabIndex);
+            if(mTabData && mTabData[depthLevel + 1] ) {
+                if(localSTI != mTabData[depthLevel + 1].selectedTabIndex) {
+                    setLocalSTI(mTabData[depthLevel + 1].selectedTabIndex);
                 }
             }
         } else {
-            if(masterTabData && masterTabData[depthLevel] ) {
-                if(localSTI != masterTabData[depthLevel].selectedTabIndex) {
-                    setLocalSTI(masterTabData[depthLevel].selectedTabIndex);
+            if(mTabData && mTabData[depthLevel] ) {
+                if(localSTI != mTabData[depthLevel].selectedTabIndex) {
+                    setLocalSTI(mTabData[depthLevel].selectedTabIndex);
                 }
             }
         }
-    }, [currentTabDepth, masterTabData, localSTI])
+
+        if(mTabData.tabsIndex[props.tabId].selectedTabIndex != localSTI) {
+          setLocalSTI(mTabData.tabsIndex[props.tabId].selectedTabIndex);
+        }
+    }, [currentTabDepth, masterTabData, localSTI, mTabData])
 
     return (
         <LocalTabs
+            mTabData={mTabData}
             masterTabData={masterTabData}
             localSTI={localSTI}
             currentDepthLevel={depthLevel}
+            tabContainerId={props.tabId}
       />
     );
 }
