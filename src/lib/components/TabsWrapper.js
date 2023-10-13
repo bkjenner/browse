@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
 import DynamicTabs from "./DynamicTabs";
-import _, { find }  from "lodash";
-import { ContentProvider, useContentProviderContext } from "../contexts/ContentContext/ContentProvider";
+import _   from "lodash";
+import { useContentProviderContext } from "../contexts/ContentContext/ContentProvider";
 
 const TabsWrapperContext = createContext();
 TabsWrapperContext.displayName = "tabContexts";
@@ -41,9 +41,7 @@ export const TabsContainerWrapper = () => {
     // Local Parent Tab Index for showing
     const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
-    // Local Data that populates on the tab in view
-    const [tabData, setTabData] = useState({});
-
+    // Local counter of Tab Ids
     const [tabId, setTabId] = useState(1);
 
     const [mTabData, setMTabData ] = useState({
@@ -73,13 +71,37 @@ export const TabsContainerWrapper = () => {
             0: [0]
         },
     });
-
+    
     const { contentDataDelete } = useContentProviderContext();
     
+    const findParentTabId = (cdTabs) => {
+        let mTabCopy  = { ...mTabData };
+        let parentTabId = 0;
+        if(cdTabs) {
+            _.map(mTabCopy.tabsIndex, (data, key) => {
+                if(_.isEqual(data.tabs, cdTabs)) {
+                    if(!isNaN(key)) {
+                        parentTabId = Number(key);
+                    } else {
+                        parentTabId = key;
+                    }
+                }
+            })
+        } else {
+            _.map(mTabCopy.tabsIndex, (tabData, tabKey) => {
+                if(_.isEqual(tabData.tabs, currentDepthTabs)) {
+                    parentTabId = tabKey;
+                }
+            })
+        }
+
+        return parentTabId;
+    }
+
     const addNewTab = (props) => {
-        // const currentDepth = findDepthLevel();
         let currentDepth = props.currentDepthLevel;
         let mTabCopy = {...mTabData};
+
         if(currentDepth == 0) {
             mTabCopy.tabsIndex[props.tabId] = { 
                 tabs: [], 
@@ -95,14 +117,11 @@ export const TabsContainerWrapper = () => {
 
             setParentDepthTabs(mTabCopy.tabsIndex.parent.tabs);
             setCurrentDepthTabs(mTabCopy.tabsIndex.parent.tabs);
-
             setSelectedTabIndex(mTabCopy.tabsIndex.parent.tabs.length - 1);
         } else {
             let parentTabId = 0;
-            // loop through mTabCopy.tabsIndex.TabID.tabs
             _.map(mTabCopy.tabsIndex, (tabData, tabKey) => {
                 if(_.isEqual(tabData.tabs, currentDepthTabs)) {
-                    // then we have TabID which is the parent
                     parentTabId = tabKey;
                 }
             }) 
@@ -133,19 +152,9 @@ export const TabsContainerWrapper = () => {
     };
 
     const handleTabChange = (newTabId, cdTabs) => {
-        let depth = 0;
-        let parentTabId;
+        let parentTabId = findParentTabId(cdTabs);
         let contentId;
         let mTabCopy = { ...mTabData };
-        _.map(mTabCopy.tabsIndex, (data, key) => {
-            if(_.isEqual(data.tabs, cdTabs)) {
-                if(!isNaN(key)) {
-                    parentTabId = Number(key);
-                } else {
-                    parentTabId = key;
-                }
-            }
-        })
 
         if(isNaN(parentTabId)) {
             mTabCopy.tabsIndex.parent.selectedTabIndex = newTabId;
@@ -202,41 +211,11 @@ export const TabsContainerWrapper = () => {
         setMTabData(mTabCopy);
     };
 
-    /**
-     * This function will handle updating the Context with any data changes from the tab.
-     * @param {Object} formData Contains all the fields on the tab that are being updated to the Context  
-     */
-    const handleTabDataUpdate = (formData) => {
-        // 007 
-        // Update to handle new structure
-        let masterCopy = {...masterTabData };
-        const currentDepth = findDepthLevel();
-        
-        if(currentDepth == 0) {
-            masterCopy[0].tabs[masterCopy[0].selectedTabIndex].formData = formData;
-            
-            setParentDepthTabs(masterCopy[0].tabs);
-            setCurrentDepthTabs(masterCopy[0].tabs);
-        } else {
-            const parentTabIndex = masterCopy[currentDepth - 1].selectedTabIndex;
-            const currentTabIndex = masterCopy[currentDepth].selectedTabIndex;
-
-            masterCopy[currentDepth].tabs[parentTabIndex][currentTabIndex].formData = formData;
-            setCurrentDepthTabs(masterCopy[currentDepth].tabs[parentTabIndex]);
-        }
-        
-        // Update the context with the new data
-        setMasterTabData(masterCopy);
-    };
-
     const handleTabClose = (event, tabIndex, cdTabs) => {
         // Stop event from propagating to the target element's parent
         event.stopPropagation()
 
         let mTabCopy = {...mTabData};
-        // May need to find parentID from the master tab data
-
-
         let tabToDeletObj = mTabCopy.tabsIndex[cdTabs[tabIndex].tabId];
         let parentTabId = tabToDeletObj.parentId;
         let tabIdToDelete = tabToDeletObj.tabId;
@@ -324,7 +303,6 @@ export const TabsContainerWrapper = () => {
             };
 
             // Add the child to the index
-
             mTabCopy.tabsIndex[props.child.tabId] = {
                 tabs: [], 
                 selectedTabIndex: 0, 
@@ -337,20 +315,10 @@ export const TabsContainerWrapper = () => {
             setMTabData(mTabCopy);
             // Show the new child component
             setCurrentDepthTabs([props.child])
-            setTabData(props.child.initialState);
-
             setSelectedTabIndex(newParentTabIndex);
             setCurrentTabDepth(1);
         } else {
-            let parentTabId = 0;
-            // loop through mTabCopy.tabsIndex.TabID.tabs
-            _.map(mTabCopy.tabsIndex, (tabData, tabKey) => {
-                if(_.isEqual(tabData.tabs, currentDepthTabs)) {
-                    // then we have TabID which is the parent
-                    parentTabId = tabKey;
-                }
-            }) 
-
+            let parentTabId = findParentTabId();
             let newTabIndex = mTabCopy.tabsIndex[parentTabId].tabs.length;
             // Update parent
             mTabCopy.tabsIndex[parentTabId].tabs.push(props);
@@ -376,7 +344,6 @@ export const TabsContainerWrapper = () => {
             };
 
             // Add the child to the index
-
             mTabCopy.tabsIndex[props.child.tabId] = {
                 tabs: [], 
                 tabId: props.child.tabId,
@@ -386,11 +353,10 @@ export const TabsContainerWrapper = () => {
                 label: props.child.label,
             }
 
+            // Update the Context
             setMTabData(mTabCopy);
             // Show the new child component
-            setCurrentDepthTabs([props.child])
-            setTabData(props.child.initialState);
-;
+            setCurrentDepthTabs([props.child]);
             setCurrentTabDepth(newDepth);
         }
         
@@ -400,16 +366,13 @@ export const TabsContainerWrapper = () => {
         // Set up the new nest row we pass to the tab container for rendering
         setCurrentDepthTabs([props.child]);
 
-        // Update the initial state of the Tab in view
-        setTabData(props.initialState);
-
         // Increment the tab counter by 2 since we added 2 tabs
         setTabId(tabId + 2);
     }
 
     return (
         <TabsWrapperContext.Provider
-            value={{ tabId, mTabData, masterTabData, tabData, selectedTabIndex, currentTabDepth, currentDepthTabs, addNewTab, handleTabChange, handleTabDataUpdate, handleTabClose, handleAddNewDepthTab }}
+            value={{ tabId, mTabData, masterTabData, tabData, selectedTabIndex, currentTabDepth, currentDepthTabs, addNewTab, handleTabChange, handleTabClose, handleAddNewDepthTab }}
         >
             <DynamicTabs
                 tabs={parentDepthTabs}

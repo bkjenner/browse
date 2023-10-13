@@ -13,5 +13,4 @@ export default function Home() {
     const theme = useTheme();
 
     return <TabInterface/>
-    // return <TabsContainerWrapper/>
 }
