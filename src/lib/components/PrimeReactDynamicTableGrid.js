@@ -20,9 +20,20 @@ import { MultiSelect } from "primereact/multiselect";
 import { Tag } from "primereact/tag";
 import { TriStateCheckbox } from "primereact/tristatecheckbox";
 
+import { useTabsWrapperContext } from "./TabsWrapper";
+import { useContentProviderContext } from "../contexts/ContentContext/ContentProvider";
+
 import moment from "moment";
 
-export default function PrimeReactDynamic() {    
+export default function PrimeReactDynamicTableGrid({props}) {   
+    
+    const { selectedTabIndex, currentTabDepth, tabId, addNewTab, handleAddNewDepthTab, currentDepthTabs } = useTabsWrapperContext();
+    const { contentDataUpdate, currentContentData } = useContentProviderContext();
+    // Initial State
+    // Used whenever we create a new form
+    const initialState = {
+        noUseInitialStateHolder:'incase overwite existing data when switching tabs'
+    }
 
     const dataTableRef = useRef(null);
 
@@ -42,8 +53,8 @@ export default function PrimeReactDynamic() {
     const [layoutMetaUpdate, setLayoutMetaUpdate] = useState({}); // tie to useEffect to trigger re-render table layout
 
     useEffect(() => {
-        console.log("layoutMetaUpdate useEffect");
-        console.log(layoutMetaUpdate);
+        // console.log("layoutMetaUpdate useEffect");
+        // console.log(layoutMetaUpdate);
         if (dataTableRef.current) {
             dataTableRef.current.restoreState(); // the built-in restoreState() function would trigger re-render layout
         }
@@ -51,13 +62,41 @@ export default function PrimeReactDynamic() {
 
 
     useEffect(() => {
-        console.log("initial fetching");
-        fetchRowData();
-        // // Cleanup function
-        // return () => {
-        //     // Your componentWillUnmount logic here
-        //     console.log("Component will unmount");
-        // };
+        console.log('currentContentData');
+        console.log(currentContentData);
+        // try to load data from context first,
+        // if no data in context, like initial load, call rule to fetch data from 
+        if(
+            currentContentData && currentContentData.rowDataForTab 
+            && currentContentData.rowDataForTab.length>0
+        ){
+            console.log("loading existing data from tab context");
+
+            let res = currentContentData.rowDataForTab;
+            columnHeaderMap = currentContentData.columnHeaderMapping 
+                ? currentContentData.columnHeaderMapping
+                : [];
+
+            setRowData(res);
+            setLoading(false);
+            let columnObjectArray = [];
+            if (typeof res === "object" && res != null) {
+                // console.log("passed in nested json");
+                // console.log(data);
+                // if data passed in in in nested json:
+                columnObjectArray = getColumnsThroughLoopArrayJSON(res, columnHeaderMap);
+                // console.log(columnNames);
+                setColumnData(columnObjectArray);
+                setVisibleColumns(columnObjectArray); // initially display all columns
+                // setExportColumns(columnObjectArray.map((col) => ({ title: col.header, dataKey: col.field })));
+            } else {
+                console.log("No Column rendered. \nNeed JSON or JSON Array to render columns");
+            }
+        }
+        else{
+            console.log("initial fetching");
+            fetchRowData();
+        };
     }, []);
 
     const fetchRowData = () => {
@@ -67,10 +106,18 @@ export default function PrimeReactDynamic() {
             // console.log(response.data);
             let res = response.data && response.data.activities ? response.data.activities : response.data;
 
-            let columnHeaderMap = response.data && response.data.metadata ? response.data.metadata : [];
+            columnHeaderMap = response.data && response.data.metadata ? response.data.metadata : [];
 
             setRowData(res);
             setLoading(false);
+            contentDataUpdate({ 
+                // ...formData, 
+                rowDataForTab: res,
+                columnHeaderMapping: columnHeaderMap, 
+                tabId: props.tabKey,
+                currentTabDepth: currentTabDepth,
+                tabs: currentDepthTabs,
+            })
             let columnObjectArray = [];
             if (typeof res === "object" && res != null) {
                 console.log("passed in nested json");
@@ -113,9 +160,10 @@ export default function PrimeReactDynamic() {
     const paginatorRight = <Button type="button" icon="pi pi-download" text onClick={(e) => console.log(rowData)} />;
 
     const onColumnToggle = (event) => {
-        console.log(columnFromRowData);
+        // @TODO
+        // console.log(columnFromRowData);
         let selectedColumns = event.value;
-        console.log(selectedColumns);
+        // console.log(selectedColumns);
         let orderedSelectedColumns = columnFromRowData.filter((col) => selectedColumns.some((sCol) => sCol.field === col.field));
 
         setVisibleColumns(orderedSelectedColumns);
@@ -246,17 +294,43 @@ export default function PrimeReactDynamic() {
 
     const dataTableSaveState = (state) => {
 
-        console.log("dataTableSaveState");
-        console.log(state);
+        // console.log("dataTableSaveState");
+        // console.log(state);
 
         layoutMeta = state;
+        // only update the context if the the layout meta is diffferent, otherwise would be looping
+        if(!(currentContentData && currentContentData.layoutMeta && _.isEqual(layoutMeta, currentContentData.layoutMeta))){
+            contentDataUpdate({ 
+                ...currentContentData, 
+                layoutMeta: layoutMeta,
+                tabId: props.tabKey,
+                currentTabDepth: currentTabDepth,
+                tabs: currentDepthTabs,
+            }); 
+        }
     };
 
     const dataTableLoadState = () => {
-        console.log("loading layout from layoutMetaUpdate");
-        console.log(layoutMetaUpdate);
+        // also handles the initial loading layoutMeta
+        
+        // console.log(layoutMetaUpdate);
 
-        return layoutMetaUpdate;
+        // check if tab context already has layoutMeta
+        if(currentContentData && currentContentData.layoutMeta){
+            console.log("loading layout from tab currentContentData");
+            return currentContentData.layoutMeta;
+        }
+        else{
+            console.log("loading layout from layoutMetaUpdate");
+            contentDataUpdate({ 
+                ...currentContentData, 
+                layoutMeta: layoutMetaUpdate,
+                tabId: props.tabKey,
+                currentTabDepth: currentTabDepth,
+                tabs: currentDepthTabs,
+            }); 
+            return layoutMetaUpdate;
+        }
     };
     const loadLayout1 = () => {
         console.log("loading saved layout 1");
@@ -269,16 +343,81 @@ export default function PrimeReactDynamic() {
             columnOrder: [],
         };
 
+        contentDataUpdate({ 
+            ...currentContentData, 
+            layoutMeta: layout,
+            tabId: props.tabKey,
+            currentTabDepth: currentTabDepth,
+            tabs: currentDepthTabs,
+        }); 
+
         
         // the useEffect would trigger layout re-load based on data in layoutMetaUpdate
         setLayoutMetaUpdate(layout); 
     };
 
+    const onRowReorder = (e) =>{
+
+        // row data directly to table
+        setRowData(e.value);
+        
+        contentDataUpdate({ 
+            ...currentContentData, 
+            rowDataForTab: e.value,
+            tabId: props.tabKey,
+            currentTabDepth: currentTabDepth,
+            tabs: currentDepthTabs,
+        });
+    };
+    const cdl = currentTabDepth;
     return (
         <Box component="main" sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}>
             <Grid container spacing={2}>
+
                 <Grid item xs={12}>
-                    <h1>PrimeReact</h1>
+                <div>
+                <Button onClick={() => {
+                    addNewTab(
+                        {
+                            label: "Table Grid",
+                            content: "",
+                            componentType: "TableGrid",
+                            initialState: initialState,
+                            tabs: currentDepthTabs,
+                            depth: currentTabDepth,
+                            tabId: tabId,
+                            currentDepthLevel: cdl,
+                        }
+                    )
+                }}>
+                    Open New Same Depth Tab
+                </Button>
+                <Button onClick={(event) => {
+                    handleAddNewDepthTab(
+                        {
+                            label: tabId,
+                            content: "",
+                            componentType: "TabsContainer",
+                            initialState: {},
+                            child: {
+                                label: `${tabId + 1}`,
+                                content: "",
+                                componentType: "TableGrid",
+                                initialState: {},
+                                tabId: tabId + 1,
+                            },
+                            tabId: tabId,
+                            currentDepthLevel: cdl,
+                        }
+                    )
+                }}>
+                    Open New Tab with Nested Depth
+                </Button>
+            </div>
+                </Grid>
+                    
+                <Grid item xs={12}>
+                    <h1>PrimeReact Grid Component</h1>
                 </Grid>
 
                 <Grid item xs={12}>
@@ -295,7 +434,7 @@ export default function PrimeReactDynamic() {
                                 scrollable
                                 reorderableColumns
                                 reorderableRows // need an extra column to be dragable
-                                onRowReorder={(e) => setRowData(e.value)} // re-order rows by saving RowData array in that order
+                                onRowReorder={onRowReorder} // re-order rows by saving RowData array in that order
                                 // scrollHeight="400px"
                                 tableStyle={{ minWidth: "50rem" }}
                                 header={header} // table's header, (above the row header)

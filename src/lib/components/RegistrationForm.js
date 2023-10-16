@@ -79,9 +79,9 @@ function RegistrationForm({props}) {
                 <button onClick={() => {
                     addNewTab(
                         {
-                            label: "RegistrationForm",
+                            label: "Table Grid",
                             content: "",
-                            componentType: "RegistrationForm",
+                            componentType: "TableGrid",
                             initialState: initialState,
                             tabs: currentDepthTabs,
                             depth: currentTabDepth,
@@ -102,7 +102,7 @@ function RegistrationForm({props}) {
                             child: {
                                 label: `${tabId + 1}`,
                                 content: "",
-                                componentType: "RegistrationForm",
+                                componentType: "TableGrid",
                                 initialState: {},
                                 tabId: tabId + 1,
                             },

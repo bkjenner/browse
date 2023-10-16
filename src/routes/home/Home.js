@@ -1,10 +1,5 @@
 import * as React from "react";
 
-import ReactGridSample from "./components/ReactGridSample.js";
-import PrimeReactSample from "./components/PrimeReactSample.js";
-import PrimeReactDynamic from "./components/PrimeReactDynamic.js";
-// import CorporateRegistrations from "./components/CorporateRegistrations.js";
-// import Finance from "./components/Finance.js";
 import Overview from "./components/Overview.js";
 
 import { SideNav } from "lib/components";
@@ -33,21 +28,11 @@ export default function Home() {
             title: "Overview",
             icon: <HomeIcon sx={{ color: `${theme.palette.primary.contrastText}` }} />,
         },
-        {
-            key: "ReactGridSample",
-            title: "ReactGrid",
-            icon: <GroupsIcon sx={{ color: `${theme.palette.primary.contrastText}` }} />,
-        },
         // {
-        //     key: "PrimeReactSample",
-        //     title: "Prime React Sample",
+        //     key: "PrimeReactDynamic",
+        //     title: "Prime React Dynamic Columns",
         //     icon: <BusinessIcon sx={{ color: `${theme.palette.primary.contrastText}` }} />,
         // },
-        {
-            key: "PrimeReactDynamic",
-            title: "Prime React Dynamic Columns",
-            icon: <BusinessIcon sx={{ color: `${theme.palette.primary.contrastText}` }} />,
-        },
         {
             key: "Tab",
             title: "Tab",
@@ -61,12 +46,12 @@ export default function Home() {
             <SideNav items={itemsMap} onClick={setCompName} selectedRow={compName} />
             {compName == "Overview" ? (
                 <Overview />
-            ) : compName == "ReactGridSample" ? (
-                <ReactGridSample />
+            // ) : compName == "ReactGridSample" ? (
+            //     <ReactGridSample />
             // ) : compName == "PrimeReactSample" ? (
             //     <PrimeReactSample />
-            ) : compName == "PrimeReactDynamic" ? (
-                <PrimeReactDynamic />
+            // ) : compName == "PrimeReactDynamic" ? (
+            //     <PrimeReactDynamic />
             ) : compName == "Tab" ? (
                 <TabInterface/>
             ) : (

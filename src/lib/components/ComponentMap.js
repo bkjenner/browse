@@ -5,7 +5,7 @@ import { RegistrationFormWrapper } from './RegistrationFormWrapper';
 import TabsContainer from './TabsContainer';
 import { TabsContainerWrapper } from './TabsWrapper';
 import DynamicTabs from './DynamicTabs';
-import TableGrid from '../../routes/home/components/PrimeReactDynamic';
+import TableGrid from './PrimeReactDynamicTableGrid';
 
 const ComponentMap = {
   RegistrationForm: RegistrationForm,
