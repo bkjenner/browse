@@ -71,6 +71,8 @@ export const TabsContainerWrapper = () => {
             0: [0]
         },
     });
+
+    const [tabData, setTabData] = useState({});
     
     const { contentDataDelete } = useContentProviderContext();
     
