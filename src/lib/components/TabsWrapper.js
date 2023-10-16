@@ -372,7 +372,7 @@ export const TabsContainerWrapper = () => {
         // Increment the tab counter by 2 since we added 2 tabs
         setTabId(tabId + 2);
 
-        contentDataUpdate(props.child.initialState)
+        contentDataUpdate({ tabId: props.child.tabId, ...props.child.initialState});
     }
 
     return (
