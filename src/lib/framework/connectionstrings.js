@@ -1,6 +1,7 @@
 module.exports = {
     servicePort: 1338,
     sslServicePort: 443,
+    // sslServicePort: 8080,
     sqlConnection: "postgres://bmsdev.cbb4tdiqsigu.us-east-1.rds.amazonaws.com:5432/sn000001",
     redisConnection: "localhost",
     redisPort: 6379,

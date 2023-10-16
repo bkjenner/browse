@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useTabsWrapperContext } from "./TabsWrapper";
+import { useContentProviderContext } from "../contexts/ContentContext/ContentProvider";
 
 function RegistrationForm({props}) {
-    const { selectedTabIndex, currentTabDepth, tabs, tabData, addNewTab, handleTabDataUpdate, handleAddNewDepthTab, currentDepthTabs } = useTabsWrapperContext();
+    const { selectedTabIndex, currentTabDepth, tabId, addNewTab, handleAddNewDepthTab, currentDepthTabs } = useTabsWrapperContext();
+    const { contentDataUpdate, currentContentData } = useContentProviderContext();
     // Initial State
     // Used whenever we create a new form
     const initialState = {
@@ -21,9 +23,7 @@ function RegistrationForm({props}) {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-
-        // Update our context
-         handleTabDataUpdate({ 
+         contentDataUpdate({ 
             ...formData, 
             [name]: value, 
             tabId: props.tabKey,
@@ -49,10 +49,10 @@ function RegistrationForm({props}) {
         // If we change tabs check to see if there is any data we 
         // need to load into the Tabs local state from the Context 
         // where all the data is stored
-        if(tabData && tabData.name) {
-            setFormData(tabData);
+        if(currentContentData && currentContentData.name) {
+            setFormData(currentContentData);
         }
-    }, [selectedTabIndex, tabData])
+    }, [selectedTabIndex, currentContentData])
 
     const cdl = currentTabDepth;
     
@@ -85,6 +85,8 @@ function RegistrationForm({props}) {
                             initialState: initialState,
                             tabs: currentDepthTabs,
                             depth: currentTabDepth,
+                            tabId: tabId,
+                            currentDepthLevel: cdl,
                         }
                     )
                 }}>
@@ -93,19 +95,19 @@ function RegistrationForm({props}) {
                 <button onClick={(event) => {
                     handleAddNewDepthTab(
                         {
-                            label: "New nest",
+                            label: tabId,
                             content: "",
                             componentType: "TabsContainer",
-                            tabs: tabs,
                             initialState: {},
                             child: {
-                                label: "Registration Form Child",
+                                label: `${tabId + 1}`,
                                 content: "",
                                 componentType: "RegistrationForm",
-                                initialState: {}
+                                initialState: {},
+                                tabId: tabId + 1,
                             },
-                            parentTabId: props.tabKey,
-                            currentDepthLevel: cdl + 1,
+                            tabId: tabId,
+                            currentDepthLevel: cdl,
                         }
                     )
                 }}>

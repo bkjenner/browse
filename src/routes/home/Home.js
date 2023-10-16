@@ -19,6 +19,9 @@ import GroupsIcon from "@mui/icons-material/Groups";
 import BusinessIcon from "@mui/icons-material/Business";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 
+import TabInterface from "../../lib/components/TabInterface";
+
+// Create the form context at the highest level so that we can store information and swap between tabs
 export default function Home() {
     const [compName, setCompName] = React.useState("PrimeReactDynamic");
 
@@ -65,7 +68,7 @@ export default function Home() {
             ) : compName == "PrimeReactDynamic" ? (
                 <PrimeReactDynamic />
             ) : compName == "Tab" ? (
-                <TabsContainerWrapper/>
+                <TabInterface/>
             ) : (
                 <>Error</>
             )}
