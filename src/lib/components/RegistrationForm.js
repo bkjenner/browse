@@ -3,8 +3,8 @@ import { useTabsWrapperContext } from "./TabsWrapper";
 import { useContentProviderContext } from "../contexts/ContentContext/ContentProvider";
 
 function RegistrationForm({props}) {
-    const { selectedTabIndex, currentTabDepth, tabs, tabId, tabData, addNewTab, handleTabDataUpdate, handleAddNewDepthTab, currentDepthTabs } = useTabsWrapperContext();
-    const { contentDataUpdate } = useContentProviderContext();
+    const { selectedTabIndex, currentTabDepth, tabId, addNewTab, handleAddNewDepthTab, currentDepthTabs } = useTabsWrapperContext();
+    const { contentDataUpdate, currentContentData } = useContentProviderContext();
     // Initial State
     // Used whenever we create a new form
     const initialState = {
@@ -49,10 +49,10 @@ function RegistrationForm({props}) {
         // If we change tabs check to see if there is any data we 
         // need to load into the Tabs local state from the Context 
         // where all the data is stored
-        if(tabData && tabData.name) {
-            setFormData(tabData);
+        if(currentContentData && currentContentData.name) {
+            setFormData(currentContentData);
         }
-    }, [selectedTabIndex, tabData])
+    }, [selectedTabIndex, currentContentData])
 
     const cdl = currentTabDepth;
     

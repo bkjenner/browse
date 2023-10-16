@@ -4,6 +4,8 @@ import { ContentContext } from "./ContentContext";
 export const ContentProvider = (props) => {
     const [masterContentData, setMasterContentData] = useState({});
 
+    const [currentContentData, setCurrentContentData] = useState({});
+
     /**
      * This function will handle updating the Context with the data from the form or tab
      * 
@@ -14,6 +16,7 @@ export const ContentProvider = (props) => {
         contentCopy[newContentData.tabId] = newContentData;
 
         setMasterContentData(contentCopy);
+        setCurrentContentData(newContentData);
     }
 
 
@@ -27,7 +30,17 @@ export const ContentProvider = (props) => {
         delete contentCopy[tabId];
         setMasterContentData(contentCopy);
     }
-
+    
+    /**
+     * This function will retrieve the data of the tab in view from the context
+     * @param {int} tabId id of the tab that is being viewed 
+     */
+    const getContentData = (tabId) => {
+        let contentCopy  = { ...masterContentData };
+        if(contentCopy && contentCopy[tabId]) {
+            setCurrentContentData(contentCopy[tabId]);
+        }
+    }
     return (
         <ContentContext.Provider
             value={
@@ -35,6 +48,8 @@ export const ContentProvider = (props) => {
                     masterContentData,    
                     contentDataUpdate,
                     contentDataDelete,
+                    getContentData,
+                    currentContentData,
                 }
             }
         >

@@ -72,9 +72,7 @@ export const TabsContainerWrapper = () => {
         },
     });
 
-    const [tabData, setTabData] = useState({});
-    
-    const { contentDataDelete } = useContentProviderContext();
+    const { contentDataDelete, getContentData, contentDataUpdate } = useContentProviderContext();
     
     const findParentTabId = (cdTabs) => {
         let mTabCopy  = { ...mTabData };
@@ -150,7 +148,7 @@ export const TabsContainerWrapper = () => {
         setMTabData(mTabCopy);
 
         // Update the tabs data to be the initial state of whatever you pass in
-        setTabData(props.initialState);
+        contentDataUpdate({tabId: props.tabId, ...props.initialState});
     };
 
     const handleTabChange = (newTabId, cdTabs) => {
@@ -209,8 +207,11 @@ export const TabsContainerWrapper = () => {
                 setCurrentTabDepth(Number(depth));
             }
         })
-
+        
+        // Update the context
         setMTabData(mTabCopy);
+        // Fetch the data
+        getContentData(contentId);
     };
 
     const handleTabClose = (event, tabIndex, cdTabs) => {
@@ -370,11 +371,13 @@ export const TabsContainerWrapper = () => {
 
         // Increment the tab counter by 2 since we added 2 tabs
         setTabId(tabId + 2);
+
+        contentDataUpdate(props.child.initialState)
     }
 
     return (
         <TabsWrapperContext.Provider
-            value={{ tabId, mTabData, masterTabData, tabData, selectedTabIndex, currentTabDepth, currentDepthTabs, addNewTab, handleTabChange, handleTabClose, handleAddNewDepthTab }}
+            value={{ tabId, mTabData, masterTabData, selectedTabIndex, currentTabDepth, currentDepthTabs, addNewTab, handleTabChange, handleTabClose, handleAddNewDepthTab }}
         >
             <DynamicTabs
                 tabs={parentDepthTabs}
