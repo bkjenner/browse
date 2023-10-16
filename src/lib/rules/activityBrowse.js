@@ -13,6 +13,7 @@ Rules.prototype.activityBrowse = async ({
 
     const activities = await sql`
     SELECT
+        uid,
         id,
         priority,
         STATUS,

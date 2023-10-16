@@ -1,16 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 
-import { SideNav } from "lib/components";
 import axios from "axios";
 
 import { useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-
-
-import CssBaseline from "@mui/material/CssBaseline";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 
 import { Button } from "primereact/button";
 
@@ -43,7 +37,7 @@ export default function PrimeReactDynamic() {
     // //also get updated in every render by customSaveState
     // switch to use a simple variable to hold the layout data instead,
     let layoutMeta ={};
-
+    let columnHeaderMap;
 
     const [layoutMetaUpdate, setLayoutMetaUpdate] = useState({}); // tie to useEffect to trigger re-render table layout
 
@@ -67,9 +61,14 @@ export default function PrimeReactDynamic() {
     }, []);
 
     const fetchRowData = () => {
-        axios.get("/action/activityBrowse?p_metadata=true").then((response) => {
+        let recordsNum = 10 + parseInt(moment().local().format("ss"));
+        console.log('should fetch ' + recordsNum + ' records');
+        axios.get(`/action/activityBrowse?p_metadata=true&p_pagesize=${recordsNum}`).then((response) => {
             // console.log(response.data);
             let res = response.data && response.data.activities ? response.data.activities : response.data;
+
+            let columnHeaderMap = response.data && response.data.metadata ? response.data.metadata : [];
+
             setRowData(res);
             setLoading(false);
             let columnObjectArray = [];
@@ -77,7 +76,7 @@ export default function PrimeReactDynamic() {
                 console.log("passed in nested json");
                 // console.log(data);
                 // if data passed in in in nested json:
-                columnObjectArray = getColumnsThroughLoopArrayJSON(res);
+                columnObjectArray = getColumnsThroughLoopArrayJSON(res, columnHeaderMap);
                 // console.log(columnNames);
                 setColumnData(columnObjectArray);
                 setVisibleColumns(columnObjectArray); // initially display all columns
@@ -149,11 +148,11 @@ export default function PrimeReactDynamic() {
     // original data returned from sequelize could be an array(findAll) or one json(findOne)
     // columnNames as a guide
     // columnObjectArray: to extrat and save columns into [{ key: 'name', field: 'name', header: 'Name' } , ...] format
-    const getColumnsThroughLoopArrayJSON = (obj, columnNames = [], parentKey = null, columnObjectArray = []) => {
+    const getColumnsThroughLoopArrayJSON = (obj, columnHeaderMap, columnNames = [], parentKey = null, columnObjectArray = []) => {
         if (Array.isArray(obj)) {
             // loop through array
             for (let i = 0; i < obj.length; i++) {
-                getColumnsThroughLoopArrayJSON(obj[i], columnNames, parentKey, columnObjectArray); // when looping array, array element use entire array object's key as parent key
+                getColumnsThroughLoopArrayJSON(obj[i], columnHeaderMap, columnNames, parentKey, columnObjectArray); // when looping array, array element use entire array object's key as parent key
             }
         } else {
             for (let key in obj) {
@@ -161,13 +160,13 @@ export default function PrimeReactDynamic() {
                     if (Array.isArray(obj[key])) {
                         // loop through array
                         for (let i = 0; i < obj[key].length; i++) {
-                            getColumnsThroughLoopArrayJSON(obj[key], columnNames, parentKey, columnObjectArray); // when looping array, array element use entire array object's key as parent key
+                            getColumnsThroughLoopArrayJSON(obj[key], columnHeaderMap, columnNames, parentKey, columnObjectArray); // when looping array, array element use entire array object's key as parent key
                         }
                     } else {
                         if (parentKey != null && parentKey != "") {
-                            getColumnsThroughLoopArrayJSON(obj[key], columnNames, parentKey + "." + key, columnObjectArray);
+                            getColumnsThroughLoopArrayJSON(obj[key], columnHeaderMap, columnNames, parentKey + "." + key, columnObjectArray);
                         } else {
-                            getColumnsThroughLoopArrayJSON(obj[key], columnNames, key, columnObjectArray);
+                            getColumnsThroughLoopArrayJSON(obj[key], columnHeaderMap, columnNames, key, columnObjectArray);
                         }
                     }
                 } else {
@@ -177,19 +176,32 @@ export default function PrimeReactDynamic() {
                         if (parentKey != null && parentKey != "" && key != "id") {
                             if (!columnNames.includes(parentKey + "." + key)) {
                                 columnNames.push(parentKey + "." + key);
+
+                                // in case need to handle nesting data, currently NOT having them with PG db
+                                let headerObj = _.find(columnHeaderMap, ['columnname', parentKey + "." + key]); 
+
                                 columnObjectArray.push({
                                     key: parentKey + "." + key,
                                     field: parentKey + "." + key,
-                                    header: parentKey + "." + key,
+                                    header: headerObj && headerObj.heading && headerObj.heading != "null" 
+                                            ? headerObj.heading 
+                                            : parentKey + "." + key,
+                                    // header: parentKey + "." + key,
                                 });
                             }
                         } else {
                             if (!columnNames.includes(key)) {
                                 columnNames.push(key);
+
+                                let headerObj = _.find(columnHeaderMap, ['columnname', key]); 
+
                                 columnObjectArray.push({
                                     key: key,
                                     field: key,
-                                    header: key,
+                                    header: headerObj && headerObj.heading && headerObj.heading!='null' 
+                                            ? headerObj.heading 
+                                            : key,
+                                    // header: key,
                                 });
                             }
                         }
@@ -232,32 +244,10 @@ export default function PrimeReactDynamic() {
     };
 
 
-        // // passed in state would be in this format:
-        // let testLayout = {
-        //     first: 0,
-        //     rows: 5,
-        //     multiSortMeta: [{ field: "member.registeredname", order: 1 }],
-        //     columnOrder: [
-        //         "member.registeredname",
-        //         "id",
-        //         null,
-        //         "clientnumber",
-        //         "member.firstmembcountrydate",
-        //         "member.memberstatus.description",
-        //         "member.membersubstatus.description",
-        //     ],
-        // };
     const dataTableSaveState = (state) => {
 
         console.log("dataTableSaveState");
         console.log(state);
-        // console.log(layoutMeta);
-        // if (!_.isEqual(state, layoutMeta)) {
-        //     // console.log(state);
-        //     setLayoutMeta(state);
-        //     console.log(layoutMeta);
-        //     console.log("updated layoutMeta");
-        // }
 
         layoutMeta = state;
     };
