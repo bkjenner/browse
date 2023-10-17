@@ -14,25 +14,24 @@ import { useTabsWrapperContext } from "./TabsWrapper";
  */
 function LocalTabs({ currentDepthLevel, masterTabData, localSTI, tabContainerId }) {
     const [localTabs, setLocalTabs] = useState([]);
-    const { handleTabChange, mTabData } = useTabsWrapperContext();
+    const { handleTabChange, mTabData, forceTabRerender, resetRerender } = useTabsWrapperContext();
   
+    let tabs;
     useEffect(() => {
-      let tabs;
-      // if (currentDepthLevel === 0) {
-      //   tabs = masterTabData[1].tabs[masterTabData[0].selectedTabIndex];
-      // } else {
-      //   tabs = masterTabData[currentDepthLevel].tabs[masterTabData[currentDepthLevel - 1].selectedTabIndex];
-      // }
-  
+
       if (currentDepthLevel === 0) {
         tabs = mTabData.tabsIndex.parent.tabs;
       } else {
-        tabs = mTabData.tabsIndex[tabContainerId].tabs;
+        if(mTabData.tabsIndex[tabContainerId]) {
+          tabs = mTabData.tabsIndex[tabContainerId].tabs;
+        }
       }
-      if (!_.isEqual(localTabs, tabs)) {
+      if (!_.isEqual(localTabs, tabs) && tabs) {
         setLocalTabs([...tabs]);
       }
-    }, [masterTabData, localTabs, mTabData]);
+
+      resetRerender();
+    }, [masterTabData, localTabs, mTabData, forceTabRerender]);
   
     return (
       <DynamicTabs
@@ -58,20 +57,20 @@ function TabsContainer({props}) {
     
     useEffect(() => {
         if(depthLevel == 0) {
-            if(mTabData && mTabData[depthLevel + 1] ) {
-                if(localSTI != mTabData[depthLevel + 1].selectedTabIndex) {
-                    setLocalSTI(mTabData[depthLevel + 1].selectedTabIndex);
+            if(mTabData && mTabData.tabsIndex.parent ) {
+                if(localSTI != mTabData.tabsIndex.parent.selectedTabIndex) {
+                    setLocalSTI(mTabData.tabsIndex.parent.selectedTabIndex);
                 }
             }
         } else {
-            if(mTabData && mTabData[depthLevel] ) {
-                if(localSTI != mTabData[depthLevel].selectedTabIndex) {
-                    setLocalSTI(mTabData[depthLevel].selectedTabIndex);
+            if(mTabData.tabsIndex && mTabData.tabsIndex[props.tabId]) {
+                if(localSTI != mTabData.tabsIndex[props.tabId].selectedTabIndex) {
+                    setLocalSTI(mTabData.tabsIndex[props.tabId].selectedTabIndex);
                 }
             }
         }
 
-        if(mTabData.tabsIndex[props.tabId].selectedTabIndex != localSTI) {
+        if(mTabData.tabsIndex[props.tabId] && mTabData.tabsIndex[props.tabId].selectedTabIndex != localSTI) {
           setLocalSTI(mTabData.tabsIndex[props.tabId].selectedTabIndex);
         }
     }, [currentTabDepth, masterTabData, localSTI, mTabData])
@@ -83,7 +82,7 @@ function TabsContainer({props}) {
             localSTI={localSTI}
             currentDepthLevel={depthLevel}
             tabContainerId={props.tabId}
-      />
+        />
     );
 }
 

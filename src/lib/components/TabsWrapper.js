@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import DynamicTabs from "./DynamicTabs";
-import _   from "lodash";
+import _, { set }   from "lodash";
 import { useContentProviderContext } from "../contexts/ContentContext/ContentProvider";
 
 const TabsWrapperContext = createContext();
@@ -71,6 +71,9 @@ export const TabsContainerWrapper = () => {
             0: [0]
         },
     });
+
+    // Flag to force a re-render of tabs
+    const [forceTabRerender, setForceTabRerender] = useState(false);
 
     const { contentDataDelete, getContentData, contentDataUpdate } = useContentProviderContext();
     
@@ -252,9 +255,18 @@ export const TabsContainerWrapper = () => {
         } else if (parentTabs[tabIndex + 1]) {
             tIndex = tabIndex + 1;
         }
+
+        resetRerender(true);
         handleTabChange(tIndex, mTabCopy.tabsIndex[parentTabId].tabs);
 
     };
+
+    /**
+     * This ia function that will reset the flag forcing a re-render of tabs
+     */
+    const resetRerender = () => {
+        setForceTabRerender(false);
+    }
 
     /**
      * This function will handle adding a new Tab that will support sub tabs inside.
@@ -340,7 +352,7 @@ export const TabsContainerWrapper = () => {
             mTabCopy.tabsIndex[props.tabId] = { 
                 tabs: [props.child], 
                 selectedTabIndex: 0, 
-                parentId: props.parentTabId,
+                parentId: parentTabId,
                 componentType: props.componentType,
                 tabId: props.tabId,
                 label: props.label,
@@ -377,55 +389,13 @@ export const TabsContainerWrapper = () => {
 
     return (
         <TabsWrapperContext.Provider
-            value={{ tabId, mTabData, masterTabData, selectedTabIndex, currentTabDepth, currentDepthTabs, addNewTab, handleTabChange, handleTabClose, handleAddNewDepthTab }}
+            value={{ tabId, mTabData, masterTabData, forceTabRerender, selectedTabIndex, currentTabDepth, currentDepthTabs, resetRerender, addNewTab, handleTabChange, handleTabClose, handleAddNewDepthTab }}
         >
             <DynamicTabs
                 tabs={parentDepthTabs}
                 selectedTab={selectedTabIndex}
                 onChange={handleTabChange}
             />
-            {/* <button onClick={() => {
-                addNewTab(
-                    {
-                        label: "RegistrationForm",
-                        content: "",
-                        componentType: "RegistrationForm",
-                        initialState: {
-                            name: "",
-                            email: "",
-                            password: "",
-                        },
-                        depth: 0,
-                        tabId: tabId,
-                    }
-                )
-            }}>
-                Open New Same Depth Tab
-            </button>
-            <button onClick={(event) => {
-                    handleAddNewDepthTab(
-                        {
-                            label: "New nest",
-                            content: "",
-                            componentType: "TabsContainer",
-                            // tabs: parentDepthTabs,
-                            tabs: currentDepthTabs,
-                            initialState: {},
-                            child: {
-                                label: "Nested Child",
-                                content: "This is a nested tab child",
-                                componentType: "",
-                                initialState: {},
-                                tabId: tabId + 1,
-                            },
-                            currentDepthLevel: currentTabDepth + 1,
-                            // parentOnly: true,
-                            tabId: tabId,
-                        }
-                    )
-                }}>
-                    Open New Tab with Nested Depth
-                </button> */}
         </TabsWrapperContext.Provider>
     );
 };
