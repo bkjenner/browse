@@ -6,12 +6,11 @@ import { useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 
-import { Button } from "primereact/button";
-
 import { classNames } from "primereact/utils";
 import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
+import { Button } from "primereact/button";
 import { ColumnGroup } from "primereact/columngroup";
 import { Row } from "primereact/row";
 import { InputText } from "primereact/inputtext";
@@ -42,6 +41,9 @@ export default function PrimeReactDynamicTableGrid({props}) {
     const [columnFromRowData, setColumnData] = useState([]);
     const [visibleColumns, setVisibleColumns] = useState([]);
 
+    const [layoutOptions, setLayoutOptions] = useState(null); // value selected from layoutOptions list
+    const [selectedLayout, setSelectedLayout] = useState(null); // value selected from layoutOptions list
+
     const [exportColumns, setExportColumns] = useState([]); //data for export function
 
     // const [layoutMeta, setLayoutMeta] = useState({}); // dataTableLoadLayout default layout when first loading, 
@@ -59,6 +61,25 @@ export default function PrimeReactDynamicTableGrid({props}) {
             dataTableRef.current.restoreState(); // the built-in restoreState() function would trigger re-render layout
         }
     }, [layoutMetaUpdate]);
+
+    useEffect(() => {
+        console.log("fetching all layout");
+        // console.log(layoutMetaUpdate);
+        fetchAllLayout();
+    }, []);
+
+    const fetchAllLayout = () =>{
+        axios.get(`/action/primeReactTableFetchLayout`)
+        .then((response) => {
+            if(response.data && response.data.length>0){
+                console.log(response.data);
+                setLayoutOptions(response.data);
+            }
+            else{
+                console.log('no existing layout fetched')
+            }
+        });
+    }
 
 
     useEffect(() => {
@@ -189,8 +210,6 @@ export default function PrimeReactDynamicTableGrid({props}) {
     );
 
 
-
-    const [statuses] = useState(["Active", "Inactive"]);
 
 
     // original data returned from sequelize could be an array(findAll) or one json(findOne)
@@ -338,29 +357,6 @@ export default function PrimeReactDynamicTableGrid({props}) {
             return layoutMetaUpdate;
         }
     };
-    const loadLayout1 = () => {
-        console.log("loading saved layout 1");
-        // console.log(layoutMeta);
-
-        let layout = {
-            first: 0,
-            rows: 7,
-            multiSortMeta: [],
-            columnOrder: [],
-        };
-
-        contentDataUpdate({ 
-            ...currentContentData, 
-            layoutMeta: layout,
-            tabId: props.tabKey,
-            currentTabDepth: currentTabDepth,
-            tabs: currentDepthTabs,
-        }); 
-
-        
-        // the useEffect would trigger layout re-load based on data in layoutMetaUpdate
-        setLayoutMetaUpdate(layout); 
-    };
 
     const onRowReorder = (e) =>{
 
@@ -375,59 +371,85 @@ export default function PrimeReactDynamicTableGrid({props}) {
             tabs: currentDepthTabs,
         });
     };
+
+    const selectLayout = (e) =>{
+        // console.log(e);
+        setSelectedLayout(e.value); // for dropDown itselt to display selected option
+
+        contentDataUpdate({ 
+            ...currentContentData, 
+            layoutMeta: e.value,
+            tabId: props.tabKey,
+            currentTabDepth: currentTabDepth,
+            tabs: currentDepthTabs,
+        }); 
+
+        // the useEffect would trigger layout re-load based on data in layoutMetaUpdate
+        setLayoutMetaUpdate(e.value); 
+    }
+
     const cdl = currentTabDepth;
+
+
     return (
         <Box component="main" sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}>
             <Grid container spacing={2}>
-
                 <Grid item xs={12}>
-                <div>
-                <Button onClick={() => {
-                    addNewTab(
-                        {
-                            label: "Table Grid",
-                            content: "",
-                            componentType: "TableGrid",
-                            initialState: initialState,
-                            tabs: currentDepthTabs,
-                            depth: currentTabDepth,
-                            tabId: tabId,
-                            currentDepthLevel: cdl,
-                        }
-                    )
-                }}>
-                    Open New Same Depth Tab
-                </Button>
-                <Button onClick={(event) => {
-                    handleAddNewDepthTab(
-                        {
-                            label: tabId,
-                            content: "",
-                            componentType: "TabsContainer",
-                            initialState: {},
-                            child: {
-                                label: `${tabId + 1}`,
-                                content: "",
-                                componentType: "TableGrid",
-                                initialState: {},
-                                tabId: tabId + 1,
-                            },
-                            tabId: tabId,
-                            currentDepthLevel: cdl,
-                        }
-                    )
-                }}>
-                    Open New Tab with Nested Depth
-                </Button>
-            </div>
+                    <div>
+                        <Button
+                            onClick={() => {
+                                addNewTab({
+                                    label: "Table Grid",
+                                    content: "",
+                                    componentType: "TableGrid",
+                                    initialState: initialState,
+                                    tabs: currentDepthTabs,
+                                    depth: currentTabDepth,
+                                    tabId: tabId,
+                                    currentDepthLevel: cdl,
+                                });
+                            }}
+                        >
+                            Open New Same Depth Tab
+                        </Button>
+                        <Button
+                            onClick={(event) => {
+                                handleAddNewDepthTab({
+                                    label: tabId,
+                                    content: "",
+                                    componentType: "TabsContainer",
+                                    initialState: {},
+                                    child: {
+                                        label: `${tabId + 1}`,
+                                        content: "",
+                                        componentType: "TableGrid",
+                                        initialState: {},
+                                        tabId: tabId + 1,
+                                    },
+                                    tabId: tabId,
+                                    currentDepthLevel: cdl,
+                                });
+                            }}
+                        >
+                            Open New Tab with Nested Depth
+                        </Button>
+                    </div>
                 </Grid>
-                    
+
                 <Grid item xs={12}>
                     <h1>PrimeReact Grid Component</h1>
                 </Grid>
 
                 <Grid item xs={12}>
-                    <Button type="button" label="Test Load Saved Layout1" icon="pi pi-check" onClick={loadLayout1} />
+                    <h2>Select a Layout</h2>
+                    <Dropdown
+                        value={selectedLayout}
+                        onChange={selectLayout}
+                        options={layoutOptions}
+                        optionLabel="name"
+                        placeholder="Select a Layout"
+                        className="w-full md:w-14rem"
+                    />
                 </Grid>
                 <Grid item xs={11}>
                     <Grid item xs={12}>
@@ -465,12 +487,10 @@ export default function PrimeReactDynamicTableGrid({props}) {
                                 emptyMessage="No Member found."
                                 stateStorage="custom"
                                 customSaveState={dataTableSaveLayout} // run every render
-                                
-                                // wrapped in restoreState(), 
-                                // which run on initial Mount ( mapped inside a useEffect(...,[]) ) 
+                                // wrapped in restoreState(),
+                                // which run on initial Mount ( mapped inside a useEffect(...,[]) )
                                 // or directly call restoreState() to re-render layout
-                                customRestoreState={dataTableLoadLayout} 
-
+                                customRestoreState={dataTableLoadLayout}
                                 stateKey="dt-state-demo-local"
                             >
                                 <Column rowReorder style={{ width: "1rem" }} frozen />
@@ -484,13 +504,16 @@ export default function PrimeReactDynamicTableGrid({props}) {
                             label="Save Current Layout"
                             icon="pi  pi-download"
                             onClick={(e) => {
-                                let key = moment().local().format("YYYYMMDDHHmmss");
-                                console.log("saving to cache " + key);
+                                let layoutName = moment().local().format("YYYYMMDDHHmmss");
+                                console.log("saving to cache " + layoutName);
                                 console.log(layoutMeta);
                                 axios.post("/action/primeReactTableSaveLayout", {
-                                    key,
+                                    layoutName,
                                     layoutMeta,
-                                });
+                                }).then(()=>{
+                                    fetchAllLayout();
+                                    setSelectedLayout(layoutMeta);
+                                })
                             }}
                         />
                     </Grid>
