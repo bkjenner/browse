@@ -44,7 +44,7 @@ export default function PrimeReactDynamicTableGrid({props}) {
 
     const [exportColumns, setExportColumns] = useState([]); //data for export function
 
-    // const [layoutMeta, setLayoutMeta] = useState({}); // dataTableLoadState default layout when first loading, 
+    // const [layoutMeta, setLayoutMeta] = useState({}); // dataTableLoadLayout default layout when first loading, 
     // //also get updated in every render by customSaveState
     // switch to use a simple variable to hold the layout data instead,
     let layoutMeta ={};
@@ -111,7 +111,7 @@ export default function PrimeReactDynamicTableGrid({props}) {
             setRowData(res);
             setLoading(false);
             contentDataUpdate({ 
-                // ...formData, 
+                ...currentContentData,  
                 rowDataForTab: res,
                 columnHeaderMapping: columnHeaderMap, 
                 tabId: props.tabKey,
@@ -292,25 +292,29 @@ export default function PrimeReactDynamicTableGrid({props}) {
     };
 
 
-    const dataTableSaveState = (state) => {
+    const dataTableSaveLayout = (state) => {
 
-        // console.log("dataTableSaveState");
-        // console.log(state);
+        console.log("dataTableSaveLayout");
+        
 
         layoutMeta = state;
         // only update the context if the the layout meta is diffferent, otherwise would be looping
-        if(!(currentContentData && currentContentData.layoutMeta && _.isEqual(layoutMeta, currentContentData.layoutMeta))){
+        if(
+            !(currentContentData && currentContentData.layoutMeta && _.isEqual(layoutMeta, currentContentData.layoutMeta))
+            && props.tabKey == currentContentData.tabId
+        ){
+            console.log(state);
             contentDataUpdate({ 
                 ...currentContentData, 
                 layoutMeta: layoutMeta,
-                tabId: props.tabKey,
+                // tabId: props.tabKey,
                 currentTabDepth: currentTabDepth,
                 tabs: currentDepthTabs,
             }); 
         }
     };
 
-    const dataTableLoadState = () => {
+    const dataTableLoadLayout = () => {
         // also handles the initial loading layoutMeta
         
         // console.log(layoutMetaUpdate);
@@ -322,13 +326,15 @@ export default function PrimeReactDynamicTableGrid({props}) {
         }
         else{
             console.log("loading layout from layoutMetaUpdate");
+            
             contentDataUpdate({ 
                 ...currentContentData, 
                 layoutMeta: layoutMetaUpdate,
-                tabId: props.tabKey,
+                // tabId: props.tabKey,
                 currentTabDepth: currentTabDepth,
                 tabs: currentDepthTabs,
             }); 
+            
             return layoutMetaUpdate;
         }
     };
@@ -435,6 +441,8 @@ export default function PrimeReactDynamicTableGrid({props}) {
                                 reorderableColumns
                                 reorderableRows // need an extra column to be dragable
                                 onRowReorder={onRowReorder} // re-order rows by saving RowData array in that order
+                                resizableColumns
+                                columnResizeMode="expand"
                                 // scrollHeight="400px"
                                 tableStyle={{ minWidth: "50rem" }}
                                 header={header} // table's header, (above the row header)
@@ -456,12 +464,12 @@ export default function PrimeReactDynamicTableGrid({props}) {
                                 // globalFilterFields={['member.registeredname', 'member.memberstatus.description', 'member.membersubstatus.description', 'member.firstmembcountrydate']}
                                 emptyMessage="No Member found."
                                 stateStorage="custom"
-                                customSaveState={dataTableSaveState} // run every render
+                                customSaveState={dataTableSaveLayout} // run every render
                                 
                                 // wrapped in restoreState(), 
                                 // which run on initial Mount ( mapped inside a useEffect(...,[]) ) 
                                 // or directly call restoreState() to re-render layout
-                                customRestoreState={dataTableLoadState} 
+                                customRestoreState={dataTableLoadLayout} 
 
                                 stateKey="dt-state-demo-local"
                             >
