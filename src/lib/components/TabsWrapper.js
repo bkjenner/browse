@@ -340,7 +340,7 @@ export const TabsContainerWrapper = () => {
             mTabCopy.tabsIndex[props.tabId] = { 
                 tabs: [props.child], 
                 selectedTabIndex: 0, 
-                parentId: props.parentTabId,
+                parentId: parentTabId,
                 componentType: props.componentType,
                 tabId: props.tabId,
                 label: props.label,
