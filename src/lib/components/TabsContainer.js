@@ -9,10 +9,9 @@ import { useTabsWrapperContext } from "./TabsWrapper";
  * 
  * @param {int} currentDepthLevel   The depth level the tabs are to be rendered on
  * @param {int} localSTI            The index for which tab is to be shown
- * @param {Object} masterTabData    Contains all the data on Tabs
  * @returns {JSX.Element}           Returns the JSX for the Tabs to be rendered 
  */
-function LocalTabs({ currentDepthLevel, masterTabData, localSTI, tabContainerId }) {
+function LocalTabs({ localSTI, currentDepthLevel, tabContainerId }) {
     const [localTabs, setLocalTabs] = useState([]);
     const { handleTabChange, mTabData, forceTabRerender, resetRerender } = useTabsWrapperContext();
   
@@ -31,7 +30,7 @@ function LocalTabs({ currentDepthLevel, masterTabData, localSTI, tabContainerId 
       }
 
       resetRerender();
-    }, [masterTabData, localTabs, mTabData, forceTabRerender]);
+    }, [localTabs, mTabData, forceTabRerender]);
   
     return (
       <DynamicTabs
@@ -53,7 +52,7 @@ function TabsContainer({props}) {
     const [localSTI, setLocalSTI] = useState(0);
     const depthLevel = props.currentDepthLevel + 1;
     
-    const { currentTabDepth, masterTabData, mTabData } = useTabsWrapperContext();
+    const { currentTabDepth, mTabData } = useTabsWrapperContext();
     
     useEffect(() => {
         if(depthLevel == 0) {
@@ -73,12 +72,10 @@ function TabsContainer({props}) {
         if(mTabData.tabsIndex[props.tabId] && mTabData.tabsIndex[props.tabId].selectedTabIndex != localSTI) {
           setLocalSTI(mTabData.tabsIndex[props.tabId].selectedTabIndex);
         }
-    }, [currentTabDepth, masterTabData, localSTI, mTabData])
+    }, [currentTabDepth, localSTI, mTabData])
 
     return (
         <LocalTabs
-            mTabData={mTabData}
-            masterTabData={masterTabData}
             localSTI={localSTI}
             currentDepthLevel={depthLevel}
             tabContainerId={props.tabId}

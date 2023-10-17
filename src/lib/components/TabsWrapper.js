@@ -19,16 +19,7 @@ export const TabsContainerWrapper = () => {
         formId: 1,
         tabId: 0,
     };
-    // First Tab on parent level and a child showing that it has no tabs inside
-    const [masterTabData, setMasterTabData] = useState({
-        0: { tabs: [initialComponentInfo],
-            selectedTabIndex: 0,
-            tabLevelIndexMemo: [0],
-        },
-        1: { tabs: [[]],
-            tabLevelIndexMemo: [],
-        }
-    })
+
     // Local state to track the tabs to render at the top / parent level
     const [parentDepthTabs, setParentDepthTabs] = useState([initialComponentInfo]);
 
@@ -274,8 +265,6 @@ export const TabsContainerWrapper = () => {
      * @param {Object} props The object containing the tab data. ComponentType key must be 'TabsContainer' and can contain child key to choose what to render inside the initial tab
      */
     const handleAddNewDepthTab = (props) => {
-        let masterCopy = { ...masterTabData };
-        // let currentDepth = findDepthLevel();
         let currentDepth = props.currentDepthLevel;
         let mTabCopy = { ...mTabData }; 
 
@@ -374,10 +363,7 @@ export const TabsContainerWrapper = () => {
             setCurrentDepthTabs([props.child]);
             setCurrentTabDepth(newDepth);
         }
-        
-        // Update the store data
-        setMasterTabData(masterCopy);
-        
+                
         // Set up the new nest row we pass to the tab container for rendering
         setCurrentDepthTabs([props.child]);
 
@@ -389,7 +375,7 @@ export const TabsContainerWrapper = () => {
 
     return (
         <TabsWrapperContext.Provider
-            value={{ tabId, mTabData, masterTabData, forceTabRerender, selectedTabIndex, currentTabDepth, currentDepthTabs, resetRerender, addNewTab, handleTabChange, handleTabClose, handleAddNewDepthTab }}
+            value={{ tabId, mTabData, forceTabRerender, selectedTabIndex, currentTabDepth, currentDepthTabs, resetRerender, addNewTab, handleTabChange, handleTabClose, handleAddNewDepthTab }}
         >
             <DynamicTabs
                 tabs={parentDepthTabs}
