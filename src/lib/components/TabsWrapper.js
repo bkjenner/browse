@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import DynamicTabs from "./DynamicTabs";
-import _, { set }   from "lodash";
+import _ from "lodash";
 import { useContentProviderContext } from "../contexts/ContentContext/ContentProvider";
 
 const TabsWrapperContext = createContext();
@@ -256,7 +256,7 @@ export const TabsContainerWrapper = () => {
             tIndex = tabIndex + 1;
         }
 
-        resetRerender(true);
+        setForceTabRerender(true);
         handleTabChange(tIndex, mTabCopy.tabsIndex[parentTabId].tabs);
 
     };
