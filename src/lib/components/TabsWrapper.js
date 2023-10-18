@@ -208,9 +208,9 @@ export const TabsContainerWrapper = () => {
         getContentData(contentId);
     };
 
-    const handleTabClose = (event, tabIndex, cdTabs) => {
+    const handleTabClose = (tabIndex, cdTabs) => {
         // Stop event from propagating to the target element's parent
-        event.stopPropagation()
+        // event.stopPropagation()
 
         let mTabCopy = {...mTabData};
         let tabToDeletObj = mTabCopy.tabsIndex[cdTabs[tabIndex].tabId];
@@ -248,8 +248,11 @@ export const TabsContainerWrapper = () => {
         }
 
         setForceTabRerender(true);
+        // setCurrentDepthTabs(parentTabs);
+        // if(parentTabId == 'parent') {
+        //     setParentDepthTabs(parentTabs);
+        // }
         handleTabChange(tIndex, mTabCopy.tabsIndex[parentTabId].tabs);
-
     };
 
     /**

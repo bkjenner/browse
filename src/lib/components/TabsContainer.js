@@ -37,6 +37,7 @@ function LocalTabs({ localSTI, currentDepthLevel, tabContainerId }) {
         tabs={localTabs}
         selectedTab={localSTI}
         onChange={handleTabChange}
+        tabId={tabContainerId}
       />
     );
 }

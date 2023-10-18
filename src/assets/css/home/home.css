@@ -16,3 +16,6 @@ body {
     position: relative;
     overflow: auto;
 }
+.p-tabview-panels {
+    padding: 0 !important;
+}

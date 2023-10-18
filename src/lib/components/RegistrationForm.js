@@ -3,7 +3,7 @@ import { useTabsWrapperContext } from "./TabsWrapper";
 import { useContentProviderContext } from "../contexts/ContentContext/ContentProvider";
 
 function RegistrationForm({props}) {
-    const { selectedTabIndex, currentTabDepth, tabId, addNewTab, handleAddNewDepthTab, currentDepthTabs } = useTabsWrapperContext();
+    const { selectedTabIndex, currentTabDepth, tabId, addNewTab, handleAddNewDepthTab, currentDepthTabs} = useTabsWrapperContext();
     const { contentDataUpdate, currentContentData } = useContentProviderContext();
     // Initial State
     // Used whenever we create a new form
@@ -46,9 +46,7 @@ function RegistrationForm({props}) {
     };
 
     useEffect(() => {
-        // If we change tabs check to see if there is any data we 
-        // need to load into the Tabs local state from the Context 
-        // where all the data is stored
+        // If we change tabs check to see if there is any data we need to load
         if(currentContentData && currentContentData.name) {
             setFormData(currentContentData);
         }
@@ -114,6 +112,67 @@ function RegistrationForm({props}) {
                     Open New Tab with Nested Depth
                 </button>
             </div>
+            <br/>
+            <button onClick={() => {
+                addNewTab(
+                    {
+                        label: "Vertical Split",
+                        content: "",
+                        componentType: "SplitterContainer",
+                        initialState: initialState,
+                        children: [{
+                            label: "V Split 1",
+                            content: "Splitter 1",
+                            componentType: "RegistrationForm",
+                            tabId: tabId
+                        },
+                        {
+                            label: "V Split 2",
+                            content: "Splitter 2",
+                            componentType: "TableGrid",
+                            tabId: tabId + 1,
+                        }
+                        ],
+                        tabs: currentDepthTabs,
+                        depth: currentTabDepth,
+                        tabId: tabId,
+                        currentDepthLevel: cdl,
+                        layout: 'vertical',
+                    }
+                )
+            }}>
+                Open Vertical Splitter
+            </button>
+            <br/>
+            <button onClick={() => {
+                addNewTab(
+                    {
+                        label: "Horizontal Stacked Split",
+                        content: "",
+                        componentType: "SplitterContainer",
+                        children: [{
+                            label: "H Split 1",
+                            content: "Splitter 1",
+                            componentType: "RegistrationForm",
+                            tabId: tabId
+                        },
+                        {
+                            label: "H Split 2",
+                            content: "Splitter 2",
+                            componentType: "TableGrid",
+                            tabId: tabId + 1,
+                        }
+                        ],
+                        initialState: initialState,
+                        tabs: currentDepthTabs,
+                        depth: currentTabDepth,
+                        tabId: tabId,
+                        currentDepthLevel: cdl,
+                    }
+                )
+            }}>
+                Open Horizontal stacked split
+            </button>
         </div>
     );
 }
