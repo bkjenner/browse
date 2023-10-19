@@ -1,19 +1,14 @@
-import React from 'react';
-// componentMap.js
-import RegistrationForm from './RegistrationForm'
-import { RegistrationFormWrapper } from './RegistrationFormWrapper';
-import TabsContainer from './TabsContainer';
-import { TabsContainerWrapper } from './TabsWrapper';
-import DynamicTabs from './DynamicTabs';
-import TableGrid from './PrimeReactDynamicTableGrid';
+import React from "react";
+import TabsContainer from "./TabsContainer";
+import { TabsWrapper } from "./TabsWrapper";
+import DynamicTabs from "./DynamicTabs";
+import DataGrid from "./DataGrid";
 
 const ComponentMap = {
-  RegistrationForm: RegistrationForm,
-  RegistrationFormWrapper: RegistrationFormWrapper,
-  TabsContainer: TabsContainer,
-  TabsContainerWrapper: TabsContainerWrapper,
-  DynamicTabs: DynamicTabs,
-  TableGrid:TableGrid,
-}
+    TabsContainer: TabsContainer,
+    TabsWrapper: TabsWrapper,
+    DynamicTabs: DynamicTabs,
+    DataGrid: DataGrid,
+};
 
 export default ComponentMap;

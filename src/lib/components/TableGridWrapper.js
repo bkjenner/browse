@@ -1,11 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import TableGrid from "./PrimeReactDynamicTableGrid";
+import DataGrid from "./DataGrid";
 import { useTabsWrapperContext } from "./TabsWrapper";
 
-const TableGridWrapperContext = createContext();
+const DataGridContext = createContext();
 
-export const TableGridWrapper = ({ props, children }) => {
-
+export const DataGridWrapper = ({ props, children }) => {
     const { addNewTab } = useTabsWrapperContext();
     const [formData, setFormData] = useState({});
 
@@ -23,19 +22,16 @@ export const TableGridWrapper = ({ props, children }) => {
 
     const handleOpenNewTab = () => {
         // Call the addNewTab  context function to open a new tab
-        addNewTab(
-            {
-                label: 'New Tab',
-                componentType: 'TabsContainer',
-                content: 'This is a new tab added by Registration Form',
-            }
-    )};
-    
-    return (
-        <TableGrid />
-    );
+        addNewTab({
+            label: "New Tab",
+            componentType: "TabsContainer",
+            content: "This is a new tab added by Registration Form",
+        });
+    };
+
+    return <DataGrid />;
 };
 
-export const useTableGridWrapperContext = () => {
-    return useContext(TableGridWrapperContext);
+export const useDataGridContext = () => {
+    return useContext(DataGridContext);
 };

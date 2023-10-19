@@ -1,62 +1,33 @@
-import * as React from "react";
+import React, { useState } from "react";
+import { SideMenu } from "lib/components";
+import { TabsContainerWrapper } from "lib/components/TabsWrapper";
+import TabInterface from "lib/components/TabInterface";
+import { Button } from "primereact/button";
+import { Menubar } from "primereact/menubar";
 
-import Overview from "./components/Overview.js";
-
-import { SideNav } from "lib/components";
-import { useTheme } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import CssBaseline from "@mui/material/CssBaseline";
-import { useQuery, gql } from "@apollo/client";
-import { TabsContainerWrapper } from "../../lib/components/TabsWrapper";
-
-import HomeIcon from "@mui/icons-material/Home";
-import GroupsIcon from "@mui/icons-material/Groups";
-import BusinessIcon from "@mui/icons-material/Business";
-import CreditCardIcon from "@mui/icons-material/CreditCard";
-
-import TabInterface from "../../lib/components/TabInterface";
-
-// Create the form context at the highest level so that we can store information and swap between tabs
 export default function Home() {
-    const [compName, setCompName] = React.useState("Tab");
+    const [component, setComponent] = useState("ActivityBrowse");
+    const [navigationVisible, setNavigationVisible] = useState(true);
 
-    const theme = useTheme();
-
-    let itemsMap = [
+    const navigationItems = [
         {
-            key: "Overview",
-            title: "Overview",
-            icon: <HomeIcon sx={{ color: `${theme.palette.primary.contrastText}` }} />,
-        },
-        // {
-        //     key: "PrimeReactDynamic",
-        //     title: "Prime React Dynamic Columns",
-        //     icon: <BusinessIcon sx={{ color: `${theme.palette.primary.contrastText}` }} />,
-        // },
-        {
-            key: "Tab",
-            title: "Tab",
-            icon: <CreditCardIcon sx={{ color: `${theme.palette.primary.contrastText}` }} />,
+            key: "ActivityBrowse",
+            label: "Activity Browse",
+            icon: "pi pi-calendar-times",
         },
     ];
 
     return (
-        <Box sx={{ display: "flex" }}>
-            <CssBaseline />
-            <SideNav items={itemsMap} onClick={setCompName} selectedRow={compName} />
-            {compName == "Overview" ? (
-                <Overview />
-            // ) : compName == "ReactGridSample" ? (
-            //     <ReactGridSample />
-            // ) : compName == "PrimeReactSample" ? (
-            //     <PrimeReactSample />
-            // ) : compName == "PrimeReactDynamic" ? (
-            //     <PrimeReactDynamic />
-            ) : compName == "Tab" ? (
-                <TabInterface/>
-            ) : (
-                <>Error</>
-            )}
-        </Box>
+        <div className="grid flex-grow-1 flex-direction-col">
+            <div className="col-1 col-offset-2">
+                <Button type="button" icon="pi pi-bars outlined" onClick={() => setNavigationVisible(!navigationVisible)} />
+            </div>
+            <div className="col-3 h-full">
+                <SideMenu value={component} items={navigationItems} visible={navigationVisible} onChange={setComponent} />
+            </div>
+            <div className={navigationVisible ? "col-10 col-offset-2" : "col-12"}>
+                {component == "ActivityBrowse" ? <TabInterface /> : <>Error</>}
+            </div>
+        </div>
     );
 }

@@ -16,7 +16,7 @@ import { useTabsWrapperContext } from "./TabsWrapper";
 import { useContentProviderContext } from "lib/contexts/ContentContext/ContentProvider";
 import moment from "moment";
 
-export default function PrimeReactDynamicTableGrid({ props }) {
+export default function DataGrid(props) {
     const { selectedTabIndex, currentTabDepth, tabId, addNewTab, handleAddNewDepthTab, currentDepthTabs } = useTabsWrapperContext();
     const { contentDataUpdate, currentContentData } = useContentProviderContext();
     const initialState = {
@@ -76,15 +76,6 @@ export default function PrimeReactDynamicTableGrid({ props }) {
     const fetchRowData = () => {
         let recordsNum = 10 + parseInt(moment().local().format("ss"));
         axios.get(`/action/activityBrowse?p_metadata=true&p_pagesize=${recordsNum}`).then((response) => {
-            let { metadata, activities } = response.data;
-            let keys = Object.keys(activities[0]);
-
-            metadata = _.filter(metadata, (meta) => {
-                return keys.includes(meta.columnname);
-            });
-
-            console.log(metadata);
-
             let res = response.data && response.data.activities ? response.data.activities : response.data;
             columnHeaderMap = response.data && response.data.metadata ? response.data.metadata : [];
             setRowData(res);
@@ -101,7 +92,6 @@ export default function PrimeReactDynamicTableGrid({ props }) {
             if (typeof res === "object" && res != null) {
                 columnObjectArray = getColumnsThroughLoopArrayJSON(res, columnHeaderMap);
 
-                console.log(columnObjectArray);
                 setColumnData(columnObjectArray);
                 setVisibleColumns(columnObjectArray); // initially display all columns
             }
@@ -123,7 +113,6 @@ export default function PrimeReactDynamicTableGrid({ props }) {
             icon="pi pi-refresh"
             text
             onClick={(e) => {
-                console.log("left button clicked");
                 fetchRowData();
                 clearState();
             }}
@@ -139,28 +128,30 @@ export default function PrimeReactDynamicTableGrid({ props }) {
     };
 
     const header = (
-        <>
-            <MultiSelect
-                value={visibleColumns}
-                options={columnFromRowData}
-                optionLabel="header"
-                onChange={onColumnToggle}
-                className="w-full sm:w-20rem"
-                display="chip"
-            />
-            <span className="p-input-icon-left w-full sm:w-20rem">
-                <i className="pi pi-search" />
-                <InputText placeholder="Activity Type" />
-            </span>
-            <span className="p-input-icon-left w-full sm:w-20rem">
-                <i className="pi pi-search" />
-                <InputText placeholder="Performed By" />
-            </span>
-            <span className="p-input-icon-left w-full sm:w-20rem">
-                <i className="pi pi-search" />
-                <InputText placeholder="Performed For" />
-            </span>
-        </>
+        <div className="grid flex">
+            <div className="col-3">
+                <MultiSelect
+                    value={visibleColumns}
+                    options={columnFromRowData}
+                    optionLabel="header"
+                    onChange={onColumnToggle}
+                    className="w-full sm:w-20rem"
+                    display="chip"
+                />
+            </div>
+            <div className="col-3">
+                <span className="p-input-icon-left w-full sm:w-20rem">
+                    <i className="pi pi-search" />
+                    <InputText placeholder="Activity Type" />
+                </span>
+            </div>
+            <div className="col-3">
+                <span className="p-input-icon-left w-full sm:w-20rem">
+                    <i className="pi pi-search" />
+                    <InputText placeholder="Activity Project" />
+                </span>
+            </div>
+        </div>
     );
 
     // original data returned from sequelize could be an array(findAll) or one json(findOne)
@@ -254,7 +245,6 @@ export default function PrimeReactDynamicTableGrid({ props }) {
             !(currentContentData && currentContentData.layoutMeta && _.isEqual(layoutMeta, currentContentData.layoutMeta)) &&
             props.tabKey == currentContentData.tabId
         ) {
-            console.log(state);
             contentDataUpdate({
                 ...currentContentData,
                 layoutMeta: layoutMeta,
@@ -315,8 +305,7 @@ export default function PrimeReactDynamicTableGrid({ props }) {
                         <Button
                             onClick={() => {
                                 addNewTab({
-                                    label: "Table Grid",
-                                    content: "",
+                                    label: "New form",
                                     componentType: "DataGrid",
                                     initialState: initialState,
                                     tabs: currentDepthTabs,
@@ -351,13 +340,7 @@ export default function PrimeReactDynamicTableGrid({ props }) {
                         </Button>
                     </div>
                 </div>
-
                 <div className="col-12">
-                    <h1>PrimeReact Grid Component</h1>
-                </div>
-
-                <div className="col-12">
-                    <h2>Select a Layout</h2>
                     <Dropdown
                         value={selectedLayout}
                         onChange={selectLayout}
