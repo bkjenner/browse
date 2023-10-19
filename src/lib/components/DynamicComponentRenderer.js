@@ -13,7 +13,7 @@ const DynamicComponentRenderer = (props) => {
     if (props.componentType in ComponentMap) {
         return  React.createElement(
             ComponentMap[`${props.componentType}`], 
-            {props},
+            {...props},
         );        
     } else {
         return <div>Component not found</div>;

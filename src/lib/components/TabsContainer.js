@@ -48,7 +48,7 @@ function LocalTabs({ localSTI, currentDepthLevel, tabContainerId }) {
  * @param {Object} props Contains data on the tab to render. CurrentDepthLevel is a key to tell what depth level to render the container on
  * @returns {JSX.Element} Returns the LocalTabs component that renders the tabs on the page
  */
-function TabsContainer({props}) {
+function TabsContainer(props) {
     // Local state for the container to keep track of by itself
     const [localSTI, setLocalSTI] = useState(0);
     const depthLevel = props.currentDepthLevel + 1;

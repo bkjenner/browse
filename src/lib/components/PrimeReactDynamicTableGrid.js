@@ -24,7 +24,7 @@ import { useContentProviderContext } from "../contexts/ContentContext/ContentPro
 
 import moment from "moment";
 
-export default function PrimeReactDynamicTableGrid({props}) {   
+export default function PrimeReactDynamicTableGrid(props) {   
     
     const { selectedTabIndex, currentTabDepth, tabId, addNewTab, handleAddNewDepthTab, currentDepthTabs } = useTabsWrapperContext();
     const { contentDataUpdate, currentContentData } = useContentProviderContext();
