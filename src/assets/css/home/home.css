@@ -19,3 +19,10 @@ body {
 .p-tabview-panels {
     padding: 0 !important;
 }
+.edit-panel {
+    width: 60vw;
+}
+.edit-button-save-container {
+    display: flex;
+    flex-direction: row-reverse;
+}

@@ -1,5 +1,4 @@
 import * as React from "react";
-
 import Overview from "./components/Overview.js";
 
 import { SideNav } from "lib/components";
@@ -21,6 +20,7 @@ export default function Home() {
     const [compName, setCompName] = React.useState("Tab");
 
     const theme = useTheme();
+
 
     let itemsMap = [
         {
@@ -53,7 +53,9 @@ export default function Home() {
             // ) : compName == "PrimeReactDynamic" ? (
             //     <PrimeReactDynamic />
             ) : compName == "Tab" ? (
-                <TabInterface/>
+                <>
+                    <TabInterface />
+                </>
             ) : (
                 <>Error</>
             )}

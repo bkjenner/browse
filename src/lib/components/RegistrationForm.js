@@ -82,7 +82,6 @@ function RegistrationForm({props}) {
                             componentType: "TableGrid",
                             initialState: initialState,
                             tabs: currentDepthTabs,
-                            depth: currentTabDepth,
                             tabId: tabId,
                             currentDepthLevel: cdl,
                         }

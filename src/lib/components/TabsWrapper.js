@@ -256,7 +256,7 @@ export const TabsContainerWrapper = () => {
     };
 
     /**
-     * This ia function that will reset the flag forcing a re-render of tabs
+     * This is function that will reset the flag forcing a re-render of tabs
      */
     const resetRerender = () => {
         setForceTabRerender(false);
@@ -376,9 +376,34 @@ export const TabsContainerWrapper = () => {
         contentDataUpdate({ tabId: props.child.tabId, ...props.child.initialState});
     }
 
+    /**
+     * This function will handle adding a new child tab under another tab container by passing in the tab ID of the Tab container
+     */
+    const handleAddNewChildTab = (props) => {
+        let mTabCopy = { ...mTabData };
+
+        // create a temp copy
+        let currentTabCopy = mTabCopy.tabsIndex[props.parentTabId].tabs;
+        // Add new tab to the parent
+        currentTabCopy.push(props) 
+        mTabCopy.tabsIndex[props.parentTabId].tabs = currentTabCopy;
+
+        // Add to index
+        mTabCopy.tabsIndex[props.tabId] = { 
+            tabs: [], 
+            selectedTabIndex: 0, 
+            parentId: parentTabId,
+            componentType: props.componentType,
+            tabId: props.tabId,
+            label: props.label,
+        };
+
+        setMTabData(mTabCopy);
+    }
+
     return (
         <TabsWrapperContext.Provider
-            value={{ tabId, mTabData, forceTabRerender, selectedTabIndex, currentTabDepth, currentDepthTabs, resetRerender, addNewTab, handleTabChange, handleTabClose, handleAddNewDepthTab }}
+            value={{ tabId, mTabData, forceTabRerender, selectedTabIndex, currentTabDepth, currentDepthTabs, resetRerender, addNewTab, handleTabChange, handleTabClose, handleAddNewDepthTab, handleAddNewChildTab }}
         >
             <DynamicTabs
                 tabs={parentDepthTabs}

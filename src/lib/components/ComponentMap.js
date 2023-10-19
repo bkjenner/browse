@@ -6,6 +6,7 @@ import TabsContainer from './TabsContainer';
 import { TabsContainerWrapper } from './TabsWrapper';
 import DynamicTabs from './DynamicTabs';
 import TableGrid from './PrimeReactDynamicTableGrid';
+import EditForm from './EditForm';
 
 const ComponentMap = {
   RegistrationForm: RegistrationForm,
@@ -14,6 +15,7 @@ const ComponentMap = {
   TabsContainerWrapper: TabsContainerWrapper,
   DynamicTabs: DynamicTabs,
   TableGrid:TableGrid,
+  EditForm: EditForm,
 }
 
 export default ComponentMap;

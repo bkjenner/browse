@@ -21,6 +21,7 @@ import { TriStateCheckbox } from "primereact/tristatecheckbox";
 
 import { useTabsWrapperContext } from "./TabsWrapper";
 import { useContentProviderContext } from "../contexts/ContentContext/ContentProvider";
+import MenuRibbon from "./MenuRibbon";
 
 import moment from "moment";
 
@@ -390,7 +391,6 @@ export default function PrimeReactDynamicTableGrid(props) {
 
     const cdl = currentTabDepth;
 
-
     return (
         <Box component="main" sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}>
             <Grid container spacing={2}>
@@ -452,6 +452,7 @@ export default function PrimeReactDynamicTableGrid(props) {
                     />
                 </Grid>
                 <Grid item xs={11}>
+                <MenuRibbon />
                     <Grid item xs={12}>
                         <div className="card">
                             <DataTable
@@ -492,6 +493,12 @@ export default function PrimeReactDynamicTableGrid(props) {
                                 // or directly call restoreState() to re-render layout
                                 customRestoreState={dataTableLoadLayout}
                                 stateKey="dt-state-demo-local"
+                                selectionMode="single"
+                                onSelectionChange={(e) => {
+                                    console.log(e.value)
+                                    // 007
+                                    // Update the contentContext with values
+                                }}
                             >
                                 <Column rowReorder style={{ width: "1rem" }} frozen />
                                 {renderDynamicColumns(visibleColumns)}
