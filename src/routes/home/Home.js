@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { SideMenu } from "lib/components";
-import { TabsContainerWrapper } from "lib/components/TabsWrapper";
+import { TabsWrapper } from "lib/components/TabsWrapper";
 import TabInterface from "lib/components/TabInterface";
 import { Button } from "primereact/button";
 import { Menubar } from "primereact/menubar";
