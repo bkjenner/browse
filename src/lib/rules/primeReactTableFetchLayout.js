@@ -15,7 +15,7 @@ Rules.prototype.primeReactTableFetchLayout = function (input) {
                 );
             }
             
-            resolve(res)
+            resolve(_.orderBy(res, ['name'], ['desc']))
         })
     });
 };

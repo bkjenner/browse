@@ -81,7 +81,7 @@ function RegistrationForm({props}) {
                         {
                             label: "Table Grid",
                             content: "",
-                            componentType: "TableGrid",
+                            componentType: "TableGridForTab",
                             initialState: initialState,
                             tabs: currentDepthTabs,
                             depth: currentTabDepth,
@@ -102,7 +102,7 @@ function RegistrationForm({props}) {
                             child: {
                                 label: `${tabId + 1}`,
                                 content: "",
-                                componentType: "TableGrid",
+                                componentType: "TableGridForTab",
                                 initialState: {},
                                 tabId: tabId + 1,
                             },
