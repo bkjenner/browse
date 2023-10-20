@@ -1,23 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 
 import axios from "axios";
-
-import { useTheme } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-
-import { classNames } from "primereact/utils";
-import { FilterMatchMode, FilterOperator } from "primereact/api";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
 import { Button } from "primereact/button";
-import { ColumnGroup } from "primereact/columngroup";
-import { Row } from "primereact/row";
-import { InputText } from "primereact/inputtext";
-import { Dropdown } from "primereact/dropdown";
 import { MultiSelect } from "primereact/multiselect";
-import { Tag } from "primereact/tag";
-import { TriStateCheckbox } from "primereact/tristatecheckbox";
 
 import  DataGrid  from "./DataGrid.js";
 import { useTabsWrapperContext } from "./TabsWrapper.js";
@@ -25,7 +10,7 @@ import { useContentProviderContext } from "../contexts/ContentContext/ContentPro
 
 import moment from "moment";
 
-export default function DataGridWrapperForTabs({props}) {   
+export default function DataGridWrapperForTabs(props) {   
     
     const { selectedTabIndex, currentTabDepth, tabId, addNewTab, handleAddNewDepthTab, currentDepthTabs } = useTabsWrapperContext();
     const { contentDataUpdate, currentContentData } = useContentProviderContext();
@@ -92,7 +77,7 @@ export default function DataGridWrapperForTabs({props}) {
     }, []);
 
     const fetchRowData = () => {
-        let recordsNum = 10 + parseInt(moment().local().format("ss"));
+        let recordsNum = 100 + parseInt(moment().local().format("ss"));
         // console.log('should fetch ' + recordsNum + ' records');
         axios.get(`/action/activityBrowse?p_metadata=true&p_pagesize=${recordsNum}`).then((response) => {
             // // console.log(response.data);
@@ -219,113 +204,99 @@ export default function DataGridWrapperForTabs({props}) {
 
 
     return (
-        <Box component="main" sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}>
-            <Grid container spacing={2}>
-                <Grid item xs={12}>
-                    <div>
-                        <Button
-                            onClick={() => {
-                                addNewTab({
-                                    label: "Table Grid",
+        <div className="grid flex-grow-1 flex-direction-col">
+            <div className="col-12"></div>
+            <div className="col-12">
+                <div>
+                    <Button
+                        onClick={() => {
+                            addNewTab({
+                                label: "Table Grid",
+                                content: "",
+                                componentType: "TableGridForTab",
+                                initialState: initialState,
+                                tabs: currentDepthTabs,
+                                depth: currentTabDepth,
+                                tabId: tabId,
+                                currentDepthLevel: cdl,
+                            });
+                        }}
+                    >
+                        Open New Same Depth Tab
+                    </Button>
+                    <Button
+                        onClick={(event) => {
+                            handleAddNewDepthTab({
+                                label: tabId,
+                                content: "",
+                                componentType: "TabsContainer",
+                                initialState: {},
+                                child: {
+                                    label: `${tabId + 1}`,
                                     content: "",
                                     componentType: "TableGridForTab",
-                                    initialState: initialState,
-                                    tabs: currentDepthTabs,
-                                    depth: currentTabDepth,
-                                    tabId: tabId,
-                                    currentDepthLevel: cdl,
-                                });
-                            }}
-                        >
-                            Open New Same Depth Tab
-                        </Button>
-                        <Button
-                            onClick={(event) => {
-                                handleAddNewDepthTab({
-                                    label: tabId,
-                                    content: "",
-                                    componentType: "TabsContainer",
                                     initialState: {},
-                                    child: {
-                                        label: `${tabId + 1}`,
-                                        content: "",
-                                        componentType: "TableGridForTab",
-                                        initialState: {},
-                                        tabId: tabId + 1,
-                                    },
-                                    tabId: tabId,
-                                    currentDepthLevel: cdl,
-                                });
-                            }}
-                        >
-                            Open New Tab with Nested Depth
-                        </Button>
-                    </div>
-                </Grid>
-
-                <Grid item xs={12}>
-                    <h1>PrimeReact Grid Component</h1>
-                </Grid>
-
-                
-                <Grid item xs={12}>
-
-                    <DataGrid
-                        rowDataValue={rowData} // need a useEffect for rowData to monitor changes and push to storage
-                        updateRowData={setRowData} // 
-                        
-                        columnHeaderMap={columnHeaderMap} // fetched along rowData, currently no update needed after initial fetch
-                        loading={loading}
-                        emptyMessage="No Activities Found."
-                        dataKey="id"
-
-                        // onRowReorder={onRowReorder}// should handle it locally, and push rowData changes back
-
-                        // directly pass any layout to the table
-                        layoutMeta={layoutMetaUpdate}
-
-                        dataTableSaveLayout={dataTableSaveLayout} // when ever local layout changes, call this to update stored layout 
-                        
-                        dataTableLoadLayout={dataTableLoadLayout} // when initial load/mount, call this to check and fetch if there are stored layout
-                        
-                        // may not even need fetchRowData, since rowDataValue is directly passed to componet
-                        // fetchRowData={fetchRowData} // when initial load/mount, check storage for existing data if not call the data fetch rule.
-                        fetchRowDataRule="activityBrowse?p_metadata=true&p_pagesize=200" // in case componet needs a data refresh 
-
-                        // props directly passed into PrimeReact DataTable component
-                        // see https://primereact.org/datatable/#api.DataTable.props for more info
-                        tableOtherProps={{
-                            showGridlines:true,
-                            scrollable:true,
-                            reorderableColumns:true,
-                            reorderableRows:true,
-                            resizableColumns:true,
-                            columnResizeMode:"expand",
-                            tableStyle:{ minWidth: "50rem" },
-                            removableSort:true,
-                            sortMode:"multiple", //requires metaKey (e.g. ⌘) to be pressed when clicking second column header.
-                            paginator:true,
-                            rows:6,
-                            rowsPerPageOptions:[6, 10, 25, 50, 100, 500],
-                            paginatorTemplate:"RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink",
-                            currentPageReportTemplate:"{first} to {last} of {totalRecords}",
+                                    tabId: tabId + 1,
+                                },
+                                tabId: tabId,
+                                currentDepthLevel: cdl,
+                            });
                         }}
-                        paginatorRight={paginatorRight} //overwrite the component
-                        paginatorLeft={paginatorLeft} //overwrite the component
+                    >
+                        Open New Tab with Nested Depth
+                    </Button>
+                </div>
+            </div>
 
-                       
+            <div className="col-12">
+                <h1>PrimeReact Grid Component</h1>
+            </div>
 
-                        showSaveLayoutButton={true}
-                        saveLayoutRule='primeReactTableSaveLayout'
+            <div className="col-12">
+                <DataGrid
+                    selfFetchData={false}
+                    rowDataValue={rowData} // need a useEffect for rowData to monitor changes and push to storage
+                    updateRowData={setRowData} //
+                    columnHeaderMap={columnHeaderMap} // fetched along rowData, currently no update needed after initial fetch
+                    loading={loading}
+                    emptyMessage="No Activities Found."
+                    dataKey="id"
+                    // onRowReorder={onRowReorder}// should handle it locally, and push rowData changes back
 
-                        showLoadLayoutDropDown={true}
-                        loadLayoutRule='primeReactTableFetchLayout'
-                    />
+                    // directly pass any layout to the table
+                    layoutMeta={layoutMetaUpdate}
+                    dataTableSaveLayout={dataTableSaveLayout} // when ever local layout changes, call this to update stored layout
+                    dataTableLoadLayout={dataTableLoadLayout} // when initial load/mount, call this to check and fetch if there are stored layout
+                    stateStorage='custom'
                     
-                </Grid>
-
-                
-            </Grid>
-        </Box>
+                    fetchRowDataRule="activityBrowse" // in case component needs a data refresh
+                    
+                    // props directly passed into PrimeReact DataTable component
+                    // see https://primereact.org/datatable/#api.DataTable.props for more info
+                    tableOtherProps={{
+                        showGridlines: true,
+                        scrollable: true,
+                        reorderableColumns: true,
+                        reorderableRows: true,
+                        resizableColumns: true,
+                        columnResizeMode: "expand",
+                        tableStyle: { minWidth: "50rem" },
+                        removableSort: true,
+                        sortMode: "multiple", //requires metaKey (e.g. ⌘) to be pressed when clicking second column header.
+                        // paginator: true,
+                        rows: 6,
+                        rowsPerPageOptions: [6, 10, 25, 50, 100, 500],
+                        paginatorTemplate: "RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink",
+                        currentPageReportTemplate: "{first} to {last} of {totalRecords}",
+                    }}
+                    paginatorRight={paginatorRight} //overwrite the component
+                    paginatorLeft={paginatorLeft} //overwrite the component
+                    showSaveLayoutButton={true}
+                    saveLayoutRule="primeReactTableSaveLayout"
+                    showLoadLayoutDropDown={true}
+                    loadLayoutRule="primeReactTableFetchLayout"
+                />
+            </div>
+        </div>
     );
 }

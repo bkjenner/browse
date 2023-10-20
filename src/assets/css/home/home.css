@@ -9,10 +9,22 @@ body {
     line-height: 1.5;
     font-family: "Inter", sans-serif;
     background-color: #fff;
+    height: 100%;
 }
 
 #root {
     display: block;
     position: relative;
     overflow: auto;
+}
+.p-tabview-panels {
+    padding: 0 !important;
+}
+
+.sidemenu-listbox {
+    border: none !important;
+}
+
+.p-sidebar-content {
+    padding: 0 !important;
 }

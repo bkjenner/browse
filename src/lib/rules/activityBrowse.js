@@ -4,11 +4,54 @@ Rules.prototype.activityBrowse = async ({
     p_acttypeid = null,
     p_actprojectid = null,
     p_metadata = null,
+    ...input
 }) => {
+    const schema = joi.object().keys({
+        p_metadata: joi.boolean(),
+        p_pagesize: joi.number().error((errors) => {
+            errors.forEach((err) => {
+                let caption = "Page Size";
+
+                switch (err.code) {
+                    case "number.base":
+                        err.message = `${caption} must be a number`;
+                        break;
+                    default:
+                        break;
+                }
+            });
+
+            return errors;
+        }),
+        p_order: joi.string(),
+        p_acttypeid: joi.number().error((errors) => {
+            errors.forEach((err) => {
+                let caption = "Activity Type";
+
+                switch (err.code) {
+                    case "number.base":
+                        err.message = `${caption} must be a number`;
+                        break;
+                    default:
+                        break;
+                }
+            });
+
+            return errors;
+        }),
+        p_actprojectid: joi.number(),
+    });
+
+    try {
+        const validation = await util.validateRequest(schema, input.req);
+    } catch (error) {
+        return input.res.status(400).send(error.message);
+    }
+
     let metadata = {};
 
     if (p_metadata) {
-        metadata = await sql`select columnname, heading from fnactactivitybrowse(p_metadata => ${p_metadata})`;
+        metadata = await sql`SELECT columnname, heading FROM fnactactivitybrowse(p_metadata => ${p_metadata})`;
     }
 
     const activities = await sql`

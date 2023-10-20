@@ -2,9 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 
 import axios from "axios";
 
-import { useTheme } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
 
 import { classNames } from "primereact/utils";
 import { FilterMatchMode, FilterOperator } from "primereact/api";
@@ -16,8 +13,7 @@ import { Row } from "primereact/row";
 import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
 import { MultiSelect } from "primereact/multiselect";
-import { Tag } from "primereact/tag";
-import { TriStateCheckbox } from "primereact/tristatecheckbox";
+
 
 
 
@@ -28,10 +24,30 @@ export default function DataGrid(props) {
 
     const dataTableRef = useRef(null);
     const [rowData, setRowData] = useState(null);
-    const [loading, setLoading] = useState(false);
-
+    const [loading, setLoading] = useState(true);
+    const [columnHeaderMap, setColumnHeaderMap] = useState(null);
 
     const [layoutMetaUpdate, setLayoutMetaUpdate] = useState(null); // tie to useEffect to trigger re-render table layout
+
+    let layoutMeta;
+
+    useEffect(() => {
+        if (props.selfFetchData == true) {
+            let recordsNum = 100 + parseInt(moment().local().format("ss"));
+            // console.log('should fetch ' + recordsNum + ' records');
+            axios
+                .get(`/action/${props.fetchRowDataRule ? props.fetchRowDataRule : "activityBrowse"}?p_metadata=true&p_pagesize=${recordsNum}`)
+                .then((response) => {
+                    // // console.log(response.data);
+                    let res = response.data && response.data.activities ? response.data.activities : response.data;
+                    let columnHeaderMapping = response.data && response.data.metadata ? response.data.metadata : [];
+                    setColumnHeaderMap(columnHeaderMapping)
+
+                    setRowData(res);
+                    setLoading(false);
+                });
+        }
+    }, []);
 
     // to monitor and apply any local layout has been selected/set
     // then reload triggered from restoreState() would trigger dataTableSaveLayout, and push new layout data to parent
@@ -181,14 +197,8 @@ export default function DataGrid(props) {
 
     const renderDynamicColumns = (rowDataValue,columnHeaderMap) => {
 
-        // console.log(columnHeaderMap);
-        // let columnHeaderMap =[];
         let columnObjectArray = getColumnsThroughLoopArrayJSON(rowDataValue, columnHeaderMap);
 
-
-
-        // let columnNames = [];
-        // let columnObjectArray = [];
         let columns = [];
 
         columnObjectArray.forEach((ele) => {
@@ -210,7 +220,7 @@ export default function DataGrid(props) {
         // passed in parameter state is the layout that table currently is showing
         console.log("local dataTableSaveLayout function");
 
-        // layoutMeta = state;
+        layoutMeta = state;
         props.dataTableSaveLayout(state);
         // if(props.dataTableSaveLayout && !_.isEqual(props.layoutMeta, state)){
         //     props.dataTableSaveLayout(state);
@@ -261,7 +271,7 @@ export default function DataGrid(props) {
     return (
         <>
             {props.showLoadLayoutDropDown == true ? (
-                <Grid item xs={12}>
+                <div className="col-12">
                     <h2>Select a Layout</h2>
                     <Dropdown
                         value={selectedLayout}
@@ -271,63 +281,67 @@ export default function DataGrid(props) {
                         placeholder="Select a Layout"
                         className="w-full md:w-14rem"
                     />
-                </Grid>
+                </div>
             ) : (
-                ""
+                <></>
             )}
             <br></br>
-            <Grid item xs={12}>
+            <div className="col-12">
                 <div className="card">
                     <DataTable
                         ref={dataTableRef}
-
-                        value={props.rowDataValue ? props.rowDataValue : rowData}
-                        loading={props.loading ? props.loading : loading}
-
+                        value={
+                            props.selfFetchData == true
+                            ? rowData
+                            : props.rowDataValue
+                        }
+                        loading={
+                            props.selfFetchData == true
+                            ? loading
+                            : props.loading
+                        }
                         emptyMessage={props.emptyMessage ? props.emptyMessage : "No Record Found."}
-                        dataKey={props.dataKey ? props.dataKey : 'id'}
-
+                        dataKey={props.dataKey ? props.dataKey : "id"}
                         // DataTable re-order rows by saving RowData array in that order, disabled when column sorting is on
                         // further implementation needed if want to re-order row when column sorting is on
                         onRowReorder={onRowReorder} // DataTable save/load rows in the same order as they are in the array
-
                         // header={header} // table's header, (above the row header)
 
-                        
                         rows={5}
                         rowsPerPageOptions={[10, 25, 50, 100, 500]}
+                        paginator
                         paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
                         currentPageReportTemplate="{first} to {last} of {totalRecords}"
-                        
-                        
-                        paginatorLeft={props.paginatorLeft ? props.paginatorLeft : paginatorLeft} 
-                        paginatorRight={props.paginatorRight ? props.paginatorRight : paginatorRight} 
-                        
+                        paginatorLeft={props.paginatorLeft ? props.paginatorLeft : paginatorLeft}
+                        paginatorRight={props.paginatorRight ? props.paginatorRight : paginatorRight}
                         {...props.tableOtherProps} // overwrite any table setting from passed in props
-
                         stateStorage={
-                            props.stateStorage 
-                            ? props.stateStorage
-                            : (props.dataTableLoadLayout || props.dataTableSaveLayout || props.layoutMeta)
-                            ? 'custom'
-                            : null
+                            props.stateStorage
+                                ? props.stateStorage
+                                : props.dataTableLoadLayout || props.dataTableSaveLayout || props.layoutMeta
+                                ? "custom"
+                                : 'local'
                         }
-                        // stateStorage needs to be 'custom' to trigger below passed in function 
+                        // stateStorage needs to be 'custom' to trigger below passed in function
                         customSaveState={dataTableSaveLayout} // run every render
                         // run only on initial Mount ( mapped inside a useEffect(...,[]) )
                         // or directly call restoreState() to re-render layout
                         customRestoreState={dataTableLoadLayout}
                     >
                         <Column rowReorder style={{ width: "1rem" }} frozen />
-                        {renderDynamicColumns(props.rowDataValue, props.columnHeaderMap)}
+                        {
+                            props.selfFetchData == true
+                            ? renderDynamicColumns(rowData, columnHeaderMap)
+                            :renderDynamicColumns(props.rowDataValue, props.columnHeaderMap)
+                        }
                     </DataTable>
                 </div>
-            </Grid>
+            </div>
 
             <br></br>
 
             {props.showSaveLayoutButton == true && props.saveLayoutRule ? (
-                <Grid item xs={12}>
+                <div className="col-12">
                     <Button
                         type="button"
                         label="Save Current Layout"
@@ -335,14 +349,15 @@ export default function DataGrid(props) {
                         onClick={(e) => {
                             let layoutName = moment().local().format("YYYYMMDDHHmmss");
                             console.log("saving to cache " + layoutName);
-                            let layoutMeta = layoutMetaUpdate;
+                            console.log(layoutMeta);
+
                             delete layoutMeta.columnWidths;
                             delete layoutMeta.tableWidth;
                             console.log(layoutMeta);
                             axios
                                 .post(`/action/${props.saveLayoutRule}`, {
                                     layoutName,
-                                    layoutMeta:layoutMeta,
+                                    layoutMeta: layoutMeta,
                                 })
                                 .then(() => {
                                     fetchAllLayout();
@@ -350,9 +365,9 @@ export default function DataGrid(props) {
                                 });
                         }}
                     />
-                </Grid>
+                </div>
             ) : (
-                ""
+                <></>
             )}
         </>
     );

@@ -13,16 +13,10 @@
         "prod": "gulp prod"
     },
     "dependencies": {
-        "@apollo/client": "^3.8.4",
-        "@apollo/server": "^4.9.3",
         "@emotion/react": "^11.11.1",
         "@emotion/styled": "^11.11.0",
         "@graphql-tools/load-files": "^7.0.0",
         "@graphql-tools/merge": "^9.0.0",
-        "@mui/icons-material": "^5.11.16",
-        "@mui/material": "^5.13.6",
-        "@mui/x-data-grid": "^6.10.0",
-        "@silevis/reactgrid": "^4.1.1",
         "axios": "^1.5.1",
         "bcrypt": "^5.1.0",
         "bluebird": "^3.7.2",
@@ -36,6 +30,8 @@
         "fs-extra": "^11.1.1",
         "graphql": "^16.8.1",
         "history": "^5.3.0",
+        "immer": "^10.0.3",
+        "joi": "^17.11.0",
         "jsonwebtoken": "^9.0.0",
         "jspdf": "^2.5.1",
         "jspdf-autotable": "^3.6.0",
@@ -50,6 +46,7 @@
         "passport-jwt": "^4.0.1",
         "pg": "^8.11.3",
         "postgres": "^3.4.0",
+        "primeicons": "^6.0.1",
         "primereact": "^9.6.2",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
@@ -63,8 +60,10 @@
         "tedious": "^16.1.0",
         "universal-cookie": "^4.0.4",
         "validate.js": "^0.13.1",
+        "validator": "^13.11.0",
         "web-vitals": "^2.1.4",
-        "winston": "^3.10.0"
+        "winston": "^3.10.0",
+        "zustand": "^4.4.3"
     },
     "devDependencies": {
         "@babel/core": "^7.22.5",
