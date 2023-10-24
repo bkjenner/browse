@@ -10,6 +10,10 @@ import "babel-polyfill";
 import { map } from "lodash";
 import ErrorPage from "./error-page";
 import Home from "./Home";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
+const queryClient = new QueryClient();
 
 window.mUtil = util;
 
@@ -50,6 +54,9 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
-        <RouterProvider router={router} />
+        <QueryClientProvider client={queryClient}>
+            <ReactQueryDevtools initialIsOpen={false} />
+            <RouterProvider router={router} />
+        </QueryClientProvider>
     </React.StrictMode>,
 );

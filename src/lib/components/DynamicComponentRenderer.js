@@ -8,13 +8,11 @@ import ComponentMap from "./ComponentMap"; // Import the object with component e
  * @param {Object} props Contains information on the React Component to render. Utilizes the componentType prop to find the functional component to render
  * @returns {JSX.Element} JSX element of the component to render
  */
-const DynamicComponentRenderer = (props) => {
+export default function DynamicComponentRenderer(props) {
     // Check if the component exists in the ComponentMap
     if (props.componentType in ComponentMap) {
         return React.createElement(ComponentMap[`${props.componentType}`], { ...props });
     } else {
         return <div>Component not found</div>;
     }
-};
-
-export default DynamicComponentRenderer;
+}

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { SideMenu } from "lib/components";
-import { TabsWrapper } from "lib/components/TabsWrapper";
+import SideMenu from "lib/components/SideMenu";
 import TabInterface from "lib/components/TabInterface";
 import DataGrid from "lib/components/DataGrid";
 import { Button } from "primereact/button";
@@ -16,11 +15,6 @@ export default function Home() {
             label: "Activity Browse",
             icon: "pi pi-calendar-times",
         },
-        {
-            key: "DataGrid",
-            label: "Stand Alone DataGrid",
-            icon: "pi pi-calendar-times",
-        },
     ];
 
     return (
@@ -33,9 +27,6 @@ export default function Home() {
             </div>
             <div className={navigationVisible ? "col-10 col-offset-2" : "col-12"}>
                 {component == "ActivityBrowse" ? <TabInterface /> : <>Error</>}
-            </div>
-            <div className={navigationVisible ? "col-10 col-offset-2" : "col-12"}>
-                {component == "DataGrid" ? <DataGrid selfFetchData={true}/> : <>Error</>}
             </div>
         </div>
     );
