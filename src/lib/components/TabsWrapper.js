@@ -40,7 +40,7 @@ export const TabsWrapper = () => {
                 tabs: [
                     {
                         label: "Activity Browse",
-                        componentType: "TabsContainer",
+                        componentType: "TableGridForTab",
                         tabId: 0,
                         selectedTabIndex: 0,
                         parentId: "parent",
@@ -50,7 +50,7 @@ export const TabsWrapper = () => {
             0: {
                 tabs: [],
                 label: "Activity Browse",
-                componentType: "TabsContainer",
+                componentType: "TableGridForTab",
                 tabId: 0,
                 selectedTabIndex: 0,
                 parentId: "parent",
