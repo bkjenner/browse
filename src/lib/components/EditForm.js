@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Menubar } from 'primereact/menubar';
+import { useMutation } from "@tanstack/react-query";
 import { useTabsWrapperContext } from "./TabsWrapper";
 import { useContentProviderContext } from "../contexts/ContentContext/ContentProvider";
 import { InputNumber } from "primereact/inputnumber";
@@ -26,7 +26,6 @@ function EditForm(props) {
     const [formData, setFormData] = useState({});
     const [activityTypeOptions, setActivityTypeOptions] = useState([]);
     const [activityProjectOptions, setActivityProjectOptions] = useState([]);
-
     const [activityProject, setActivityProject] = useState();
     const [activityType, setActivityType] = useState();
     const [activityStatus, setActivityStatus] = useState();
@@ -47,8 +46,8 @@ function EditForm(props) {
         .then((response) => {
             if(response && response.data && !response.data.error) {
                 let data = response.data[0];
-                let completeDate = new Date(moment(data.completiondate).utc().format("YYYY-MM-DD"));
-                let beginDate = new Date(moment(data.startdate).utc().format('YYYY-MM-DD'));
+                let completeDate = new Date(moment(data.completiondate).utc().format('YYYY-MM-DDTHH:mm:ss'));
+                let beginDate = new Date(moment(data.startdate).utc().format('YYYY-MM-DDTHH:mm:ss'));
                 setCompletionDate(completeDate);
                 setStartDate(beginDate);
                 setActivityProject(data.actprojectid);
@@ -60,6 +59,12 @@ function EditForm(props) {
                 setDescription(data.description);
                 setComments(data.comments);
                 setPriority(data.actpriorityid);
+
+                let formCopy = {...formData};
+                formCopy = {
+                    ...data
+                }
+                setFormData(formCopy);
             } else {
                 console.log('error fetching record data');
             }
@@ -125,6 +130,39 @@ function EditForm(props) {
                 console.log('error loading priorities')
             }
         })
+    }
+
+    // Mutation function
+    const updateActivity = async (activityData) => {
+        try {
+            const response = await axios.post('/action/activitySave', {
+                id: props.selectedRowId,
+                ...formData
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            return response.data;
+        } catch(error) {
+            throw new Error('Failed to save edit');
+        }
+    }
+
+    const { mutate, isLoading, error } = useMutation({
+        mutationFn: updateActivity,
+        onError: (error, varriables, context) => {
+            console.log('logging error...');
+        },
+        onSuccess: (data, variables, context) => {
+            console.log('succcess!');
+        },
+    });
+    const handleSubmit = () => {
+        const formCopy = { ...formData };
+
+        // call the mutate with the post data to trigger mutation
+        mutate(formCopy)
     }
 
     useEffect(()  => {
@@ -206,7 +244,7 @@ function EditForm(props) {
                             <label>
                                 <b>
                                     Performed For:
-                                </b>    
+                                </b>
                             </label>
                         </div>
                         <div className="p-inputgroup flex-1">
@@ -253,10 +291,10 @@ function EditForm(props) {
                         </div>
                         <div className="p-inputgroup flex-1">
                             <Calendar
-                                placeholder='When was this activity completed?'
+                                placeholder='When was this activity started?'
                                 onChange={(e) => {
-                                    handleEditFieldUpdate('startDate', e.value)
-                                    setCompletionDate(e.value);
+                                    handleEditFieldUpdate('startdate', moment(e.value).utc().format('YYYY-MM-DD HH:mm:ss'))
+                                    setStartDate(e.value);
                                 }}
                                 value={startDate}
                                 showIcon
@@ -275,7 +313,7 @@ function EditForm(props) {
                             <Calendar
                                 placeholder='When was this activity completed?'
                                 onChange={(e) => {
-                                    handleEditFieldUpdate('completionDate', e.value)
+                                    handleEditFieldUpdate('completiondate', e.value)
                                     setCompletionDate(e.value);
                                 }}
                                 value={completionDate}
@@ -298,7 +336,7 @@ function EditForm(props) {
                                 options={priorityOptions}
                                 placeholder='Urgency of the activity?'
                                 onChange={(e) => {
-                                    handleEditFieldUpdate('actPriority', e.value)
+                                    handleEditFieldUpdate('actpriorityid', e.value)
                                     setPriority(e.value);
                                 }}
                                 value={priority}
@@ -317,7 +355,7 @@ function EditForm(props) {
                             <InputNumber
                                 placeholder='How long did this activity take?'
                                 onChange={(e) => {
-                                    handleEditFieldUpdate('totalActual', e.value)
+                                    handleEditFieldUpdate('totalactual', e.value)
                                     setActivityTotal(e.value);
                                 }}
                                 value={activityTotal}
@@ -355,10 +393,10 @@ function EditForm(props) {
                         </div>
                         <div className="p-inputgroup flex-1">
                             <InputTextarea
-                                placeholder="" 
+                                placeholder="Additional comments"
                                 onChange={(e) => {
-                                    handleEditFieldUpdate('comments', e.value)
-                                    setComments(e.value);
+                                    handleEditFieldUpdate('comments', e.target.value)
+                                    setComments(e.target.value);
                                 }}
                                 value={comments}
                             />
@@ -366,7 +404,12 @@ function EditForm(props) {
                     </div>
                 </div>
                 <div className="edit-button-save-container">
-                    <Button className="edit-button-save" label="Save"/>
+                    <Button 
+                        className="edit-button-save" 
+                        label="Save"
+                        onClick={handleSubmit}
+                        disabled={isLoading}
+                    />
                 </div>
             </Panel>
         </>

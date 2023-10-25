@@ -5,8 +5,7 @@ Rules.prototype.getCRMContacts = async ({ p_metadata = true, p_acttypeid, ...inp
         name label
     FROM
         crmcontact
-    WHERE
-        rowstatus = 'a'`;
+    `;
 
     return contacts;
 };
