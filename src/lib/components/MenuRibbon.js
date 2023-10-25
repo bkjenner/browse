@@ -4,13 +4,10 @@ import { useTabsWrapperContext } from "./TabsWrapper";
 import { useContentProviderContext } from "../contexts/ContentContext/ContentProvider";
 
 function MenuRibbon(props) {
-    const { tabId, currentDepthTabs, addNewTab, currentTabDepth, handleAddNewDepthTab, handleAddNewEditChildTab } = useTabsWrapperContext();
+    const { tabId, currentDepthTabs, addNewTab, currentTabDepth, handleAddNewEditChildTab } = useTabsWrapperContext();
     const { currentContentData } = useContentProviderContext();
     const initialState = {};
     const cdl = currentTabDepth;
-
-    // 007
-    // Access currentContentData to find row data to pass to new edit tab
     const items = [
         {
             label: 'File',
@@ -38,39 +35,43 @@ function MenuRibbon(props) {
                     label: 'Edit Same Depth',
                     icon: 'pi pi-fw pi-align-left',
                     command: () => {
-                        addNewTab({
-                            label: `(Edit) ${currentContentData.selectedRowTitle}`,
-                            content: "This is a placeholder edit form",
-                            componentType: "EditForm",
-                            initialState: initialState,
-                            tabs: currentDepthTabs,
-                            depth: currentTabDepth,
-                            tabId: tabId,
-                            currentDepthLevel: cdl,
-                            selectedRowId: currentContentData.selectedRowId,
-                        });
+                        if(currentContentData.selectedRowId) {
+                            addNewTab({
+                                label: `${currentContentData.selectedRowTitle}`,
+                                content: "This is a placeholder edit form",
+                                componentType: "EditForm",
+                                initialState: initialState,
+                                tabs: currentDepthTabs,
+                                depth: currentTabDepth,
+                                tabId: tabId,
+                                currentDepthLevel: cdl,
+                                selectedRowId: currentContentData.selectedRowId,
+                            });
+                        }
                     }
                 },
                 {
                     label: 'Edit Nested',
                     icon: 'pi pi-fw pi-align-center',
                     command: () => {
-                        handleAddNewEditChildTab({
-                            label: 'Edits',
-                            content: "",
-                            componentType: "TabsContainer",
-                            initialState: {},
-                            child: {
-                                label: `${currentContentData.selectedRowTitle}`,
+                        if(currentContentData.selectedRowId) {
+                            handleAddNewEditChildTab({
+                                label: 'Edits',
                                 content: "",
-                                componentType: "EditForm",
+                                componentType: "TabsContainer",
                                 initialState: {},
-                                tabId: tabId + 1,
-                                selectedRowId: currentContentData.selectedRowId,
-                            },
-                            tabId: tabId,
-                            currentDepthLevel: cdl,
-                        });
+                                child: {
+                                    label: `${currentContentData.selectedRowTitle}`,
+                                    content: "",
+                                    componentType: "EditForm",
+                                    initialState: {},
+                                    tabId: tabId + 1,
+                                    selectedRowId: currentContentData.selectedRowId,
+                                },
+                                tabId: tabId,
+                                currentDepthLevel: cdl,
+                            });
+                        }
                     }
                 },
             ]
