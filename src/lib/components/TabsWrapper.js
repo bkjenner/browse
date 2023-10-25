@@ -374,26 +374,44 @@ export const TabsWrapper = () => {
     /**
      * This function will handle adding a new child tab under another tab container by passing in the tab ID of the Tab container
      */
-    const handleAddNewChildTab = (props) => {
+    const handleAddNewEditChildTab = (props) => {
         let mTabCopy = { ...mTabData };
+        let parentTabs = mTabCopy.tabsIndex.parent.tabs;
+        let editsContainer = _.find(parentTabs, function (e) {
+            return e.label == 'Edits'
+        });
 
-        // create a temp copy
-        let currentTabCopy = mTabCopy.tabsIndex[props.parentTabId].tabs;
-        // Add new tab to the parent
-        currentTabCopy.push(props) 
-        mTabCopy.tabsIndex[props.parentTabId].tabs = currentTabCopy;
+        if(editsContainer) {
+            // create a temp copy
+            let parentTabId = editsContainer.tabId;
+            let currentTabCopy = mTabCopy.tabsIndex[parentTabId].tabs;
+            
+            let newTabInfo = props.child;
+            newTabInfo.tabId -= 1;
+            // Add new tab to the parent
+            currentTabCopy.push(newTabInfo);
+            mTabCopy.tabsIndex[parentTabId].tabs = currentTabCopy;
+            mTabCopy.tabsIndex[parentTabId].selectedTabIndex = currentTabCopy.length - 1;
 
-        // Add to index
-        mTabCopy.tabsIndex[props.tabId] = { 
-            tabs: [], 
-            selectedTabIndex: 0, 
-            parentId: parentTabId,
-            componentType: props.componentType,
-            tabId: props.tabId,
-            label: props.label,
-        };
+            // Add to index
+            mTabCopy.tabsIndex[props.tabId] = { 
+                tabs: [], 
+                selectedTabIndex: 0, 
+                parentId: parentTabId,
+                componentType: props.child.componentType,
+                tabId: props.tabId,
+                label: props.child.label,
+            };
 
-        setMTabData(mTabCopy);
+            let editIndex =  _.findIndex(parentTabs, function (e) { return e.label == 'Edits'});
+            mTabCopy.tabsIndex.parent.selectedTabIndex = editIndex;
+            setSelectedTabIndex(editIndex);
+            
+            setTabId(tabId + 1);
+            setMTabData(mTabCopy);
+        } else {
+            handleAddNewDepthTab(props);
+        }
     }
 
     return (
@@ -410,6 +428,7 @@ export const TabsWrapper = () => {
                 handleTabChange,
                 handleTabClose,
                 handleAddNewDepthTab,
+                handleAddNewEditChildTab,
             }}
         >
             <DynamicTabs tabs={parentDepthTabs} selectedTab={selectedTabIndex} onChange={handleTabChange} />

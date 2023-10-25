@@ -4,7 +4,7 @@ import { useTabsWrapperContext } from "./TabsWrapper";
 import { useContentProviderContext } from "../contexts/ContentContext/ContentProvider";
 
 function MenuRibbon(props) {
-    const { tabId, currentDepthTabs, addNewTab, currentTabDepth, handleAddNewDepthTab, handleAddNewChildTab } = useTabsWrapperContext();
+    const { tabId, currentDepthTabs, addNewTab, currentTabDepth, handleAddNewDepthTab, handleAddNewEditChildTab } = useTabsWrapperContext();
     const { currentContentData } = useContentProviderContext();
     const initialState = {};
     const cdl = currentTabDepth;
@@ -47,35 +47,7 @@ function MenuRibbon(props) {
                             depth: currentTabDepth,
                             tabId: tabId,
                             currentDepthLevel: cdl,
-                            recordName: 'placeholder',
                             selectedRowId: currentContentData.selectedRowId,
-                            fields: [
-                                {
-                                    inputType: 'text',
-                                    name: 'aaa',
-                                    title: 'Text Input Field'
-                                },
-                                {
-                                    inputType: 'number',
-                                    name: 'bbb',
-                                    title: 'Number Input Field'
-                                },
-                                {
-                                    inputType: 'date',
-                                    name: 'cc',
-                                    title: 'Date Input Field',
-                                    tableName: '',
-                                    columnFieldName: '',
-
-                                },
-                                {
-                                    inputType: 'select',
-                                    name: 'dd',
-                                    title: 'Dropdown Input Field',
-                                    tableName: '',
-                                    columnFieldName: '',
-                                },
-                            ]
                         });
                     }
                 },
@@ -83,85 +55,18 @@ function MenuRibbon(props) {
                     label: 'Edit Nested',
                     icon: 'pi pi-fw pi-align-center',
                     command: () => {
-                        handleAddNewDepthTab({
-                            label: 'Edits (Parent)',
+                        handleAddNewEditChildTab({
+                            label: 'Edits',
                             content: "",
                             componentType: "TabsContainer",
                             initialState: {},
                             child: {
                                 label: `${currentContentData.selectedRowTitle}`,
-                                content: "This is a placeholder edit form",
+                                content: "",
                                 componentType: "EditForm",
                                 initialState: {},
                                 tabId: tabId + 1,
                                 selectedRowId: currentContentData.selectedRowId,
-                                fields: [
-                                    {
-                                        inputType: 'text',
-                                        name: 'uid',
-                                        title: 'Unique ID',
-                                        tableName: '',
-                                        columnFieldName: '',
-
-                                    },
-                                    {
-                                        inputType: 'text',
-                                        name: 'priority',
-                                        title: 'Priority',
-                                        tableName: '',
-                                        columnFieldName: '',
-                                    },
-                                    {
-                                        inputType: 'text',
-                                        name: 'status',
-                                        title: 'Status',
-                                        tableName: '',
-                                        columnFieldName: '',
-
-                                    },
-                                    {
-                                        inputType: 'text',
-                                        name: 'activitytype',
-                                        title: 'Activity Type',
-                                        tableName: '',
-                                        columnFieldName: '',
-                                    },
-                                    {
-                                        inputType: 'text',
-                                        name: 'activityproject',
-                                        title: 'Activity Project',
-                                        tableName: '',
-                                        columnFieldName: '',
-                                    },
-                                    {
-                                        inputType: 'text',
-                                        name: 'performedby',
-                                        title: 'Performed By',
-                                        tableName: '',
-                                        columnFieldName: '',
-                                    },
-                                    {
-                                        inputType: 'text',
-                                        name: 'performedfor',
-                                        title: 'Performed For',
-                                        tableName: '',
-                                        columnFieldName: '',
-                                    },
-                                    {
-                                        inputType: 'date',
-                                        name: 'completiondate',
-                                        title: 'Completion Date',
-                                        tableName: '',
-                                        columnFieldName: '',
-                                    },
-                                    {
-                                        inputType: 'number',
-                                        name: 'totalactual',
-                                        title: 'Total Actual',
-                                        tableName: '',
-                                        columnFieldName: '',
-                                    },
-                                ]
                             },
                             tabId: tabId,
                             currentDepthLevel: cdl,
@@ -172,8 +77,6 @@ function MenuRibbon(props) {
         },
     ];
 
-    // 007 Add a function where we can add a child tab to a separate parent tab by a parent ID somehow
-    // So we can group edits together if we want
     return (
         <Menubar model={items} />
     );
