@@ -40,6 +40,7 @@ function EditForm(props) {
     const [comments, setComments] = useState("");
     const [startDate, setStartDate] = useState();
     const [priority, setPriority] = useState();
+    const [isSubmit, setIsSubmit] = useState(false);
 
     const fetchRecordData = () => {
         axios.post(`/action/${recordFetchRule}`, {id: props.selectedRowId})
@@ -155,10 +156,11 @@ function EditForm(props) {
             console.log('logging error...');
         },
         onSuccess: (data, variables, context) => {
-            console.log('succcess!');
+            setIsSubmit(false);
         },
     });
     const handleSubmit = () => {
+        setIsSubmit(true);
         const formCopy = { ...formData };
 
         // call the mutate with the post data to trigger mutation
@@ -408,7 +410,7 @@ function EditForm(props) {
                         className="edit-button-save" 
                         label="Save"
                         onClick={handleSubmit}
-                        disabled={isLoading}
+                        disabled={isSubmit}
                     />
                 </div>
             </Panel>
