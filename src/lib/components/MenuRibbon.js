@@ -39,7 +39,7 @@ function MenuRibbon(props) {
                     icon: 'pi pi-fw pi-align-left',
                     command: () => {
                         addNewTab({
-                            label: "Edit Form",
+                            label: `(Edit) ${currentContentData.selectedRowTitle}`,
                             content: "This is a placeholder edit form",
                             componentType: "EditForm",
                             initialState: initialState,
@@ -89,7 +89,7 @@ function MenuRibbon(props) {
                             componentType: "TabsContainer",
                             initialState: {},
                             child: {
-                                label: 'Nested Edit Form',
+                                label: `${currentContentData.selectedRowTitle}`,
                                 content: "This is a placeholder edit form",
                                 componentType: "EditForm",
                                 initialState: {},

@@ -198,7 +198,6 @@ export default function DataGridWrapperForTabs(props) {
     };
 
     const onRowSelect = (rowData) => {
-        console.log(rowData);
         // Update the content context with the new data as selected Row
         // Then in MenuBar look in form context for selected Row
         // Open new edit tab with the selectedRow information
@@ -208,6 +207,7 @@ export default function DataGridWrapperForTabs(props) {
             ...contentCopy,
             selectedRowId: rowData.id,
             tabId: currentContentData.tabId,
+            selectedRowTitle: `${rowData.performedby}, ${rowData.uid}`,
         })
 
         
