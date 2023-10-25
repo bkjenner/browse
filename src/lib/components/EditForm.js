@@ -20,9 +20,6 @@ import moment from "moment";
  * @returns 
  */
 function EditForm(props) {
-    // Assuming we have data passed in as props
-    const initialState = {};
-    let recordFetchRule = props.fetchRule ? props.fetchRule : 'activityBrowseFetchRecordData';
     const [formData, setFormData] = useState({});
     const [activityTypeOptions, setActivityTypeOptions] = useState([]);
     const [activityProjectOptions, setActivityProjectOptions] = useState([]);
@@ -41,7 +38,11 @@ function EditForm(props) {
     const [startDate, setStartDate] = useState();
     const [priority, setPriority] = useState();
     const [isSubmit, setIsSubmit] = useState(false);
+    const recordFetchRule = props.fetchRule ? props.fetchRule : 'activityBrowseFetchRecordData';
 
+    /**
+     * This function will pull the activity records information
+     */
     const fetchRecordData = () => {
         axios.post(`/action/${recordFetchRule}`, {id: props.selectedRowId})
         .then((response) => {
@@ -72,12 +73,20 @@ function EditForm(props) {
         })
     }
 
+    /**
+     * This functions will update the master store for the form which is in turn used for the actual update.
+     * @param {string} fieldName name of the field being updated
+     * @param {*} data any data to be stored with the fieldName key
+     */
     const handleEditFieldUpdate = (fieldName, data) => {
         let formCopy = {...formData};
         formCopy[fieldName] = data;
         setFormData(formCopy);
     }
 
+    /**
+     * This function fetchs the options for the dropdown inputs on the edit form
+     */
     const fetchActivityOptions = () => {
         axios.get('/action/getActivityTypes')
         .then(response => {
@@ -159,6 +168,7 @@ function EditForm(props) {
             setIsSubmit(false);
         },
     });
+
     const handleSubmit = () => {
         setIsSubmit(true);
         const formCopy = { ...formData };
@@ -167,6 +177,7 @@ function EditForm(props) {
         mutate(formCopy)
     }
 
+    // Fetch record informtion on mount
     useEffect(()  => {
         fetchRecordData();
         if(activityTypeOptions.length == 0 && activityProjectOptions.length == 0) {
