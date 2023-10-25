@@ -26,6 +26,7 @@ body {
 .edit-button-save-container {
     display: flex;
     flex-direction: row-reverse;
+    margin-right: 30px;
 }
 
 .sidemenu-listbox {
@@ -34,4 +35,20 @@ body {
 
 .p-sidebar-content {
     padding: 0 !important;
+}
+.p-menuitem {
+    z-index: 1000 !important;
+}
+.activity-browse-input-group {
+    margin: 5px 0px;
+}
+.activity-browse-input-col {
+    width: 30vw;
+    margin-right: 30px;
+    margin-bottom: 10px;
+}
+.activity-browse-input-col-3 {
+    width: 20vw;
+    margin-right: 30px;
+    margin-bottom: 10px;
 }

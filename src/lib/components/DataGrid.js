@@ -264,6 +264,13 @@ export default function DataGrid(props) {
         
     };
 
+    const onRowSelect = (rowData) => {
+        if(props.onRowSelect) {
+            props.onRowSelect(rowData);
+        }
+
+        
+    }
 
     const paginatorLeft = <Button type="button" icon="pi pi-download" text onClick={(e) =>  console.log('left button clicked')} />;
     const paginatorRight = <Button type="button" icon="pi pi-download" text onClick={(e) =>  console.log('right button clicked')} />;
@@ -287,8 +294,8 @@ export default function DataGrid(props) {
             )}
             <br></br>
             <div className="col-12">
-            <MenuRibbon />
                 <div className="card">
+            <MenuRibbon />
                     <DataTable
                         ref={dataTableRef}
                         value={
@@ -328,6 +335,8 @@ export default function DataGrid(props) {
                         // run only on initial Mount ( mapped inside a useEffect(...,[]) )
                         // or directly call restoreState() to re-render layout
                         customRestoreState={dataTableLoadLayout}
+                        selectionMode='single'
+                        onRowSelect={(e) => onRowSelect(e.data)}
                     >
                         <Column rowReorder style={{ width: "1rem" }} frozen />
                         {

@@ -48,6 +48,7 @@ function MenuRibbon(props) {
                             tabId: tabId,
                             currentDepthLevel: cdl,
                             recordName: 'placeholder',
+                            selectedRowId: currentContentData.selectedRowId,
                             fields: [
                                 {
                                     inputType: 'text',
@@ -93,7 +94,7 @@ function MenuRibbon(props) {
                                 componentType: "EditForm",
                                 initialState: {},
                                 tabId: tabId + 1,
-                                recordName: 'placeholder',
+                                selectedRowId: currentContentData.selectedRowId,
                                 fields: [
                                     {
                                         inputType: 'text',

@@ -17,7 +17,6 @@ export const TabsWrapper = () => {
         componentType: "TableGridForTab",
         initialState: {},
         tabId: 0,
-        formId: 1,
     };
 
     // Local state to track the tabs to render at the top / parent level
@@ -42,7 +41,6 @@ export const TabsWrapper = () => {
                     {
                         label: "Activity Browse",
                         componentType: "TabsContainer",
-                        formId: 1,
                         tabId: 0,
                         selectedTabIndex: 0,
                         parentId: "parent",
@@ -53,7 +51,6 @@ export const TabsWrapper = () => {
                 tabs: [],
                 label: "Activity Browse",
                 componentType: "TabsContainer",
-                formId: 1,
                 tabId: 0,
                 selectedTabIndex: 0,
                 parentId: "parent",

@@ -197,8 +197,21 @@ export default function DataGridWrapperForTabs(props) {
         }
     };
 
+    const onRowSelect = (rowData) => {
+        console.log(rowData);
+        // Update the content context with the new data as selected Row
+        // Then in MenuBar look in form context for selected Row
+        // Open new edit tab with the selectedRow information
+        // Use axios to fetch the data based on selectedRow Information
+        let contentCopy = {...currentContentData};
+        contentDataUpdate({
+            ...contentCopy,
+            selectedRowId: rowData.id,
+            tabId: currentContentData.tabId,
+        })
 
-   
+        
+    }
 
     const cdl = currentTabDepth;
 
@@ -296,6 +309,7 @@ export default function DataGridWrapperForTabs(props) {
                     saveLayoutRule="primeReactTableSaveLayout"
                     showLoadLayoutDropDown={true}
                     loadLayoutRule="primeReactTableFetchLayout"
+                    onRowSelect={onRowSelect}
                 />
             </div>
         </div>
