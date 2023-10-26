@@ -17,9 +17,10 @@ export default function Home() {
         },
     ];
 
+
     return (
-        <div className="grid flex-grow-1 flex-direction-col">
-            <div className="col-1 col-offset-2">
+        <div className={"grid flex-grow-1 flex-direction-col root-container"}>
+            <div className={navigationVisible ? "col-1 col-offset-2" : "col-12"}>
                 <Button type="button" icon="pi pi-bars outlined" onClick={() => setNavigationVisible(!navigationVisible)} />
             </div>
             <div className="col-3 h-full">
