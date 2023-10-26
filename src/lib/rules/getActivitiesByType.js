@@ -1,6 +1,6 @@
 Rules.prototype.getActivitiesByType = async ({ p_metadata = true, p_acttypeid, ...input }) => {
     try {
-        const validation = await util.validateRequest(schemas["getActivityByType"], input.req);
+        const validation = await util.validateRequest(schemas["getActivitiesByType"], input.req);
     } catch (error) {
         input.res.status(400);
         return error;
