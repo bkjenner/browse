@@ -1,4 +1,13 @@
-Rules.prototype.activityBrowseFetchRecordData = async ({ p_metadata = true, p_acttypeid, ...input }) => {
+Rules.prototype.activityBrowseFetchRecordData = async ({
+    ...input 
+}) => {
+    try {
+        const validation = await util.validateRequest(schemas['activityBrowseFetchRecordData'], input.req);
+    } catch (error) {
+        input.res.status(400);
+        return error;
+    }
+
     const activity = await sql`
     SELECT
         id, 

@@ -220,7 +220,7 @@ function EditForm(props) {
                                 placeholder="What Project?" 
                                 options={activityProjectOptions}
                                 onChange={(e) => {
-                                    handleEditFieldUpdate('activityProject', e.value)
+                                    handleEditFieldUpdate('actprojectid', e.value)
                                     setActivityProject(e.value);
                                 }}
                                 value={activityProject}
@@ -240,7 +240,7 @@ function EditForm(props) {
                                 placeholder="Type of activity done?" 
                                 options={activityTypeOptions}
                                 onChange={(e) => {
-                                    handleEditFieldUpdate('activityType', e.value)
+                                    handleEditFieldUpdate('acttypeid', e.value)
                                     setActivityType(e.value)
                                 }}
                                 value={activityType}
@@ -262,7 +262,7 @@ function EditForm(props) {
                                 placeholder="Who completed this activity?" 
                                 options={contactOptions}  
                                 onChange={(e) => {
-                                    handleEditFieldUpdate('performedBy', e.value);
+                                    handleEditFieldUpdate('rowidperformedby', e.value);
                                     setPerformedBy(e.value);
                                 }}
                                 value={performedBy}
@@ -282,7 +282,7 @@ function EditForm(props) {
                                 placeholder="Who is this activity for?" 
                                 options={contactOptions}  
                                 onChange={(e) => {
-                                    handleEditFieldUpdate('performedFor', e.value)
+                                    handleEditFieldUpdate('rowidperformedfor', e.value)
                                     setPerformedFor(e.value);
                                 }}
                                 value={performedFor}
@@ -304,7 +304,7 @@ function EditForm(props) {
                                 placeholder="What is the status of the activity?"
                                 options={statusOptions}  
                                 onChange={(e) => {
-                                    handleEditFieldUpdate('status', e.value)
+                                    handleEditFieldUpdate('actstatusid', e.value)
                                     setActivityStatus(e.value);
                                 }}
                                 value={activityStatus}  
