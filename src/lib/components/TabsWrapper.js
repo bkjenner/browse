@@ -17,7 +17,6 @@ export const TabsWrapper = () => {
         componentType: "TableGridForTab",
         initialState: {},
         tabId: 0,
-        formId: 1,
     };
 
     // Local state to track the tabs to render at the top / parent level
@@ -41,8 +40,7 @@ export const TabsWrapper = () => {
                 tabs: [
                     {
                         label: "Activity Browse",
-                        componentType: "TabsContainer",
-                        formId: 1,
+                        componentType: "TableGridForTab",
                         tabId: 0,
                         selectedTabIndex: 0,
                         parentId: "parent",
@@ -52,8 +50,7 @@ export const TabsWrapper = () => {
             0: {
                 tabs: [],
                 label: "Activity Browse",
-                componentType: "TabsContainer",
-                formId: 1,
+                componentType: "TableGridForTab",
                 tabId: 0,
                 selectedTabIndex: 0,
                 parentId: "parent",
@@ -256,7 +253,7 @@ export const TabsWrapper = () => {
     };
 
     /**
-     * This ia function that will reset the flag forcing a re-render of tabs
+     * This is function that will reset the flag forcing a re-render of tabs
      */
     const resetRerender = () => {
         setForceTabRerender(false);
@@ -374,6 +371,49 @@ export const TabsWrapper = () => {
         contentDataUpdate({ tabId: props.child.tabId, ...props.child.initialState });
     };
 
+    /**
+     * This function will handle adding a new child tab under another tab container by passing in the tab ID of the Tab container
+     */
+    const handleAddNewEditChildTab = (props) => {
+        let mTabCopy = { ...mTabData };
+        let parentTabs = mTabCopy.tabsIndex.parent.tabs;
+        let editsContainer = _.find(parentTabs, function (e) {
+            return e.label == 'Edits'
+        });
+
+        if(editsContainer) {
+            // create a temp copy
+            let parentTabId = editsContainer.tabId;
+            let currentTabCopy = mTabCopy.tabsIndex[parentTabId].tabs;
+            
+            let newTabInfo = props.child;
+            newTabInfo.tabId -= 1;
+            // Add new tab to the parent
+            currentTabCopy.push(newTabInfo);
+            mTabCopy.tabsIndex[parentTabId].tabs = currentTabCopy;
+            mTabCopy.tabsIndex[parentTabId].selectedTabIndex = currentTabCopy.length - 1;
+
+            // Add to index
+            mTabCopy.tabsIndex[props.tabId] = { 
+                tabs: [], 
+                selectedTabIndex: 0, 
+                parentId: parentTabId,
+                componentType: props.child.componentType,
+                tabId: props.tabId,
+                label: props.child.label,
+            };
+
+            let editIndex =  _.findIndex(parentTabs, function (e) { return e.label == 'Edits'});
+            mTabCopy.tabsIndex.parent.selectedTabIndex = editIndex;
+            setSelectedTabIndex(editIndex);
+            
+            setTabId(tabId + 1);
+            setMTabData(mTabCopy);
+        } else {
+            handleAddNewDepthTab(props);
+        }
+    }
+
     return (
         <TabsWrapperContext.Provider
             value={{
@@ -388,6 +428,7 @@ export const TabsWrapper = () => {
                 handleTabChange,
                 handleTabClose,
                 handleAddNewDepthTab,
+                handleAddNewEditChildTab,
             }}
         >
             <DynamicTabs tabs={parentDepthTabs} selectedTab={selectedTabIndex} onChange={handleTabChange} />
