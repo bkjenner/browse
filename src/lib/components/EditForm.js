@@ -165,10 +165,16 @@ function EditForm(props) {
         mutationFn: updateActivity,
         onError: (error, varriables, context) => {
             console.log('logging error...');
+            setIsSubmit(false);
+            showError();
         },
         onSuccess: (data, variables, context) => {
+            if(data && data.error) {
+                showError();
+            } else {
+                showSuccess();
+            }
             setIsSubmit(false);
-            showSuccess();
         },
     });
 
@@ -182,6 +188,10 @@ function EditForm(props) {
 
     const showSuccess = () => {
         toast.current.show({severity:'success', summary: 'Success', detail:'Activity has been saved', life: 3000});
+    };
+
+    const showError = () => {
+        toast.current.show({severity:'error', summary: 'Error', detail:'Oops an error has occurred and the activity was not saved.', life: 3000});
     };
 
     // Fetch record informtion on mount
