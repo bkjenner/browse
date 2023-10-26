@@ -198,8 +198,9 @@ function watchLogicAndReducers() {
     watch(["./src/lib/reducers/*.js", "!./src/lib/reducers/index.js"], compileReducers);
 }
 
-function watchRules() {
+function watchRulesAndSchemas() {
     watch(["./src/lib/rules/*.js", "!./src/lib/rules/index.js"], compileRules);
+    watch(["./src/lib/schemas/*.js", "!./src/lib/schemas/index.js"], compileSchemas);
 }
 
 function replaceFiles(cb) {
@@ -468,4 +469,4 @@ exports.buildProd = series(
     commit,
 );
 
-exports.default = series(compileRules, compileSchemas, watchRules);
+exports.default = series(compileRules, compileSchemas, watchRulesAndSchemas);
