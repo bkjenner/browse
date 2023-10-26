@@ -92,32 +92,8 @@ Schemas.prototype.activitySave = joi.object().keys({
     }),
     comments: joi.string().allow(null, ''),
     description: joi.string().allow(null, ''),
-    completiondate: joi.date().required().error((errors) => {
-        errors.forEach((err) => {
-            switch (err.code) {
-                case "number.base":
-                    err.message = "completiondate must be a date";
-                    break;
-                default:
-                    break;
-            }
-        });
-
-        return errors;
-    }),
-    startdate: joi.date().allow(null).error((errors) => {
-        errors.forEach((err) => {
-            switch (err.code) {
-                case "number.base":
-                    err.message = "startdate must be a date";
-                    break;
-                default:
-                    break;
-            }
-        });
-
-        return errors;
-    }),
+    completiondate: joi.date().required(),
+    startdate: joi.date().allow(null),
     totalactual: joi.number().error((errors) => {
         errors.forEach((err) => {
             switch (err.code) {
