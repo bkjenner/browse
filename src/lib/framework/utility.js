@@ -582,14 +582,13 @@ Utility.prototype.invoiceArrayToString = function (invoices) {
 };
 
 Utility.prototype.validateRequest = async (schema, req) => {
-    let validation;
-
-    if (req.body) {
-        validation = await schema.validateAsync(req.body, { abortEarly: false, allowUnknown: true });
-    }
-    if (req.query) {
-        validation = await schema.validateAsync(req.query, { abortEarly: false, allowUnknown: true });
-    }
+    validation = await schema.validateAsync(req.method === "POST" ? req.body : req.query, { abortEarly: false, allowUnknown: true });
 
     return validation;
+};
+
+Utility.prototype.constructQuery = function (args) {
+    args = _.filter(args, (arg) => {
+        return arg !== null;
+    });
 };
