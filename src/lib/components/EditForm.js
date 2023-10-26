@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useTabsWrapperContext } from "./TabsWrapper";
 import { useContentProviderContext } from "../contexts/ContentContext/ContentProvider";
@@ -13,6 +13,7 @@ import { Button } from "primereact/button";
 import _ from "lodash";
 import axios from "axios";
 import moment from "moment";
+import { Toast } from 'primereact/toast';
 
 /**
  * This edit form will dynamically render input fields based on objects found inside props.fields
@@ -39,6 +40,7 @@ function EditForm(props) {
     const [priority, setPriority] = useState();
     const [isSubmit, setIsSubmit] = useState(false);
     const recordFetchRule = props.fetchRule ? props.fetchRule : 'activityBrowseFetchRecordData';
+    const toast = useRef(null);
 
     /**
      * This function will pull the activity records information
@@ -166,6 +168,7 @@ function EditForm(props) {
         },
         onSuccess: (data, variables, context) => {
             setIsSubmit(false);
+            showSuccess();
         },
     });
 
@@ -176,6 +179,10 @@ function EditForm(props) {
         // call the mutate with the post data to trigger mutation
         mutate(formCopy)
     }
+
+    const showSuccess = () => {
+        toast.current.show({severity:'success', summary: 'Success', detail:'Activity has been saved', life: 3000});
+    };
 
     // Fetch record informtion on mount
     useEffect(()  => {
@@ -424,6 +431,7 @@ function EditForm(props) {
                         disabled={isSubmit}
                     />
                 </div>
+                <Toast ref={toast} />
             </Panel>
         </>
     );
