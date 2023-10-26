@@ -389,6 +389,8 @@ function EditForm(props) {
                                     setActivityTotal(e.value);
                                 }}
                                 value={activityTotal}
+                                mode="decimal"
+                                maxFractionDigits={2}
                             />
                         </div>
                     </div>
