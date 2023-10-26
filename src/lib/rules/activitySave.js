@@ -1,7 +1,13 @@
 Rules.prototype.activitySave = async (input) => {
     if(input) {
-        let completeDate = moment(input.completiondate).utc().format('YYYY-MM-DD');
-        let startDate = moment(input.startdate).utc().format('YYYY-MM-DD');
+        let completeDate = null;
+        let startDate = null;
+        if(input.completiondate) {
+            completeDate = moment(input.completiondate).utc().format('YYYY-MM-DD');
+        }
+        if(input.startDate) {
+            startDate = moment(input.startdate).utc().format('YYYY-MM-DD');
+        }
         const activityStatement = await sql`
         UPDATE actactivity
         SET
