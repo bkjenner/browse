@@ -6,46 +6,11 @@ Rules.prototype.activityBrowse = async ({
     p_metadata = null,
     ...input
 }) => {
-    const schema = joi.object().keys({
-        p_metadata: joi.boolean(),
-        p_pagesize: joi.number().error((errors) => {
-            errors.forEach((err) => {
-                let caption = "Page Size";
-
-                switch (err.code) {
-                    case "number.base":
-                        err.message = `${caption} must be a number`;
-                        break;
-                    default:
-                        break;
-                }
-            });
-
-            return errors;
-        }),
-        p_order: joi.string(),
-        p_acttypeid: joi.number().error((errors) => {
-            errors.forEach((err) => {
-                let caption = "Activity Type";
-
-                switch (err.code) {
-                    case "number.base":
-                        err.message = `${caption} must be a number`;
-                        break;
-                    default:
-                        break;
-                }
-            });
-
-            return errors;
-        }),
-        p_actprojectid: joi.number(),
-    });
-
     try {
-        const validation = await util.validateRequest(schema, input.req);
+        const validation = await util.validateRequest(schemas["activityBrowse"], input.req);
     } catch (error) {
-        return input.res.status(400).send(error.message);
+        input.res.status(400);
+        return error;
     }
 
     let metadata = {};

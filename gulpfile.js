@@ -53,6 +53,13 @@ function compileRules() {
         .pipe(dest("./src/lib/rules/"));
 }
 
+function compileSchemas() {
+    return src(["./src/lib/schemas/prototype.js", "./src/lib/schemas/*.js", "!./src/lib/schemas/index.js"])
+        .pipe(concat("index.js"))
+        .pipe(strip())
+        .pipe(dest("./src/lib/schemas/"));
+}
+
 function compileReducers() {
     return src(["./src/lib/reducers/*", "!./src/lib/reducers/index.js"])
         .pipe(concat("index.js"))
@@ -461,4 +468,4 @@ exports.buildProd = series(
     commit,
 );
 
-exports.default = series(compileRules, watchRules);
+exports.default = series(compileRules, compileSchemas, watchRules);

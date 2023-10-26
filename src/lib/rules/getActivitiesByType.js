@@ -1,4 +1,11 @@
 Rules.prototype.getActivitiesByType = async ({ p_metadata = true, p_acttypeid, ...input }) => {
+    try {
+        const validation = await util.validateRequest(schemas["getActivityByType"], input.req);
+    } catch (error) {
+        input.res.status(400);
+        return error;
+    }
+
     const activities = await sql`
     SELECT
         uid,
