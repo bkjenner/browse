@@ -42,6 +42,15 @@ function EditForm(props) {
     const recordFetchRule = props.fetchRule ? props.fetchRule : 'activityBrowseFetchRecordData';
     const toast = useRef(null);
 
+    const [projectError, setProjectError] = useState();
+    const [projectTypeError, setProjectTypeError] = useState();
+    const [performedByError, setPerformedByError] = useState();
+    const [performedForError, setPerformedForError] = useState();
+    const [projectStatusError, setProjectStatusError] = useState();
+    const [completeDateError, setCompleteDateError] = useState();
+    const [priorityError, setPriorityError] = useState();
+    const [totalActualError, setTotalActualError] = useState();
+
     /**
      * This function will pull the activity records information
      */
@@ -157,14 +166,14 @@ function EditForm(props) {
             })
             return response.data;
         } catch(error) {
-            throw new Error('Failed to save edit');
+            displayInputErrors(error.response.data.details);
+            throw new Error(error);
         }
     }
 
     const { mutate, isLoading, error } = useMutation({
         mutationFn: updateActivity,
         onError: (error, varriables, context) => {
-            console.log('logging error...');
             setIsSubmit(false);
             showError();
         },
@@ -194,6 +203,29 @@ function EditForm(props) {
         toast.current.show({severity:'error', summary: 'Error', detail:'Oops an error has occurred and the activity was not saved.', life: 3000});
     };
 
+    const displayInputErrors = (errors) => {
+        _.map(errors, error => {
+            let errorField = error.path[0];
+            if(errorField == "actprojectid") {
+                setProjectError("This field is required");
+            } else if (errorField == "acttypeid") {
+                setProjectTypeError("This field is required");
+            } else if (errorField == "rowidperformedby") {
+                setPerformedByError("This field is required");
+            } else if (errorField == "rowidperformedfor") {
+                setPerformedForError("This field is required");
+            } else if (errorField == "actstatusid") {
+                setProjectStatusError("This field is required");
+            } else if (errorField == "completiondate") {
+                setCompleteDateError("This field is required");
+            } else if (errorField == "actpriorityid") {
+                setPriorityError("This field is required");
+            } else if (errorField == "totalactual") {
+                setTotalActualError("This field is required");
+            }
+        })
+    }
+
     // Fetch record informtion on mount
     useEffect(()  => {
         fetchRecordData();
@@ -211,8 +243,8 @@ function EditForm(props) {
                         <div className="flex flex-column gap-2">
                             <label>
                                 <b>
-                                    Activity Project:
-                                </b>    
+                                    Activity Project *:
+                                </b>
                             </label>
                         </div>
                         <div className="p-inputgroup flex-1">
@@ -220,18 +252,26 @@ function EditForm(props) {
                                 placeholder="What Project?" 
                                 options={activityProjectOptions}
                                 onChange={(e) => {
-                                    handleEditFieldUpdate('actprojectid', e.value)
+                                    handleEditFieldUpdate('actprojectid', e.value);
                                     setActivityProject(e.value);
+                                    setProjectError();
                                 }}
                                 value={activityProject}
+                                id="actprojectid"
+                                className={projectError ? "p-invalid" : ""}
                             />
+                        </div>
+                        <div>
+                            <small id="actprojectid">
+                                {projectError}
+                            </small>
                         </div>
                     </div>
                     <div className='activity-browse-input-col'>
                         <div className="flex flex-column gap-2">
                             <label>
                                 <b>
-                                    Activity Type:
+                                    Activity Type *:
                                 </b>    
                             </label>
                         </div>
@@ -240,11 +280,18 @@ function EditForm(props) {
                                 placeholder="Type of activity done?" 
                                 options={activityTypeOptions}
                                 onChange={(e) => {
-                                    handleEditFieldUpdate('acttypeid', e.value)
-                                    setActivityType(e.value)
+                                    handleEditFieldUpdate('acttypeid', e.value);
+                                    setActivityType(e.value);
+                                    setProjectTypeError();
                                 }}
                                 value={activityType}
+                                className={projectTypeError ? "p-invalid" : ""}
                             />
+                        </div>
+                        <div>
+                            <small id="actprojectid">
+                                {projectTypeError}
+                            </small>
                         </div>
                     </div>
                 </div>
@@ -253,7 +300,7 @@ function EditForm(props) {
                         <div className="flex flex-column gap-2">
                             <label>
                                 <b>
-                                    Performed By:
+                                    Performed By *:
                                 </b>    
                             </label>
                         </div>
@@ -264,16 +311,23 @@ function EditForm(props) {
                                 onChange={(e) => {
                                     handleEditFieldUpdate('rowidperformedby', e.value);
                                     setPerformedBy(e.value);
+                                    setPerformedByError();
                                 }}
                                 value={performedBy}
+                                className={performedByError ? "p-invalid" : ""}
                             />
+                        </div>
+                        <div>
+                            <small id="actprojectid">
+                                {performedByError}
+                            </small>
                         </div>
                     </div>
                     <div className='activity-browse-input-col'>
                         <div className="flex flex-column gap-2">
                             <label>
                                 <b>
-                                    Performed For:
+                                    Performed For *:
                                 </b>
                             </label>
                         </div>
@@ -284,9 +338,16 @@ function EditForm(props) {
                                 onChange={(e) => {
                                     handleEditFieldUpdate('rowidperformedfor', e.value)
                                     setPerformedFor(e.value);
+                                    setPerformedForError();
                                 }}
                                 value={performedFor}
+                                className={performedForError ? "p-invalid" : ""}
                             />
+                        </div>
+                        <div>
+                            <small id="actprojectid">
+                                {performedForError}
+                            </small>
                         </div>
                     </div>
                 </div>
@@ -295,7 +356,7 @@ function EditForm(props) {
                         <div className="flex flex-column gap-2">
                             <label>
                                 <b>
-                                    Status:
+                                    Status *:
                                 </b>
                             </label>
                         </div>
@@ -306,9 +367,16 @@ function EditForm(props) {
                                 onChange={(e) => {
                                     handleEditFieldUpdate('actstatusid', e.value)
                                     setActivityStatus(e.value);
+                                    setProjectStatusError();
                                 }}
-                                value={activityStatus}  
+                                value={activityStatus}
+                                className={projectStatusError ? "p-invalid" : ""}
                             />
+                        </div>
+                        <div>
+                            <small id="actprojectid">
+                                {projectStatusError}
+                            </small>
                         </div>
                     </div>
                     <div className='activity-browse-input-col-3'>
@@ -335,7 +403,7 @@ function EditForm(props) {
                         <div className="flex flex-column gap-2">
                             <label>
                                 <b>
-                                    Completion Date:
+                                    Completion Date *:
                                 </b>    
                             </label>
                         </div>
@@ -345,10 +413,17 @@ function EditForm(props) {
                                 onChange={(e) => {
                                     handleEditFieldUpdate('completiondate', e.value)
                                     setCompletionDate(e.value);
+                                    setCompleteDateError();
                                 }}
                                 value={completionDate}
                                 showIcon
+                                className={completeDateError ? "p-invalid" : ""}
                             />
+                        </div>
+                        <div>
+                            <small id="actprojectid">
+                                {completeDateError}
+                            </small>
                         </div>
                     </div>
                 </div>
@@ -357,7 +432,7 @@ function EditForm(props) {
                         <div className="flex flex-column gap-2">
                             <label>
                                 <b>
-                                    Activity Priority:
+                                    Activity Priority *:
                                 </b>
                             </label>
                         </div>
@@ -368,16 +443,23 @@ function EditForm(props) {
                                 onChange={(e) => {
                                     handleEditFieldUpdate('actpriorityid', e.value)
                                     setPriority(e.value);
+                                    setPriorityError();
                                 }}
                                 value={priority}
+                                className={priorityError ? "p-invalid" : ""}
                             />
+                        </div>
+                        <div>
+                            <small id="actprojectid">
+                                {priorityError}
+                            </small>
                         </div>
                     </div>
                     <div className='activity-browse-input-col'>
                         <div className="flex flex-column gap-2">
                             <label>
                                 <b>
-                                    Total Actual:
+                                    Total Actual *:
                                 </b>
                             </label>
                         </div>
@@ -387,11 +469,18 @@ function EditForm(props) {
                                 onChange={(e) => {
                                     handleEditFieldUpdate('totalactual', e.value)
                                     setActivityTotal(e.value);
+                                    setTotalActualError();
                                 }}
                                 value={activityTotal}
                                 mode="decimal"
                                 maxFractionDigits={2}
+                                className={totalActualError ? "p-invalid" : ""}
                             />
+                        </div>
+                        <div>
+                            <small id="actprojectid">
+                                {totalActualError}
+                            </small>
                         </div>
                     </div>
                 </div>
