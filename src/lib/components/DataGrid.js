@@ -33,13 +33,13 @@ export default function DataGrid(props) {
     let exclusionColumns = props.exclusionColumns ? props.exclusionColumns : ['dataRecordGroup', 'accessibleActions']
     
     // all reacords showing on the table should have at least 'View' access
-    const [menuModel, setMenuModel] = useState([
-        { 
-            label: 'View', 
-            icon: 'pi pi-fw pi-search', 
-            command: () => props.commandActionView ? props.commandActionView(selectedRow) : commandActionHolder(selectedRow) 
-        }
-    ]);
+    const [menuModel, setMenuModel] = useState([]);
+
+
+    const commandActionHolder = (selectedRow) => {
+        // toast.current.show({ severity: 'info', summary: 'Row Command Action Holder', detail: JSON.stringify(selectedRow), life: 2000 });
+        toast.current.show({ severity: 'info', summary: 'Row Command Action Holder', detail: selectedRow ? selectedRow.dataRecordGroup : 'no row data', life: 2000 });
+    }
 
     const menuOptionList =
         props.menuOptionList 
@@ -63,10 +63,20 @@ export default function DataGrid(props) {
             }
         ];
 
-    const commandActionHolder = (selectedRow) => {
-        // toast.current.show({ severity: 'info', summary: 'Row Command Action Holder', detail: JSON.stringify(selectedRow), life: 2000 });
-        toast.current.show({ severity: 'info', summary: 'Row Command Action Holder', detail: selectedRow.dataRecordGroup + ' '+ selectedRow.accessibleActions, life: 2000 });
-    }
+    useEffect(() => {
+        console.log("selectedRow useEffect to setMenuModel");
+        
+                
+        if(selectedRow && selectedRow.accessibleActions && selectedRow.accessibleActions.split('-').length != menuModel.length){
+            console.log(selectedRow);
+            setMenuModel(
+                menuOptionList.filter((ele)=>{
+                    return selectedRow.accessibleActions.split('-').includes(ele.label)
+                })
+            )
+        }
+    }, [selectedRow]);
+    
 
 
     const [rowData, setRowData] = useState(null);
@@ -321,14 +331,16 @@ export default function DataGrid(props) {
 
     // to dynamically add available actions based on selected row's accessibleActions
     const contextMenuSelectionChange = (e) =>{
-        setSelectedRow(e.value);
-        if(e.value.accessibleActions){
-            setMenuModel(
-                menuOptionList.filter((ele)=>{
-                    return e.value.accessibleActions.split('-').includes(ele.label)
-                })
-            )
-        }
+        // console.log(e.value)
+        setSelectedRow(e.value);   
+        // if(e.value && e.value.accessibleActions){
+        //     // console.log(e.value);
+        //     setMenuModel(
+        //         menuOptionList.filter((ele)=>{
+        //             return e.value.accessibleActions.split('-').includes(ele.label)
+        //         })
+        //     )
+        // }
     }
 
 
