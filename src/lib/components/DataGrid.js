@@ -16,6 +16,9 @@ import { MultiSelect } from "primereact/multiselect";
 import { ContextMenu } from 'primereact/contextmenu';
 import { Toast } from 'primereact/toast';
 import { Dialog } from 'primereact/dialog';
+import { InputNumber } from "primereact/inputnumber";
+import { Panel } from "primereact/panel";
+import { Calendar } from 'primereact/calendar';
 import MenuRibbon from "./MenuRibbon";
 
 
@@ -24,6 +27,9 @@ import moment from "moment";
 
 export default function DataGrid(props) {
 
+    // column names that are not going to be displayed
+    // default to orgStructure Management columns
+    let exclusionColumns = props.exclusionColumns ? props.exclusionColumns : ['dataRecordGroup', 'accessibleActions']
 
     const dataTableRef = useRef(null);
     const toast = useRef(null);
@@ -31,8 +37,9 @@ export default function DataGrid(props) {
 
     const [selectedRow, setSelectedRow] = useState(null);
 
-    // column names that are not going to be displayed
-    let exclusionColumns = props.exclusionColumns ? props.exclusionColumns : ['dataRecordGroup', 'accessibleActions']
+    const [selectedRowValue, setSelectedRowValue] = useState({initial:'test'});
+
+    const [productDialog, setProductDialog] = useState(false);
     
     // all reacords showing on the table should have at least 'View' access
     const [menuModel, setMenuModel] = useState([]);
@@ -42,6 +49,16 @@ export default function DataGrid(props) {
         // toast.current.show({ severity: 'info', summary: 'Row Command Action Holder', detail: JSON.stringify(selectedRow), life: 2000 });
         toast.current.show({ severity: 'info', summary: 'Action Holder - ToBeImplemented', detail: selectedRow ? selectedRow.dataRecordGroup : 'no row data', life: 2000 });
     }
+    const commandActionView = (selectedRow) => {
+        // console.log('selectedRow when click view');
+        // console.log(selectedRow);
+        setSelectedRowValue(selectedRow);
+        setProductDialog(true);
+    }
+
+    const hideDialog = () => {
+        setProductDialog(false);
+    };
 
     const menuOptionList =
         props.menuOptionList 
@@ -51,7 +68,7 @@ export default function DataGrid(props) {
             { 
                 label: 'View', 
                 icon: 'pi pi-fw pi-search', 
-                command: () => props.commandActionView ? props.commandActionView(selectedRow) : commandActionHolder(selectedRow) 
+                command: () => props.commandActionView ? props.commandActionView(selectedRow) : commandActionView(selectedRow) 
             },
             { 
                 label: 'Edit', 
@@ -66,16 +83,17 @@ export default function DataGrid(props) {
         ];
 
     useEffect(() => {
-        console.log("selectedRow useEffect to setMenuModel");
+        // console.log("selectedRow useEffect to setMenuModel");
         
                 
         if(selectedRow && selectedRow.accessibleActions && selectedRow.accessibleActions.split('-').length != menuModel.length){
-            console.log(selectedRow);
+            // console.log(selectedRow);
             setMenuModel(
                 menuOptionList.filter((ele)=>{
                     return selectedRow.accessibleActions.split('-').includes(ele.label)
                 })
             )
+           
         }
     }, [selectedRow]);
     
@@ -113,7 +131,7 @@ export default function DataGrid(props) {
     // to monitor and apply any local layout has been selected/set
     // then reload triggered from restoreState() would trigger dataTableSaveLayout, and push new layout data to parent
     useEffect(() => {
-        console.log("layoutMetaUpdate useEffect");
+        // console.log("layoutMetaUpdate useEffect");
         // console.log(layoutMetaUpdate);
         if (dataTableRef.current) {
             dataTableRef.current.restoreState(); // the built-in restoreState() function would trigger re-render layout
@@ -122,7 +140,7 @@ export default function DataGrid(props) {
 
     // to monitor and apply any parent passed in layout 
     useEffect(() => {
-        console.log("parent passed in layoutMeta useEffect");
+        // console.log("parent passed in layoutMeta useEffect");
         // console.log(layoutMetaUpdate);
         setLayoutMetaUpdate(props.layoutMeta);
     }, [props.layoutMeta]);
@@ -332,17 +350,8 @@ export default function DataGrid(props) {
     };
 
     // to dynamically add available actions based on selected row's accessibleActions
-    const contextMenuSelectionChange = (e) =>{
-        // console.log(e.value)
+    const contextMenuSelectionChange = (e) =>{  
         setSelectedRow(e.value);   
-        // if(e.value && e.value.accessibleActions){
-        //     // console.log(e.value);
-        //     setMenuModel(
-        //         menuOptionList.filter((ele)=>{
-        //             return e.value.accessibleActions.split('-').includes(ele.label)
-        //         })
-        //     )
-        // }
     }
 
     const onRowSelect = (rowData) => {
@@ -356,6 +365,198 @@ export default function DataGrid(props) {
     const paginatorLeft = <Button type="button" icon="pi pi-download" text onClick={(e) =>  console.log('left button clicked')} />;
     const paginatorRight = <Button type="button" icon="pi pi-download" text onClick={(e) =>  console.log('right button clicked')} />;
 
+    const productDialogFooter = (
+        <React.Fragment>
+            <Button label="Ok" icon="pi pi-times" outlined onClick={hideDialog} />
+        </React.Fragment>
+    );
+
+    const renderViewDialog = () =>{
+        return (
+            <Dialog visible={productDialog} header="View Record" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
+                <Panel header="Activity Details">
+                    <div className='flex activity-project activity-browse-input-group'>
+                        <div className='activity-browse-input-col'>
+                            <div className="flex flex-column gap-2">
+                                <label>
+                                    <b>
+                                        Activity Project:
+                                    </b>    
+                                </label>
+                            </div>
+                            <div className="p-inputgroup flex-1">
+                                <Dropdown 
+                                    placeholder="What Project?" 
+                                    options={selectedRowValue.activityproject ? [selectedRowValue.activityproject] : []}
+                                    // onChange={(e) => {
+                                    //     handleEditFieldUpdate('actprojectid', e.value)
+                                    //     setActivityProject(e.value);
+                                    // }}
+                                    disabled
+                                    value={selectedRowValue.activityproject}
+                                />
+                            </div>
+                        </div>
+                        <div className='activity-browse-input-col'>
+                            <div className="flex flex-column gap-2">
+                                <label>
+                                    <b>
+                                        Activity Type:
+                                    </b>    
+                                </label>
+                            </div>
+                            <div className="p-inputgroup flex-1">
+                                <Dropdown 
+                                    placeholder="Type of activity done?" 
+                                    options={selectedRowValue.activitytype ? [selectedRowValue.activitytype] : []}
+                                    // onChange={(e) => {
+                                    //     handleEditFieldUpdate('acttypeid', e.value)
+                                    //     setActivityType(e.value)
+                                    // }}
+                                    disabled
+                                    value={selectedRowValue.activitytype}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div className='activity-project activity-browse-input-group flex'>
+                        <div className='activity-browse-input-col'>
+                            <div className="flex flex-column gap-2">
+                                <label>
+                                    <b>
+                                        Performed By:
+                                    </b>    
+                                </label>
+                            </div>
+                            <div className="p-inputgroup flex-1">
+                                <Dropdown 
+                                    placeholder="Who completed this activity?" 
+                                    options={selectedRowValue.performedby ? [selectedRowValue.performedby] : []}
+                                    // onChange={(e) => {
+                                    //     handleEditFieldUpdate('rowidperformedby', e.value);
+                                    //     setPerformedBy(e.value);
+                                    // }}
+                                    disabled
+                                    value={selectedRowValue.performedby}
+                                />
+                            </div>
+                        </div>
+                        <div className='activity-browse-input-col'>
+                            <div className="flex flex-column gap-2">
+                                <label>
+                                    <b>
+                                        Performed For:
+                                    </b>
+                                </label>
+                            </div>
+                            <div className="p-inputgroup flex-1">
+                                <Dropdown 
+                                    placeholder="Who is this activity for?" 
+                                    options={selectedRowValue.performedfor ? [selectedRowValue.performedfor] : []}
+                                    // onChange={(e) => {
+                                    //     handleEditFieldUpdate('rowidperformedfor', e.value)
+                                    //     setPerformedFor(e.value);
+                                    // }}
+                                    disabled
+                                    value={selectedRowValue.performedfor}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex">
+                        <div className='activity-browse-input-col-3'>
+                            <div className="flex flex-column gap-2">
+                                <label>
+                                    <b>
+                                        Status:
+                                    </b>
+                                </label>
+                            </div>
+                            <div className="p-inputgroup flex-1">
+                                <Dropdown 
+                                    placeholder="What is the status of the activity?"
+                                    options={selectedRowValue.status ? [selectedRowValue.status] : []}
+                                    // onChange={(e) => {
+                                    //     handleEditFieldUpdate('actstatusid', e.value)
+                                    //     setActivityStatus(e.value);
+                                    // }}
+                                    disabled
+                                    value={selectedRowValue.status}  
+                                />
+                            </div>
+                        </div>
+                        <div className='activity-browse-input-col-3'>
+                            <div className="flex flex-column gap-2">
+                                <label>
+                                    <b>
+                                        Completion Date:
+                                    </b>    
+                                </label>
+                            </div>
+                            <div className="p-inputgroup flex-1">
+                                <Calendar
+                                    placeholder='When was this activity completed?'
+                                    // onChange={(e) => {
+                                    //     handleEditFieldUpdate('completiondate', e.value)
+                                    //     setCompletionDate(e.value);
+                                    // }}
+                                    disabled
+                                    // value={selectedRowValue.completiondate}
+                                    value={new Date(moment(selectedRowValue.completiondate).format('YYYY-MM-DD'))}
+                                    showIcon
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div className='flex'>
+                        <div className='activity-browse-input-col'>
+                            <div className="flex flex-column gap-2">
+                                <label>
+                                    <b>
+                                        Activity Priority:
+                                    </b>
+                                </label>
+                            </div>
+                            <div className="p-inputgroup flex-1">
+                                <Dropdown
+                                    options={selectedRowValue.priority ? [selectedRowValue.priority] : []}
+                                    placeholder='Urgency of the activity?'
+                                    // onChange={(e) => {
+                                    //     handleEditFieldUpdate('actpriorityid', e.value)
+                                    //     setPriority(e.value);
+                                    // }}
+                                    disabled
+                                    value={selectedRowValue.priority}
+                                />
+                            </div>
+                        </div>
+                        <div className='activity-browse-input-col'>
+                            <div className="flex flex-column gap-2">
+                                <label>
+                                    <b>
+                                        Total Actual:
+                                    </b>
+                                </label>
+                            </div>
+                            <div className="p-inputgroup flex-1">
+                                <InputNumber
+                                    placeholder='How long did this activity take?'
+                                    // onChange={(e) => {
+                                    //     handleEditFieldUpdate('totalactual', e.value)
+                                    //     setActivityTotal(e.value);
+                                    // }}
+                                    disabled
+                                    value={selectedRowValue.totalactual}
+                                    mode="decimal"
+                                    maxFractionDigits={2}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </Panel>
+            </Dialog> 
+        )
+    }
 
     return (
         <>
@@ -478,6 +679,13 @@ export default function DataGrid(props) {
             ) : (
                 <></>
             )}
+
+            {productDialog == true && props.renderViewDialog
+            ? props.renderViewDialog()
+            :
+            productDialog == true
+            ? renderViewDialog()
+            : <></>}
         </>
     );
 }

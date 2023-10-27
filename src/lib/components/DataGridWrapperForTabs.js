@@ -38,7 +38,7 @@ export default function DataGridWrapperForTabs(props) {
             )
             && props.tabKey == currentContentData.tabId
         ){
-            console.log('push rowData update to storage')
+            // console.log('push rowData update to storage')
             contentDataUpdate({ 
                 ...currentContentData,  
                 rowDataForTab: rowData,
@@ -61,7 +61,7 @@ export default function DataGridWrapperForTabs(props) {
             currentContentData && currentContentData.rowDataForTab 
             && currentContentData.rowDataForTab.length>0
         ){
-            console.log("loading existing data from tab context");
+            // console.log("loading existing data from tab context");
 
             setColumnHeaderMap(currentContentData.columnHeaderMapping 
                 ? currentContentData.columnHeaderMapping
@@ -70,7 +70,7 @@ export default function DataGridWrapperForTabs(props) {
             setLoading(false);
         }
         else{
-            console.log("initial fetching data from db");
+            // console.log("initial fetching data from db");
             fetchRowData();
         };
     }, []);
@@ -113,7 +113,7 @@ export default function DataGridWrapperForTabs(props) {
                 // }
                 fetchRowData();
                 // console.log(layoutMetaUpdate);
-                console.log("ClearStateClick");
+                // console.log("ClearStateClick");
                 
                 setLayoutMetaUpdate({
                     first: 0,
@@ -128,7 +128,7 @@ export default function DataGridWrapperForTabs(props) {
 
     const dataTableSaveLayout = (state) => {
 
-        console.log("dataTableSaveLayout");
+        // console.log("dataTableSaveLayout");
         // console.log(state);
         if(
             !(
@@ -151,7 +151,7 @@ export default function DataGridWrapperForTabs(props) {
 
     const dataTableLoadLayout = () => {
         // component only call this on initial loading layoutMeta
-        console.log(" dataTableLoadLayout function");
+        // console.log(" dataTableLoadLayout function");
         // console.log(currentContentData.layoutMeta);
 
         // check if tab context already has layoutMeta
