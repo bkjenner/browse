@@ -15,8 +15,9 @@ export default function DataGridWrapperForTabs(props) {
     const { contentDataUpdate, currentContentData } = useContentProviderContext();
     // Initial State
     // Used whenever we create a new form
-    const initialState = {
-    }
+    const initialState = {}
+
+    const cdl = currentTabDepth;
 
     let recordsNum = 100 + parseInt(moment().local().format("ss"));
     // const dataFetchingRule = `activityBrowse?p_metadata=true&p_pagesize=${recordsNum}`;
@@ -179,7 +180,21 @@ export default function DataGridWrapperForTabs(props) {
         
     }
 
-    const cdl = currentTabDepth;
+    const contextMenuOnEdit = (selectedRowData) =>{
+        if(selectedRowData.id){
+            addNewTab({
+                label: `${selectedRowData.performedby}, ${selectedRowData.uid}`,
+                content: "This is a placeholder edit form",
+                componentType: "EditForm",
+                initialState: initialState,
+                tabs: currentDepthTabs,
+                depth: currentTabDepth,
+                tabId: tabId,
+                currentDepthLevel: cdl,
+                selectedRowId: selectedRowData.id,
+            });
+        }
+    }
 
 
     return (
@@ -234,6 +249,7 @@ export default function DataGridWrapperForTabs(props) {
             <div className="col-12">
                 
                 <DataGrid
+                    commandActionEdit = {contextMenuOnEdit}
                     selfFetchData={false}
                     rowDataValue={rowData} // need a useEffect for rowData to monitor changes and push to storage
                     updateRowData={setRowData} //

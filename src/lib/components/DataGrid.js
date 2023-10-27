@@ -40,7 +40,7 @@ export default function DataGrid(props) {
 
     const commandActionHolder = (selectedRow) => {
         // toast.current.show({ severity: 'info', summary: 'Row Command Action Holder', detail: JSON.stringify(selectedRow), life: 2000 });
-        toast.current.show({ severity: 'info', summary: 'Row Command Action Holder', detail: selectedRow ? selectedRow.dataRecordGroup : 'no row data', life: 2000 });
+        toast.current.show({ severity: 'info', summary: 'Action Holder - ToBeImplemented', detail: selectedRow ? selectedRow.dataRecordGroup : 'no row data', life: 2000 });
     }
 
     const menuOptionList =
