@@ -13,8 +13,9 @@ import { Row } from "primereact/row";
 import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
 import { MultiSelect } from "primereact/multiselect";
-
-
+import { ContextMenu } from 'primereact/contextmenu';
+import { Toast } from 'primereact/toast';
+import { Dialog } from 'primereact/dialog';
 
 
 import moment from "moment";
@@ -23,9 +24,57 @@ export default function DataGrid(props) {
 
 
     const dataTableRef = useRef(null);
+    const toast = useRef(null);
+    const contextMenu = useRef(null);
+
+    const [selectedRow, setSelectedRow] = useState(null);
+
+    // column names that are not going to be displayed
+    let exclusionColumns = props.exclusionColumns ? props.exclusionColumns : ['dataRecordGroup', 'accessibleActions']
+    
+    // all reacords showing on the table should have at least 'View' access
+    const [menuModel, setMenuModel] = useState([
+        { 
+            label: 'View', 
+            icon: 'pi pi-fw pi-search', 
+            command: () => props.commandActionView ? props.commandActionView(selectedRow) : commandActionHolder(selectedRow) 
+        }
+    ]);
+
+    const menuOptionList =
+        props.menuOptionList 
+        ? props.menuOptionList
+        :
+        [
+            { 
+                label: 'View', 
+                icon: 'pi pi-fw pi-search', 
+                command: () => props.commandActionView ? props.commandActionView(selectedRow) : commandActionHolder(selectedRow) 
+            },
+            { 
+                label: 'Edit', 
+                icon: 'pi pi-fw pi-pencil', 
+                command: ()=> props.commandActionEdit ? props.commandActionEdit(selectedRow) : commandActionHolder(selectedRow) 
+            },
+            { 
+                label: 'Delete', 
+                icon: 'pi pi-fw pi-times', 
+                command: () => props.commandActionDelete ? props.commandActionDelete(selectedRow) : commandActionHolder(selectedRow) 
+            }
+        ];
+
+    const commandActionHolder = (selectedRow) => {
+        // toast.current.show({ severity: 'info', summary: 'Row Command Action Holder', detail: JSON.stringify(selectedRow), life: 2000 });
+        toast.current.show({ severity: 'info', summary: 'Row Command Action Holder', detail: selectedRow.dataRecordGroup + ' '+ selectedRow.accessibleActions, life: 2000 });
+    }
+
+
     const [rowData, setRowData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [columnHeaderMap, setColumnHeaderMap] = useState(null);
+
+    // const [columnFromRowData, setColumnData] = useState([]); // all columns as visible column dropdown options
+    // const [visibleColumns, setVisibleColumns] = useState([]);
 
     const [layoutMetaUpdate, setLayoutMetaUpdate] = useState(null); // tie to useEffect to trigger re-render table layout
 
@@ -36,7 +85,7 @@ export default function DataGrid(props) {
             let recordsNum = 100 + parseInt(moment().local().format("ss"));
             // console.log('should fetch ' + recordsNum + ' records');
             axios
-                .get(`/action/${props.fetchRowDataRule ? props.fetchRowDataRule : "activityBrowse"}?p_metadata=true&p_pagesize=${recordsNum}`)
+                .get(`/action/${props.fetchRowDataRule ? props.fetchRowDataRule : `activityBrowse?p_metadata=true&p_pagesize=${recordsNum}`}`)
                 .then((response) => {
                     // // console.log(response.data);
                     let res = response.data && response.data.activities ? response.data.activities : response.data;
@@ -84,7 +133,6 @@ export default function DataGrid(props) {
             delete e.value.tableWidth;
         }
         setSelectedLayout(e.value); // for dropDown itselt to display selected option
-
         // the useEffect would trigger layout re-load based on data in layoutMetaUpdate
         setLayoutMetaUpdate(e.value); 
 
@@ -197,20 +245,28 @@ export default function DataGrid(props) {
 
     const renderDynamicColumns = (rowDataValue,columnHeaderMap) => {
 
+        // console.log(rowDataValue);
+
         let columnObjectArray = getColumnsThroughLoopArrayJSON(rowDataValue, columnHeaderMap);
+
+        // setColumnData(columnObjectArray);
 
         let columns = [];
 
         columnObjectArray.forEach((ele) => {
-            columns.push(
-                <Column
-                    key={ele.key}
-                    field={ele.field}
-                    header={ele.header}
-                    sortable
-                    body={columnBodyFormatter} // using default parameters: (data: any, options: ColumnBodyOptions)
-                ></Column>,
-            );
+            if(
+                !exclusionColumns.includes(ele.key)
+            ){
+                columns.push(
+                    <Column
+                        key={ele.key}
+                        field={ele.field}
+                        header={ele.header}
+                        sortable
+                        body={columnBodyFormatter} // using default parameters: (data: any, options: ColumnBodyOptions)
+                    ></Column>,
+                );
+            }
         });
 
         return columns;
@@ -218,7 +274,7 @@ export default function DataGrid(props) {
 
     const dataTableSaveLayout = (state) => {
         // passed in parameter state is the layout that table currently is showing
-        console.log("local dataTableSaveLayout function");
+        // console.log("local dataTableSaveLayout function");
 
         layoutMeta = state;
         props.dataTableSaveLayout(state);
@@ -232,8 +288,8 @@ export default function DataGrid(props) {
     const dataTableLoadLayout = () => {
         // also handles the initial loading layoutMeta
         
-        console.log("local dataTableLoadLayout function");
-        console.log(layoutMetaUpdate);
+        // console.log("local dataTableLoadLayout function");
+        // console.log(layoutMetaUpdate);
         // dataTableRef.current.restoreColumnWidths(); 
 
         // if a load function is passed in  
@@ -257,16 +313,28 @@ export default function DataGrid(props) {
         if(props.updateRowData && props.rowDataValue){
             props.updateRowData(e.value);
         }
-
-        // // row data directly to table
-        // setRowData(e.value);
-        
-        
+        else{
+            // save row data directly to table
+            setRowData(e.value);
+        }
     };
+
+    // to dynamically add available actions based on selected row's accessibleActions
+    const contextMenuSelectionChange = (e) =>{
+        setSelectedRow(e.value);
+        if(e.value.accessibleActions){
+            setMenuModel(
+                menuOptionList.filter((ele)=>{
+                    return e.value.accessibleActions.split('-').includes(ele.label)
+                })
+            )
+        }
+    }
 
 
     const paginatorLeft = <Button type="button" icon="pi pi-download" text onClick={(e) =>  console.log('left button clicked')} />;
     const paginatorRight = <Button type="button" icon="pi pi-download" text onClick={(e) =>  console.log('right button clicked')} />;
+
 
     return (
         <>
@@ -288,7 +356,14 @@ export default function DataGrid(props) {
             <br></br>
             <div className="col-12">
                 <div className="card">
+                    <Toast ref={toast} />
+                    <ContextMenu model={menuModel} ref={contextMenu} onHide={() => setSelectedRow(null)} />
+
                     <DataTable
+                        onContextMenu={(e) => contextMenu.current.show(e.originalEvent)}
+                        contextMenuSelection={selectedRow} 
+                        onContextMenuSelectionChange={contextMenuSelectionChange}
+
                         ref={dataTableRef}
                         value={
                             props.selfFetchData == true
@@ -300,6 +375,7 @@ export default function DataGrid(props) {
                             ? loading
                             : props.loading
                         }
+                        // header={header}
                         emptyMessage={props.emptyMessage ? props.emptyMessage : "No Record Found."}
                         dataKey={props.dataKey ? props.dataKey : "id"}
                         // DataTable re-order rows by saving RowData array in that order, disabled when column sorting is on
@@ -328,11 +404,20 @@ export default function DataGrid(props) {
                         // or directly call restoreState() to re-render layout
                         customRestoreState={dataTableLoadLayout}
                     >
-                        <Column rowReorder style={{ width: "1rem" }} frozen />
+                        {
+                            props.tableOtherProps && props.tableOtherProps.reorderableRows == true
+                            ? <Column rowReorder style={{ width: "1rem" }} frozen />
+                            : null
+                        }
                         {
                             props.selfFetchData == true
                             ? renderDynamicColumns(rowData, columnHeaderMap)
                             :renderDynamicColumns(props.rowDataValue, props.columnHeaderMap)
+                        }
+                        {
+                            props.tableOtherProps && props.tableOtherProps.editMode == "row" // @TODO need to set "editor" props on every column
+                            ? <Column rowEditor headerStyle={{  minWidth: '5rem' }} bodyStyle={{ textAlign: 'center' }}></Column>
+                            : null
                         }
                     </DataTable>
                 </div>

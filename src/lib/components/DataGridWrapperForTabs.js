@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 
 import axios from "axios";
 import { Button } from "primereact/button";
-import { MultiSelect } from "primereact/multiselect";
 
 import  DataGrid  from "./DataGrid.js";
 import { useTabsWrapperContext } from "./TabsWrapper.js";
@@ -19,15 +18,14 @@ export default function DataGridWrapperForTabs(props) {
     const initialState = {
     }
 
+    let recordsNum = 100 + parseInt(moment().local().format("ss"));
+    // const dataFetchingRule = `activityBrowse?p_metadata=true&p_pagesize=${recordsNum}`;
+    const dataFetchingRule = `commandGroupAccessTest?p_metadata=true&p_pagesize=${recordsNum}&dataFetchRule=activityBrowse`;
+
 
     const [rowData, setRowData] = useState(null);
     const [columnHeaderMap, setColumnHeaderMap] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [columnFromRowData, setColumnData] = useState([]);
-    const [visibleColumns, setVisibleColumns] = useState([]);
-
-
-
 
     const [layoutMetaUpdate, setLayoutMetaUpdate] = useState({}); // tie to useEffect to trigger re-render table layout
 
@@ -77,9 +75,9 @@ export default function DataGridWrapperForTabs(props) {
     }, []);
 
     const fetchRowData = () => {
-        let recordsNum = 100 + parseInt(moment().local().format("ss"));
+        
         // console.log('should fetch ' + recordsNum + ' records');
-        axios.get(`/action/activityBrowse?p_metadata=true&p_pagesize=${recordsNum}`).then((response) => {
+        axios.get(`/action/${dataFetchingRule}`).then((response) => {
             // // console.log(response.data);
             let res = response.data && response.data.activities ? response.data.activities : response.data;
             let columnHeaderMapping = response.data && response.data.metadata ? response.data.metadata : [];
@@ -125,38 +123,6 @@ export default function DataGridWrapperForTabs(props) {
             }}
         />
     );
-    const onColumnToggle = (event) => {
-        // @TODO
-        // // console.log(columnFromRowData);
-        let selectedColumns = event.value;
-        // // console.log(selectedColumns);
-        let orderedSelectedColumns = columnFromRowData.filter((col) => selectedColumns.some((sCol) => sCol.field === col.field));
-
-        setVisibleColumns(orderedSelectedColumns);
-    };
-
-    const header = (
-        <>
-            {/* <div className="flex align-items-center justify-content-start gap-2" >
-                <Button type="button" icon="pi pi-file" rounded onClick={() => exportCSV(false)} data-pr-tooltip="CSV" />
-                <Button type="button" icon="pi pi-file-excel" severity="success" rounded onClick={exportExcel} data-pr-tooltip="XLS" />
-                <Button type="button" label="Save" icon="pi pi-check" onClick={saveLayout} />
-                <br/>
-            </div> */}
-            <MultiSelect
-                value={visibleColumns}
-                options={columnFromRowData}
-                optionLabel="header"
-                onChange={onColumnToggle}
-                className="w-full sm:w-20rem"
-                display="chip"
-            />
-        </>
-    );
-
-
-
-
 
 
     const dataTableSaveLayout = (state) => {
@@ -269,11 +235,12 @@ export default function DataGridWrapperForTabs(props) {
                     dataTableLoadLayout={dataTableLoadLayout} // when initial load/mount, call this to check and fetch if there are stored layout
                     stateStorage='custom'
                     
-                    fetchRowDataRule="activityBrowse" // in case component needs a data refresh
+                    fetchRowDataRule={dataFetchingRule} // in case component needs a data refresh
                     
                     // props directly passed into PrimeReact DataTable component
                     // see https://primereact.org/datatable/#api.DataTable.props for more info
                     tableOtherProps={{
+                        // editMode:"row",
                         showGridlines: true,
                         scrollable: true,
                         reorderableColumns: true,

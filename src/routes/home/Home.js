@@ -34,9 +34,6 @@ export default function Home() {
             <div className={navigationVisible ? "col-10 col-offset-2" : "col-12"}>
                 {component == "ActivityBrowse" ? <TabInterface /> : <>Error</>}
             </div>
-            <div className={navigationVisible ? "col-10 col-offset-2" : "col-12"}>
-                {component == "DataGrid" ? <DataGrid selfFetchData={true}/> : <>Error</>}
-            </div>
         </div>
     );
 }
