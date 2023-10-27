@@ -11,8 +11,8 @@ Rules.prototype.primeReactTableFetchLayout = function (input) {
                     value: JSON.parse(list[k]),
                 });
             }
-            
-            resolve(_.orderBy(res, ['name'], ['desc']))
-        })
+
+            resolve(_.orderBy(res, ["name"], ["desc"]));
+        });
     });
 };

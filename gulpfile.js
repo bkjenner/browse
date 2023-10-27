@@ -53,6 +53,13 @@ function compileRules() {
         .pipe(dest("./src/lib/rules/"));
 }
 
+function compileSchemas() {
+    return src(["./src/lib/schemas/prototype.js", "./src/lib/schemas/*.js", "!./src/lib/schemas/index.js"])
+        .pipe(concat("index.js"))
+        .pipe(strip())
+        .pipe(dest("./src/lib/schemas/"));
+}
+
 function compileReducers() {
     return src(["./src/lib/reducers/*", "!./src/lib/reducers/index.js"])
         .pipe(concat("index.js"))
@@ -191,8 +198,9 @@ function watchLogicAndReducers() {
     watch(["./src/lib/reducers/*.js", "!./src/lib/reducers/index.js"], compileReducers);
 }
 
-function watchRules() {
+function watchRulesAndSchemas() {
     watch(["./src/lib/rules/*.js", "!./src/lib/rules/index.js"], compileRules);
+    watch(["./src/lib/schemas/*.js", "!./src/lib/schemas/index.js"], compileSchemas);
 }
 
 function replaceFiles(cb) {
@@ -461,4 +469,4 @@ exports.buildProd = series(
     commit,
 );
 
-exports.default = series(compileRules, watchRules);
+exports.default = series(compileRules, compileSchemas, watchRulesAndSchemas);

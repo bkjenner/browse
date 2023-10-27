@@ -14,7 +14,7 @@ export default function SideMenu(props) {
 
     return (
         <div className="card flex justify-content-center">
-            <Sidebar appendTo="self" position="left" visible={props.visible} modal={false} showCloseIcon={false}>
+            <Sidebar appendTo="self" position="left" visible={props.visible} modal={false} showCloseIcon={false} onHide={() => {}}>
                 <ListBox
                     itemTemplate={Item}
                     value={props.value}

@@ -16,6 +16,8 @@ import { MultiSelect } from "primereact/multiselect";
 import { ContextMenu } from 'primereact/contextmenu';
 import { Toast } from 'primereact/toast';
 import { Dialog } from 'primereact/dialog';
+import MenuRibbon from "./MenuRibbon";
+
 
 
 import moment from "moment";
@@ -343,6 +345,13 @@ export default function DataGrid(props) {
         // }
     }
 
+    const onRowSelect = (rowData) => {
+        if(props.onRowSelect) {
+            props.onRowSelect(rowData);
+        }
+
+        
+    }
 
     const paginatorLeft = <Button type="button" icon="pi pi-download" text onClick={(e) =>  console.log('left button clicked')} />;
     const paginatorRight = <Button type="button" icon="pi pi-download" text onClick={(e) =>  console.log('right button clicked')} />;
@@ -371,6 +380,7 @@ export default function DataGrid(props) {
                     <Toast ref={toast} />
                     <ContextMenu model={menuModel} ref={contextMenu} onHide={() => setSelectedRow(null)} />
 
+                    <MenuRibbon />
                     <DataTable
                         onContextMenu={(e) => contextMenu.current.show(e.originalEvent)}
                         contextMenuSelection={selectedRow} 
@@ -415,6 +425,8 @@ export default function DataGrid(props) {
                         // run only on initial Mount ( mapped inside a useEffect(...,[]) )
                         // or directly call restoreState() to re-render layout
                         customRestoreState={dataTableLoadLayout}
+                        selectionMode='single'
+                        onRowSelect={(e) => onRowSelect(e.data)}
                     >
                         {
                             props.tableOtherProps && props.tableOtherProps.reorderableRows == true

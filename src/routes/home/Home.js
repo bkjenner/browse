@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { SideMenu } from "lib/components";
-import { TabsWrapper } from "lib/components/TabsWrapper";
+import SideMenu from "lib/components/SideMenu";
 import TabInterface from "lib/components/TabInterface";
 import DataGrid from "lib/components/DataGrid";
 import { Button } from "primereact/button";
@@ -16,16 +15,12 @@ export default function Home() {
             label: "Activity Browse",
             icon: "pi pi-calendar-times",
         },
-        {
-            key: "DataGrid",
-            label: "Stand Alone DataGrid",
-            icon: "pi pi-calendar-times",
-        },
     ];
 
+
     return (
-        <div className="grid flex-grow-1 flex-direction-col">
-            <div className="col-1 col-offset-2">
+        <div className={"grid flex-grow-1 flex-direction-col root-container"}>
+            <div className={navigationVisible ? "col-1 col-offset-2" : "col-12"}>
                 <Button type="button" icon="pi pi-bars outlined" onClick={() => setNavigationVisible(!navigationVisible)} />
             </div>
             <div className="col-3 h-full">

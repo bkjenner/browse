@@ -1,5 +1,6 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CircularDependencyPlugin = require("circular-dependency-plugin");
 
 module.exports = {
     context: __dirname,
@@ -59,7 +60,7 @@ module.exports = {
             {
                 test: /\.(docx|pdf|png|jpg)$/,
                 include: [path.resolve(__dirname, "src/assets")],
-                use: ["file-loader"],
+                type: "asset/resource",
             },
             {
                 test: /\.css$/,

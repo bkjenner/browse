@@ -163,8 +163,21 @@ export default function DataGridWrapperForTabs(props) {
         }
     };
 
+    const onRowSelect = (rowData) => {
+        // Update the content context with the new data as selected Row
+        // Then in MenuBar look in form context for selected Row
+        // Open new edit tab with the selectedRow information
+        // Use axios to fetch the data based on selectedRow Information
+        let contentCopy = {...currentContentData};
+        contentDataUpdate({
+            ...contentCopy,
+            selectedRowId: rowData.id,
+            tabId: currentContentData.tabId,
+            selectedRowTitle: `${rowData.performedby}, ${rowData.uid}`,
+        })
 
-   
+        
+    }
 
     const cdl = currentTabDepth;
 
@@ -219,6 +232,7 @@ export default function DataGridWrapperForTabs(props) {
             </div>
 
             <div className="col-12">
+                
                 <DataGrid
                     selfFetchData={false}
                     rowDataValue={rowData} // need a useEffect for rowData to monitor changes and push to storage
@@ -262,6 +276,7 @@ export default function DataGridWrapperForTabs(props) {
                     saveLayoutRule="primeReactTableSaveLayout"
                     showLoadLayoutDropDown={true}
                     loadLayoutRule="primeReactTableFetchLayout"
+                    onRowSelect={onRowSelect}
                 />
             </div>
         </div>
