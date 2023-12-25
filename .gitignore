@@ -1,8 +1,0 @@
-node_modules/
-app/
-src/lib/rules/index.js
-src/lib/schemas/index.js
-src/lib/data/models/index.js
-log/errors.log
-log/requests/*.json
-*.DS_Store
